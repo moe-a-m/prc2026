@@ -1,0 +1,4 @@
+ds,n,n_id,n_distinct,n_nonintegral,mn,mx,n_flight_id,n_flight_distinct
+train,4167797,4167797,4167797,0.0,181979889.0,202064541.0,4136867,3821595
+rank,689534,689534,689534,0.0,202180234.0,213827173.0,682842,631919
+train∩rank ids,0,,,,,,,
