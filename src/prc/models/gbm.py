@@ -59,14 +59,16 @@ def target_encode(df: pd.DataFrame, fit_mask: np.ndarray, keys_list, group: pd.S
     rows get values from all fit rows. Groups are months, so no row ever sees its own month's targets."""
     out = pd.DataFrame(index=df.index)
     fit = df[fit_mask]
-    stat = "median" if q is None else (lambda s: s.quantile(q))
+    def agg(frame):  # native groupby median/quantile (a lambda in .agg is ~70x slower; identical values)
+        g = frame.groupby(keys, dropna=False).y
+        v = g.median() if q is None else g.quantile(q)
+        return pd.concat([v.rename("median"), g.size().rename("size")], axis=1).reset_index()
     for keys in keys_list:
         name = ("te_" if q is None else f"te_q{int(round(q * 100)):02d}_") + "_".join(keys)
         med = np.full(len(df), np.nan)
         cnt = np.zeros(len(df))
         # rows outside the fit set: statistics from all fit rows
-        g = fit.groupby(keys, dropna=False).y.agg([stat, "size"]).reset_index()
-        g.columns = keys + ["median", "size"]
+        g = agg(fit)
         m = df.loc[~fit_mask, keys].merge(g, on=keys, how="left")
         med[~fit_mask] = m["median"].to_numpy()
         cnt[~fit_mask] = m["size"].fillna(0).to_numpy()
@@ -74,8 +76,7 @@ def target_encode(df: pd.DataFrame, fit_mask: np.ndarray, keys_list, group: pd.S
         for mo in group[fit_mask].unique():
             src = fit_mask & (group != mo).to_numpy()
             dst = fit_mask & (group == mo).to_numpy()
-            g = df[src].groupby(keys, dropna=False).y.agg([stat, "size"]).reset_index()
-            g.columns = keys + ["median", "size"]
+            g = agg(df[src])
             m = df.loc[dst, keys].merge(g, on=keys, how="left")
             med[dst] = m["median"].to_numpy()
             cnt[dst] = m["size"].fillna(0).to_numpy()
