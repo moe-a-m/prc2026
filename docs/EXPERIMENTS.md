@@ -22,6 +22,7 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 
 | EXP-012 | 2026-10-02 | seed spread of EXP-011 config | 53dfd848e02d | 21cccc0 | configs/gbm.yaml 9d3708f71e72 | 7, 99 (avg) | 369.29 | 414.73 | 395.10 | noise estimate: single seeds Jan 366.0/372.8/374.8, Jul 397.3/414.9/417.8. Non-LIRF airports stable within ~2 s; spread is LIRF tail. Decide on non-LIRF + y≤3h RMSE, ≥3 seeds for full RMSE |
 | EXP-021 | 2026-10-02 | explicit calibrated echo hedge beats the GBM's implicit hedge (M-014) | 53dfd848e02d | 45f27da | post-processing of EXP-012 hold-out preds; rule p_echo≥0.2 → only LIRF-unmatched | (EXP-012) | 364.24 | 404.42 | — | kept: paired with EXP-012 (same base preds), −5.1 Jan / −10.3 Jul; y≤3h unchanged |
+| EXP-018 | 2026-10-02 | METAR weather (M-012) improves taxi-out, esp. snow airports | 53dfd848e02d | fc25804 | EXP-011 + 23 wx features, config f47c0c73b81d | 42 | 369.58 | 397.63 | 385.36 | kept: paired vs EXP-011 (seed 42) non-LIRF y≤3h −2.0 Jan / −2.2 Jul; EDDM −8.5/−5.5, LTFM −6.3/−3.7, EGLL +4.4/+1.8. Jan-2026 snowier than training → likely larger effect on the scored set |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).
