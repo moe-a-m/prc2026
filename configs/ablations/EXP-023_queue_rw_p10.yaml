@@ -1,0 +1,8 @@
+# M-015 same-runway queue counts + M-016 stand×runway P10 unimpeded reference, added to EXP-011 inputs.
+base: configs/gbm.yaml
+exp_id: EXP-023
+title: EXP-011 + same-runway queue counts (M-015) + P10 unimpeded reference (M-016)
+extra_tables: [feat_dep_queue_rw]
+add_numeric: [n_rw_takeoffs_since_aobt3, n_rw_landings_since_aobt3, n_rw_takeoffs_since_sched]
+te_quantiles:
+  0.1: [[airport, stand, runway], [airport, stand], [airport, runway]]

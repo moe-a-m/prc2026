@@ -23,8 +23,10 @@ def frame(con):
     c.execute("DETACH src")
     for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
         db.run_stage(c, stage, verbose=False, prefix=prefix)
-    df = c.sql("SELECT * FROM feat_dep LEFT JOIN feat_dep_wx USING (mvt_id) LEFT JOIN feat_dep_nm USING (mvt_id) "
-               "ORDER BY mvt_id").df()
+    side = [t for (t,) in c.sql("SELECT table_name FROM duckdb_tables() WHERE table_name LIKE 'feat_dep_%' "
+                                "AND table_name <> 'feat_dep_base' ORDER BY 1").fetchall()]
+    df = c.sql("SELECT * FROM feat_dep " + " ".join(f"LEFT JOIN {t} USING (mvt_id)" for t in side)
+               + " ORDER BY mvt_id").df()
     c.close()
     df["ap_runway"] = df.airport + "_" + df.runway.fillna("NA")
     df["ap_stand"] = df.airport + "_" + df.stand.fillna("NA")
@@ -39,11 +41,14 @@ def test_slice_has_train_and_rank(frame):
 
 def test_fit_predict_end_to_end(frame):
     cfg = gbm.load_config("configs/ablations/EXP-018_weather.yaml")
+    cfg["numeric"] += ["n_rw_takeoffs_since_aobt3", "n_rw_takeoffs_since_sched", "d_aobt3_minus_default"]
+    cfg["te_quantiles"] = {0.1: [["airport", "stand", "runway"]]}
     cfg["num_boost_round"] = 20
     cfg["params"] = dict(cfg["params"], min_data_in_leaf=5, num_leaves=15, min_data_per_group=5)
     tr = (frame.ds == "train").to_numpy()
     X = gbm.design(frame, cfg, tr)
     assert list(X.columns[: len(cfg["numeric"])]) == cfg["numeric"]
+    assert "te_q10_airport_stand_runway" in X and "te_q10_airport_stand_runway_n" not in X
     # OOF encodings: a training row never sees its own month
     assert X.loc[tr, "te_airport_stand_runway_n"].max() < tr.sum()
     b = gbm.fit(X[tr], frame.y[tr].to_numpy(float), cfg, seed=1)
