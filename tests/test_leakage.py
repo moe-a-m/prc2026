@@ -22,7 +22,8 @@ def build(blank_dep_labels: bool) -> pd.DataFrame:
     con.execute("DETACH src")
     for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
         db.run_stage(con, stage, verbose=False, prefix=prefix)
-    df = con.sql("SELECT * FROM feat_dep JOIN feat_dep_wx USING (mvt_id) ORDER BY mvt_id").df()
+    df = con.sql("SELECT * FROM feat_dep JOIN feat_dep_wx USING (mvt_id) LEFT JOIN feat_dep_nm USING (mvt_id) "
+                 "ORDER BY mvt_id").df()
     con.close()
     return df
 

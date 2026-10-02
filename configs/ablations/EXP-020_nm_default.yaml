@@ -1,0 +1,6 @@
+# M-004 refinement: NM default-taxi detection features (sql/30_features/05_feat_dep_nm.sql).
+base: configs/gbm.yaml
+exp_id: EXP-020
+title: EXP-011 + NM default-taxi features
+extra_tables: [feat_dep_nm]
+add_numeric: [nm_default_min, nm_default_share, d_aobt3_minus_default, aobt3_at_default]

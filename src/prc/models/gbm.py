@@ -37,10 +37,11 @@ def load_config(path):
     return cfg
 
 
-def load_frame(weather: bool = False) -> pd.DataFrame:
+def load_frame(weather: bool = False, extra: tuple = ()) -> pd.DataFrame:
+    """feat_dep joined with optional side tables (feat_dep_wx when weather, plus `extra` table names)."""
     con = db.connect(read_only=True)
-    sql = ("SELECT * FROM feat_dep LEFT JOIN feat_dep_wx USING (mvt_id) ORDER BY mvt_id" if weather
-           else "SELECT * FROM feat_dep ORDER BY mvt_id")
+    tables = (["feat_dep_wx"] if weather else []) + list(extra)
+    sql = "SELECT * FROM feat_dep " + " ".join(f"LEFT JOIN {t} USING (mvt_id)" for t in tables) + " ORDER BY mvt_id"
     df = con.sql(sql).df()
     con.close()
     df["ap_runway"] = df.airport + "_" + df.runway.fillna("NA")
@@ -125,7 +126,7 @@ def fit(X, y, cfg, seed):
 
 def validate(cfg, seeds=None):
     t0 = time.time()
-    df = load_frame(cfg.get("weather", False))
+    df = load_frame(cfg.get("weather", False), tuple(cfg.get("extra_tables", [])))
     print(f"  loaded {len(df)} rows ({time.time() - t0:.0f}s)", flush=True)
     tr_all = (df.ds == "train").to_numpy()
     seeds = seeds or [cfg["seed"]]
@@ -166,7 +167,7 @@ def validate(cfg, seeds=None):
 
 def train_and_predict(cfg, seeds=None):
     """Fit on all 2025 (target encodings leave-one-month-out), predict the ranking set, save models + preds."""
-    df = load_frame(cfg.get("weather", False))
+    df = load_frame(cfg.get("weather", False), tuple(cfg.get("extra_tables", [])))
     tr = (df.ds == "train").to_numpy()
     rk = (df.ds == "rank").to_numpy()
     X = design(df, cfg, tr)
