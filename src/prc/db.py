@@ -11,6 +11,10 @@ def connect(path: Path | str = DB, read_only: bool = False) -> duckdb.DuckDBPyCo
     con = duckdb.connect(str(path), read_only=read_only)
     con.execute("SET TimeZone = 'UTC'")
     con.execute(f"SET file_search_path = '{ROOT}'")
+    try:
+        con.execute("LOAD spatial")
+    except duckdb.Error:
+        pass  # only needed by sql/40_adsb; `INSTALL spatial` once (README)
     return con
 
 
@@ -18,9 +22,22 @@ def sql_files(stage: str) -> list[Path]:
     return sorted((SQL / stage).glob("*.sql"))
 
 
+def _requires_ok(sql_text: str) -> bool:
+    """`-- requires-glob: <pattern>` header lines: skip the file when no file matches (optional external data)."""
+    for line in sql_text.splitlines():
+        if line.startswith("-- requires-glob:"):
+            if not list(ROOT.glob(line.split(":", 1)[1].strip())):
+                return False
+    return True
+
+
 def run_stage(con, stage: str, verbose: bool = True, prefix: str = "") -> None:
     for f in sql_files(stage):
         if prefix and not f.name.startswith(prefix):
+            continue
+        if not _requires_ok(f.read_text()):
+            if verbose:
+                print(f"  {f.relative_to(ROOT)}  (skipped: required external files absent)")
             continue
         t0 = datetime.now()
         con.execute(f.read_text())

@@ -20,8 +20,8 @@ ingest: verify-raw
 clean:
 	$(PY) -m prc.pipeline 20_clean
 
-features:
-	$(PY) -m prc.pipeline 30_features
+features:       ## all feature SQL; sql/40_adsb runs only when adsb.lol extracts exist
+	$(PY) -m prc.pipeline 30_features 40_adsb
 
 baselines:
 	$(PY) -m prc.models.baselines

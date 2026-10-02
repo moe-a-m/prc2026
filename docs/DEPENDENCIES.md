@@ -13,6 +13,7 @@ installed package metadata (`importlib.metadata`) on 2026-10-02. All are GPLv3-c
 | lightgbm | 4.7.0 | MIT | gradient-boosted trees (P3) |
 | catboost | 1.2.10 | Apache-2.0 | gradient-boosted trees, second family (P3/P5) |
 | pyyaml | 6.0.3 | MIT | run configs in `configs/*.yaml` |
+| duckdb spatial extension | built for duckdb 1.5.6 (`INSTALL spatial` from extensions.duckdb.org) | MIT | ST_Distance_Sphere for ADS-B taxi distance; axis order (lat, lon) verified on EDDF 07C–25C (3,980 m vs 4,000 m published) |
 | tabulate | 0.10.0 | MIT | markdown tables in `reports/checks/` (pandas `to_markdown`) |
 | torch | 2.14.1+cpu | Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND MIT (all GPLv3-compatible) | neural tabular model (M-013); CPU wheel from the explicit `pytorch-cpu` uv index |
 | orjson | 3.12.0 | MPL-2.0 AND (Apache-2.0 OR MIT) | fast JSON parsing of adsb.lol traces (8 vs 3 MB/s) |
