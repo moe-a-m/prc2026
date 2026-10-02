@@ -3,7 +3,9 @@
 | id | name | card | status |
 |---|---|---|---|
 | challenge | PRC Data Challenge 2026 training / ranking / submitting parquet files | (this page, below) | in use |
-| iem_metar | METAR, IEM ASOS archive (public domain) | [iem_metar.md](data_sources/iem_metar.md) | fetched 2026-10-02; evaluated in EXP-018 |
+| iem_metar | METAR, IEM ASOS archive (public domain) | [iem_metar.md](data_sources/iem_metar.md) | fetched 2026-10-02; kept (EXP-018) |
+| adsblol | adsb.lol globe_history, ODbL-1.0 | [adsblol.md](data_sources/adsblol.md) | downloading since 2026-10-02 (124 days, stream-extract) |
+| ourairports | OurAirports runways/airports (public domain) | [ourairports.md](data_sources/ourairports.md) | fetched 2026-10-02 |
 
 Candidates not yet used: see the CLAUDE.md §4 ledger.
 
@@ -23,3 +25,6 @@ Candidates not yet used: see the CLAUDE.md §4 ledger.
 - Challenge data: EUROCONTROL PRC Data Challenge 2026 (movements: airport APDF; flight data: EUROCONTROL NM).
 - Weather observations: Iowa Environmental Mesonet (IEM), Iowa State University, ASOS/METAR archive,
   https://mesonet.agron.iastate.edu/ (public domain).
+- Contains information from adsb.lol globe_history, which is made available here under the Open Database License
+  (ODbL), https://github.com/adsblol/globe_history_2025, https://opendatacommons.org/licenses/odbl/1.0/.
+- Airport/runway data: OurAirports (public domain), https://ourairports.com/data/.
