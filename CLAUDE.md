@@ -7,7 +7,7 @@ reproducible ML model that predicts departure taxi-out time at 10 European airpo
 and to produce valid submissions for the PRC Data Challenge 2026.
 
 Facts below marked **[site]** were read from the official site on 2026-10-02.
-Facts marked **[forum]** come from `docs/references/forum_2026-10-02.md` (the
+Facts marked **[forum]** come from `docs/references/forum_discussion.md` (the
 `#prc-data-competition` channel). forum facts from participants are **hypotheses
 to verify on our data**, not truths. Facts from the organizer (`organizer`) are rulings.
 
