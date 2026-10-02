@@ -19,3 +19,5 @@ data/external/iem_metar/raw/LSZH_2024-12-30_2026-01-03.csv,3593010,8a6675410e925
 data/external/iem_metar/raw/LSZH_2025-12-30_2026-08-03.csv,2061043,0d6b55bc8a16e47612a2a974cf72a4fdd6b961b4dcb4d4426539ddeba5776411,2026-10-02T12:27:47+00:00,iem_metar
 data/external/iem_metar/raw/LTFM_2024-12-30_2026-01-03.csv,4941903,dd18365b7f37fd47bded32c18beda48a3029d2075942cf48ee7440f12d91f7ee,2026-10-02T12:25:59+00:00,iem_metar
 data/external/iem_metar/raw/LTFM_2025-12-30_2026-08-03.csv,2876544,c763d466293b2a6ecabf5b54e737a3905d899e9b6eff6a22d49c5a9fb63f070a,2026-10-02T12:28:00+00:00,iem_metar
+data/external/ourairports/raw/airports.csv,12734388,197c68d0520b01c35f03c7fa15bf3467bf8ed788b3ed5a128e86eccebf4465ef,2026-10-02T13:42:33+00:00,ourairports
+data/external/ourairports/raw/runways.csv,3966864,c1f34a692be3fde018f82b2ebe8b2f3e427684f6cec4d2437d547321009bb7e7,2026-10-02T13:42:36+00:00,ourairports
