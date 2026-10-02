@@ -23,7 +23,8 @@ def frame(con):
     c.execute("DETACH src")
     for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
         db.run_stage(c, stage, verbose=False, prefix=prefix)
-    df = c.sql("SELECT * FROM feat_dep LEFT JOIN feat_dep_wx USING (mvt_id) ORDER BY mvt_id").df()
+    df = c.sql("SELECT * FROM feat_dep LEFT JOIN feat_dep_wx USING (mvt_id) LEFT JOIN feat_dep_nm USING (mvt_id) "
+               "ORDER BY mvt_id").df()
     c.close()
     df["ap_runway"] = df.airport + "_" + df.runway.fillna("NA")
     df["ap_stand"] = df.airport + "_" + df.stand.fillna("NA")
@@ -47,4 +48,14 @@ def test_fit_predict_end_to_end(frame):
     assert X.loc[tr, "te_airport_stand_runway_n"].max() < tr.sum()
     b = gbm.fit(X[tr], frame.y[tr].to_numpy(float), cfg, seed=1)
     p = b.predict(X[~tr])
+    assert len(p) == (~tr).sum() and np.isfinite(p).all()
+
+
+def test_nn_fit_predict_end_to_end(frame):
+    from prc.models import nn as tabnn
+    cfg = gbm.load_config("configs/nn.yaml")
+    cfg["nn"] = dict(cfg["nn"], epochs=1, hidden=[16], batch_size=256, min_count=1, threads=1)
+    tr = (frame.ds == "train").to_numpy()
+    X = gbm.design(frame, cfg, tr)
+    (p,) = tabnn.train_predict(X[tr], frame.y[tr].to_numpy(float), [X[~tr]], cfg, seed=1)
     assert len(p) == (~tr).sum() and np.isfinite(p).all()

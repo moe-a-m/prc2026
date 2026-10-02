@@ -94,3 +94,18 @@ Hypotheses (each to be measured by ablation, CLAUDE.md §6):
 - (d) a participant, 24/09/2026 (item 34) uses weather (rank 3); a participant, 28/09/2026 (item 63): METAR barely moved
   results at airports without ADS-B coverage.
 - Data card: `docs/data_sources/iem_metar.md`.
+
+## M-013 Neural tabular model: MLP with categorical entity embeddings
+Same design matrix as the GBM (numeric + OOF target encodings + categoricals). Numeric inputs quantile-normalised
+(fit on training rows) with missing indicators; one embedding table per categorical (rare categories pooled);
+3 hidden layers with batch-norm, ReLU, dropout; AdamW + one-cycle LR; MSE loss on the raw target / 1000.
+- (b) Guo & Berkhahn, "Entity Embeddings of Categorical Variables", arXiv:1604.06737, 2016 *(verify)*.
+- (b) Gorishniy, Rubachev, Khrulkov & Babenko, "Revisiting Deep Learning Models for Tabular Data", NeurIPS 2021
+  (MLP/ResNet baselines; quantile-normalised inputs) *(verify)*.
+- Purpose: a second, structurally different model family for averaging (a participant, 27/09/2026, item 62).
+
+## M-004b NM default-taxi detection features
+Mode of round((MVT − AOBT_3)/60) per airport × runway × month = NM default taxi; distance of each flight from it.
+- (e) `reports/checks/p1_x_minute_concentration.md`, `reports/checks/p3_nm_default_value.md`. The check refuted
+  the naive reading: MVT − AOBT_3 is *more* accurate at the default minute (RMSE 320 s) than off it (400 s), so the
+  feature is kept only if the ablation EXP-020 shows a gain.

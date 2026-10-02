@@ -1,0 +1,16 @@
+# Neural tabular model (M-013): MLP + entity embeddings on the EXP-011 design matrix.
+base: configs/gbm.yaml
+exp_id: EXP-019
+title: MLP with categorical embeddings — same inputs as EXP-011
+nn:
+  hidden: [512, 256, 128]
+  emb_dim: 16
+  dropout: 0.1
+  min_count: 20
+  lr: 0.002
+  weight_decay: 0.00001
+  batch_size: 2048
+  epochs: 8
+  y_scale: 1000.0
+  clip_grad: 1.0
+  threads: 4
