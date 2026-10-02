@@ -22,8 +22,19 @@ data/raw/submitting/submitting.parquet
 pre-reissue copies.
 
 ## External data
-- METAR (IEM ASOS archive, public domain, no account needed): `uv run python scripts/fetch/iem_metar.py`
-  → `data/external/iem_metar/raw/`, checksums in `data/external/MANIFEST.csv`. Card: `docs/data_sources/iem_metar.md`.
+All sources are fetched by scripts that store unmodified raw bytes under `data/external/<source>/raw/` and record
+path, bytes and SHA256 in `data/external/MANIFEST.csv` (committed). No account is needed for any of them.
+
+| source | licence | command | size / time |
+|---|---|---|---|
+| METAR (IEM ASOS archive) | public domain | `uv run python scripts/fetch/iem_metar.py` | ~70 MB, ~15 min |
+| OurAirports runways/airports | public domain | `uv run python scripts/fetch/ourairports.py` | 17 MB |
+| OpenStreetMap aeroway (Overpass, date-pinned) | ODbL | `uv run python scripts/fetch/osm_aeroway.py` | ~1 MB |
+| EUROCONTROL AIU airport files | EUROCONTROL terms (organizer-approved; see card) | `uv run python scripts/fetch/eurocontrol_apt.py` | 45 MB |
+| adsb.lol globe_history (Jan+Jul 2025/2026) | ODbL | `uv run python scripts/fetch/adsblol.py download` and, in parallel, `... extract` | ~388 GB streamed, ~3.5 days at ~1.7 MB/s; only ~1.3 GB of airport-surface extracts kept |
+
+Cards with licence text, coverage and lineage: `docs/data_sources/`. The DuckDB `spatial` extension is needed for the
+ADS-B features (`INSTALL spatial` once; downloaded from extensions.duckdb.org).
 
 ## Running
 Requires `uv` and Python 3.14 (`.python-version`).
@@ -32,7 +43,8 @@ Requires `uv` and Python 3.14 (`.python-version`).
 make env          # uv sync --frozen from uv.lock, writes reports/env.txt
 make ingest       # verify-raw, then load raw parquet into data/prc.duckdb and stage
 make clean        # flags (never deletes rows)
-make features     # feature tables (all SQL, DuckDB)
+make fetch        # all external sources (see table above)
+make features     # feature tables (all SQL, DuckDB); ADS-B stage runs when extracts exist
 make baselines    # P2 reference baselines
 make validate     # LightGBM month hold-out validation (Jan-2025, Jul-2025)
 make test         # pytest: data contracts, leakage, parity
@@ -41,11 +53,12 @@ make reproduce    # end-to-end
 
 ## Hardware and runtime
 Compute: Modal containers (2 physical cores = 4 threads, 16 GiB, no GPU).
-Feature build ≈ 5 min; one LightGBM validation fold ≈ see `docs/EXPERIMENTS.md`.
+Feature build ≈ 8 min. One validation fold: global LightGBM ≈ 12–13 min, per-airport ≈ 25 min (4 threads);
+final fit on all 2025 ≈ 14 min (global). Measured times are in `logs/EXP-*.log`.
 
 ## Expected validation scores
 See `docs/EXPERIMENTS.md` (Jan-2025 and Jul-2025 hold-outs).
 
 ## Attributions
 Challenge data: EUROCONTROL PRC / OpenSky Network (movements from APDF, `_flt` columns from EUROCONTROL NM).
-Weather: Iowa Environmental Mesonet (IEM), Iowa State University.
+Weather: Iowa Environmental Mesonet (IEM), Iowa State University. Full attribution block: `docs/DATA_SOURCES.md`.
