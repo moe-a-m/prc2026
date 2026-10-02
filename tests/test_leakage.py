@@ -59,3 +59,13 @@ def test_model_config_has_no_label_columns():
 def test_blanking_took_effect(pair):
     _, blank = pair
     assert blank.y.isna().all() and blank.f_negative_taxi.isna().all()
+
+
+def test_adsb_sql_reads_no_departure_labels():
+    """sql/40_adsb runs only on real extracts (not in the slice tests), so guard statically: it must not read the
+    target, block times or label flags."""
+    import re
+    for f in sorted((paths.SQL / "40_adsb").glob("*.sql")):
+        body = "\n".join(l for l in f.read_text().splitlines() if not l.lstrip().startswith("--"))
+        for tok in [r"\by\b", r"\bt_block\b", r"\bf_block_eq", r"\bf_negative_taxi\b", r"\bf_taxi_gt_3h\b", r"TAXITIME"]:
+            assert not re.search(tok, body), f"{f.name} references {tok}"

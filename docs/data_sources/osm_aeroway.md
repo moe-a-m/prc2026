@@ -11,7 +11,7 @@
 - attribution: "© OpenStreetMap contributors" (https://www.openstreetmap.org/copyright); share-alike for derived databases.
 
 ## Challenge eligibility
-- open-licensed; open-data rule (organizer, 01/10/2026). Not yet used in the pipeline.
+- open-licensed; open-data rule (organizer, 01/10/2026).
 
 ## Coverage
 - review (`docs/references/open_data_review_2026-10-02.md` §4): `parking_position` refs match 89.6–99.2% of DEP rows at 9
@@ -29,8 +29,9 @@
 - Overpass JSON `elements[]`: type, id, lat/lon (nodes) or center (ways), tags (aeroway, ref, name, …); `osm3s.timestamp_osm_base`
 
 ## Lineage / Quality / Value
-- not yet ingested. Planned: stand coordinates → stand-to-runway-threshold distance (OurAirports thresholds) and
-  stand anchoring for the ADS-B parked detection.
+- `raw_osm_aeroway` (`sql/00_ingest/07_raw_osm_aeroway.sql`) → `stg_stand_geo` (`sql/10_stage/05_stg_stand_geo.sql`,
+  96.0% of departures matched, `reports/checks/p4_stand_geo_match.md`) → `feat_dep_adsb_stand`
+  (`sql/40_adsb/04_feat_dep_adsb_stand.sql`, M-021). Value: to be measured in the ADS-B experiment.
 
 ## Re-fetch policy
 - listed files never overwritten; checksum mismatch stops the script.

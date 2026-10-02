@@ -168,3 +168,12 @@ cross-fitted between the Jan and Jul hold-outs.
 - (b) Wolpert, "Stacked generalization", *Neural Networks* 5(2), 1992; Breiman 1996 (literature review §3).
 - (e) EXP-026: worse on both months (+8.9 Jan / +5.1 Jul) — residual patterns do not transfer between Jan and Jul.
   A 12-month OOF corrector (as described on forum) was not run (≈5 h CPU for per-airport base models).
+
+## M-021 Off-block from the aircraft leaving its own stand (ADS-B + OSM stand position)
+The departure's APDF stand code is matched to an OSM `parking_position` (normalised codes; sub-stand fallback), and
+ADS-B ground points within 60 m of it are "at stand". Off-block estimate = first moving point (gs ≥ 1 kt) at the stand,
+else the first at-stand observation (lower bound).
+- (c/d) Idea from the push-back detector of the `traffic` library (X. Olive; MIT; `traffic.algorithms.ground.pushback`,
+  read 2026-10-02): documented parking position + start of movement. Independent SQL implementation, no code copied.
+- (e) `reports/checks/p4_adsb_stand_offblock_2025.md`: coverage 22.7% of matched 2025 departures (vs 14.0% for the
+  seen-parked rule), 80.7% within 60 s of the target when seen stationary at the stand; poor at EGLL/LEMD.
