@@ -1,4 +1,6 @@
 # PRC Data Challenge 2026 — taxi-out time. See README.md.
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
 PY := uv run --frozen python
 .PHONY: env verify-raw fetch ingest clean features train predict validate submit-check reproduce test baselines
 

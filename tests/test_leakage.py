@@ -17,6 +17,8 @@ def build(blank_dep_labels: bool) -> pd.DataFrame:
     con.execute(f"ATTACH '{paths.DB}' AS src (READ_ONLY)")
     con.execute(f"CREATE TABLE stg_mvt AS SELECT * FROM src.stg_mvt WHERE {SLICE}")
     con.execute("CREATE TABLE stg_metar AS SELECT * FROM src.stg_metar WHERE station IN ('EDDM', 'LIRF')")
+    for t in ['raw_ec_taxi', 'raw_ec_predep', 'raw_ec_slot']:  # small external tables, copied whole
+        con.execute(f"CREATE TABLE {t} AS SELECT * FROM src.{t}")
     if blank_dep_labels:
         con.execute("UPDATE stg_mvt SET t_block = NULL, y = NULL WHERE phase = 'DEP'")
     con.execute("DETACH src")
