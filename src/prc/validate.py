@@ -67,7 +67,11 @@ def report_md(exp_id: str, title: str, results: dict[str, pd.DataFrame], meta: d
     rows = []
     for name, df in list(results.items()) + [("combined", combined)]:
         b = breakdown(df, pred_col)
+        m = df.y <= 3 * 3600
+        sq = (df[pred_col] - df.y) ** 2
         rows.append({"fold": name, "n": b["n"], "rmse": round(b["rmse"], 2),
+                     "rmse_y≤3h": round(float(np.sqrt(sq[m].mean())), 2),
+                     "tail_sq_share": round(float(sq[~m].sum() / sq.sum()), 3),
                      **{a: round(v, 1) for a, v in b["airport"].items()}})
     lines += ["## RMSE overall and per airport", "", pd.DataFrame(rows).to_markdown(index=False), ""]
     flag_rows = []
