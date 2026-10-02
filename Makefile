@@ -9,8 +9,8 @@ env:            ## rebuild the pinned environment from uv.lock
 verify-raw:     ## recompute SHA256 of challenge files against data/raw/MANIFEST.csv
 	$(PY) -m prc.manifest verify
 
-fetch:          ## external data (none used yet)
-	@echo "no external sources in the pipeline yet (docs/DATA_SOURCES.md)"
+fetch:          ## external data, archived raw + checksummed (docs/DATA_SOURCES.md)
+	$(PY) scripts/fetch/iem_metar.py
 
 ingest: verify-raw
 	$(PY) -m prc.pipeline 00_ingest 10_stage
@@ -40,4 +40,4 @@ test:           ## run tests and save the summary (CLAUDE.md §1.5)
 	@mkdir -p reports/tests
 	uv run --frozen pytest -q -rA 2>&1 | tee reports/tests/$$(date -u +%F)_$$(git rev-parse --short HEAD).txt
 
-reproduce: env ingest clean features train predict submit-check
+reproduce: env fetch ingest clean features train predict submit-check

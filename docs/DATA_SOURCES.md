@@ -3,8 +3,9 @@
 | id | name | card | status |
 |---|---|---|---|
 | challenge | PRC Data Challenge 2026 training / ranking / submitting parquet files | (this page, below) | in use |
+| iem_metar | METAR, IEM ASOS archive (public domain) | [iem_metar.md](data_sources/iem_metar.md) | fetched 2026-10-02; evaluated in EXP-018 |
 
-No external source is in the pipeline yet (CLAUDE.md §4 ledger lists candidates).
+Candidates not yet used: see the CLAUDE.md §4 ledger.
 
 ## Challenge files
 - Location: `data/raw/{training,ranking,submitting}/`, manifest `data/raw/MANIFEST.csv` (bytes + SHA256).
@@ -19,4 +20,6 @@ No external source is in the pipeline yet (CLAUDE.md §4 ledger lists candidates
 - 2026-10-02: training files moved from `data/raw/` to `data/raw/training/` (no content change; hashes in manifest).
 
 ## Combined attribution block
-(none yet — no external data)
+- Challenge data: EUROCONTROL PRC Data Challenge 2026 (movements: airport APDF; flight data: EUROCONTROL NM).
+- Weather observations: Iowa Environmental Mesonet (IEM), Iowa State University, ASOS/METAR archive,
+  https://mesonet.agron.iastate.edu/ (public domain).

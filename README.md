@@ -22,7 +22,8 @@ data/raw/submitting/submitting.parquet
 pre-reissue copies.
 
 ## External data
-None yet. Every source will get a data card under `docs/data_sources/` and a scripted, checksummed download.
+- METAR (IEM ASOS archive, public domain, no account needed): `uv run python scripts/fetch/iem_metar.py`
+  → `data/external/iem_metar/raw/`, checksums in `data/external/MANIFEST.csv`. Card: `docs/data_sources/iem_metar.md`.
 
 ## Running
 Requires `uv` and Python 3.14 (`.python-version`).
@@ -47,3 +48,4 @@ See `docs/EXPERIMENTS.md` (Jan-2025 and Jul-2025 hold-outs).
 
 ## Attributions
 Challenge data: EUROCONTROL PRC / OpenSky Network (movements from APDF, `_flt` columns from EUROCONTROL NM).
+Weather: Iowa Environmental Mesonet (IEM), Iowa State University.
