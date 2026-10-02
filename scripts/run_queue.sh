@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Sequential experiment queue (one job at a time on a 4-thread machine). Waits for any running validation.
-# Never list the job that is currently running first — it would be run twice.
+# Never list the job that is currently running — it would be run twice.
 set -u
 cd "$(dirname "$0")/.."
-while pgrep -f "prc.models.(gbm|nn) validate" >/dev/null; do sleep 30; done
+while pgrep -f "prc.models.(gbm|nn) (validate|train)" >/dev/null; do sleep 30; done
 run() { [ -f "reports/experiments/$3.md" ] && { echo "skip $3 (report exists)"; return; }
         .venv/bin/python -m "prc.models.$1" validate --config "$2" > "logs/$3.log" 2>&1; }
-run gbm configs/ablations/EXP-024_weather_ec.yaml EXP-024
-run gbm configs/ablations/EXP-025_per_airport_weather.yaml EXP-025
+# final fit of the v2 candidate (per-airport + weather) on all 2025 -> models/EXP-025/pred_rank.parquet
+[ -f models/EXP-025/pred_rank.parquet ] || .venv/bin/python -m prc.models.gbm train --config configs/ablations/EXP-025_per_airport_weather.yaml > logs/EXP-025_train.log 2>&1
 run nn  configs/nn.yaml EXP-019
 run gbm configs/cat.yaml EXP-013
 run gbm configs/ablations/EXP-020_nm_default.yaml EXP-020
