@@ -19,10 +19,10 @@ data/raw/*
 !data/external/
 data/external/*
 !data/external/MANIFEST.csv
-models/
+/models/
 *.duckdb
 *.duckdb.wal
 .env
-submissions/
-logs/
-papers/
+/submissions/
+/logs/
+/papers/
