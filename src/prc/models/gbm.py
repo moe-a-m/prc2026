@@ -124,6 +124,23 @@ def fit(X, y, cfg, seed):
     return lgb.train(params, ds, num_boost_round=cfg["num_boost_round"])
 
 
+def fit_predict(df, X, fit_mask, pred_mask, cfg, seed):
+    """One global model, or one model per airport when cfg['per_airport'] (stops patterns that only hold at one
+    airport — e.g. LIRF schedule echoes — from leaking into others, EXP-022). Returns (pred, last_model)."""
+    y = df.y.to_numpy(float)
+    if not cfg.get("per_airport"):
+        b = fit(X[fit_mask], y[fit_mask], cfg, seed)
+        return b.predict(X[pred_mask]), b
+    out = np.full(len(df), np.nan)
+    for a in sorted(df.airport.unique()):
+        am = (df.airport == a).to_numpy()
+        if not (pred_mask & am).any():
+            continue
+        b = fit(X[fit_mask & am], y[fit_mask & am], cfg, seed)
+        out[pred_mask & am] = b.predict(X[pred_mask & am])
+    return out[pred_mask], b
+
+
 def validate(cfg, seeds=None):
     t0 = time.time()
     df = load_frame(cfg.get("weather", False), tuple(cfg.get("extra_tables", [])))
@@ -139,8 +156,7 @@ def validate(cfg, seeds=None):
         preds = []
         for s in seeds:
             t0 = time.time()
-            b = fit(X[trm], df.y[trm].to_numpy(float), cfg, s)
-            p = b.predict(X[vam])
+            p, b = fit_predict(df, X, trm, vam, cfg, s)
             preds.append(p)
             per_seed.setdefault(fold, []).append(V.rmse(df.y[vam], p))
             print(f"  {fold} seed={s} rmse={per_seed[fold][-1]:.2f} ({time.time() - t0:.0f}s)", flush=True)
@@ -177,9 +193,10 @@ def train_and_predict(cfg, seeds=None):
     preds = []
     for s in seeds:
         t0 = time.time()
-        b = fit(X[tr], df.y[tr].to_numpy(float), cfg, s)
-        b.save_model(str(out / f"seed_{s}.txt"))
-        preds.append(b.predict(X[rk]))
+        p, b = fit_predict(df, X, tr, rk, cfg, s)
+        if not cfg.get("per_airport"):
+            b.save_model(str(out / f"seed_{s}.txt"))
+        preds.append(p)
         print(f"  final seed={s} ({time.time() - t0:.0f}s)", flush=True)
     pred = pd.DataFrame({"mvt_id": df.mvt_id[rk].to_numpy(), "pred": np.mean(preds, axis=0)})
     pred.to_parquet(out / "pred_rank.parquet", index=False)

@@ -1,0 +1,6 @@
+# One LightGBM per airport (same inputs as EXP-011): tests whether the global model's cross-airport transfer of
+# the LIRF echo pattern costs accuracy (diagnostic in docs/METHODS.md M-014).
+base: configs/gbm.yaml
+exp_id: EXP-022
+title: per-airport LightGBM models — same inputs as EXP-011
+per_airport: true
