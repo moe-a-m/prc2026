@@ -14,7 +14,13 @@ FLAG_COLS = ["f_no_nm_match", "f_block_eq_sched", "f_block_eq_planned", "f_round
 
 
 def data_version() -> str:
-    h = hashlib.sha256(RAW_MANIFEST.read_bytes())
+    """Hash of raw-file identities (path + SHA256 from the manifest) and all SQL. Bookkeeping columns of the
+    manifest (bucket path, download time) do not change it."""
+    import csv
+    h = hashlib.sha256()
+    with open(RAW_MANIFEST) as f:
+        for r in sorted(csv.DictReader(f), key=lambda r: r["file"]):
+            h.update(f"{r['file']}:{r['sha256']}\n".encode())
     for f in sorted(SQL.rglob("*.sql")):
         h.update(str(f.relative_to(ROOT)).encode())
         h.update(f.read_bytes())
