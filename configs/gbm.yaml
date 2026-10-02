@@ -1,0 +1,39 @@
+# LightGBM taxi-out model (P3). Hash of this file is recorded in each experiment.
+exp_id: EXP-011
+title: LightGBM v1 — challenge data only, all P3 feature families
+seed: 42
+num_boost_round: 1500
+params:
+  objective: regression          # L2: RMSE rewards the conditional mean (CLAUDE.md §3)
+  learning_rate: 0.05
+  num_leaves: 255
+  min_data_in_leaf: 100
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  lambda_l2: 10.0
+  max_bin: 255
+  cat_smooth: 10
+  min_data_per_group: 100
+  max_cat_threshold: 64
+  deterministic: true
+  force_row_wise: true
+  num_threads: 4
+  verbose: -1
+categorical: [airport, runway, ap_runway, ap_stand, actype, wake, market, flight_type, flight_rule_mvt,
+              prev_wake_rw, ades_region, flt_prefix, operator]
+numeric: [d_sched, d_lobt, d_iobt, d_eobt1, d_aobt3, dur_plan, dur_act, d_arvt3, aobt3_minus_eobt1,
+          sched_minus_lobt, day_shift, hour_local, sched_hour_local, dow_local, month_of_year,
+          n_dep_ap_10p, n_dep_ap_30p, n_dep_ap_10f, n_arr_ap_10p, n_arr_ap_10f, n_dep_ap_60c, n_arr_ap_60c,
+          arr_taxi_in_30p, n_dep_rw_10p, n_dep_rw_30p, n_arr_rw_10p, n_arr_rw_10f, gap_prev_dep_rw,
+          gap_next_dep_rw, n_takeoffs_since_aobt3, n_landings_since_aobt3, n_takeoffs_since_sched,
+          n_taxiing_at_mvt, gap_arr_stand_1, gap_arr_stand_2, gap_prev_dep_stand,
+          actype_mvt_missing, nm_unmatched, aobt3_round_minute, type_mismatch]
+# out-of-fold target encodings (month-grouped): median y and count per key
+target_encodings:
+  - [airport, stand, runway]
+  - [airport, stand]
+  - [airport, runway]
+  - [airport, operator]
+  - [airport, actype]
+  - [airport, flt_prefix]
