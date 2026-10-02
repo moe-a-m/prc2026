@@ -133,3 +133,11 @@ own take-off; arrivals on the same runway in the same interval (mixed-mode runwa
   https://ansperformance.eu/library/ATXOT_indicator_documentation_mar23.pdf — unimpeded reference = P10 per
   stand × runway group over a rolling 12 months.
 - (b) Lee et al. 2016 (as M-015): P10 per gate-spot-runway as "unimpeded taxi time" feature.
+
+## M-017 EUROCONTROL airport aggregates as context features
+Monthly unimpeded reference and additional taxi-out per flight (airport × month), daily pre-departure delay per
+departure and ATFM slot-adherence shares (airport × day), joined on the take-off's UTC month/date.
+- (a) EUROCONTROL Additional taxi-out time indicator (2023) — definition of the monthly figures.
+- (d) organizer 17/09/2026 (item 3) and 27/09/2026 (item 60): allowed, incl. Jan/Jul 2026 monthly figures.
+- (e) `reports/checks/p4_ec_vs_target.md`: 2025 airport-month correlation 0.98 with our target mean; EHAM Jan-2026
+  mean 982 s vs 803 s in Jan-2025 (level shift invisible to a model trained on 2025 only). Measured in EXP-024.

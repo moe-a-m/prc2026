@@ -1,0 +1,228 @@
+.........EE.EEEE..                                                       [100%]
+==================================== ERRORS ====================================
+____________________ ERROR at setup of test_slice_not_empty ____________________
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3519ff30>
+
+    @pytest.fixture(scope="module")
+    def pair(con):  # `con` fixture skips when the DuckDB file is missing
+>       return build(False), build(True)
+               ^^^^^^^^^^^^
+
+tests/test_leakage.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_leakage.py:24: in build
+    db.run_stage(con, stage, verbose=False, prefix=prefix)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e34fa9b30>
+stage = '30_features', verbose = False, prefix = ''
+
+    def run_stage(con, stage: str, verbose: bool = True, prefix: str = "") -> None:
+        for f in sql_files(stage):
+            if prefix and not f.name.startswith(prefix):
+                continue
+            t0 = datetime.now()
+>           con.execute(f.read_text())
+E           _duckdb.CatalogException: Catalog Error: Table with name raw_ec_taxi does not exist!
+E           Did you mean "pragma_database_list"?
+E           
+E           LINE 10:     FROM raw_ec_taxi
+E                             ^
+
+src/prc/db.py:26: CatalogException
+_________ ERROR at setup of test_features_identical_without_dep_labels _________
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3519ff30>
+
+    @pytest.fixture(scope="module")
+    def pair(con):  # `con` fixture skips when the DuckDB file is missing
+>       return build(False), build(True)
+               ^^^^^^^^^^^^
+
+tests/test_leakage.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_leakage.py:24: in build
+    db.run_stage(con, stage, verbose=False, prefix=prefix)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e34fa9b30>
+stage = '30_features', verbose = False, prefix = ''
+
+    def run_stage(con, stage: str, verbose: bool = True, prefix: str = "") -> None:
+        for f in sql_files(stage):
+            if prefix and not f.name.startswith(prefix):
+                continue
+            t0 = datetime.now()
+>           con.execute(f.read_text())
+E           _duckdb.CatalogException: Catalog Error: Table with name raw_ec_taxi does not exist!
+E           Did you mean "pragma_database_list"?
+E           
+E           LINE 10:     FROM raw_ec_taxi
+E                             ^
+
+src/prc/db.py:26: CatalogException
+_________________ ERROR at setup of test_blanking_took_effect __________________
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3519ff30>
+
+    @pytest.fixture(scope="module")
+    def pair(con):  # `con` fixture skips when the DuckDB file is missing
+>       return build(False), build(True)
+               ^^^^^^^^^^^^
+
+tests/test_leakage.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_leakage.py:24: in build
+    db.run_stage(con, stage, verbose=False, prefix=prefix)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e34fa9b30>
+stage = '30_features', verbose = False, prefix = ''
+
+    def run_stage(con, stage: str, verbose: bool = True, prefix: str = "") -> None:
+        for f in sql_files(stage):
+            if prefix and not f.name.startswith(prefix):
+                continue
+            t0 = datetime.now()
+>           con.execute(f.read_text())
+E           _duckdb.CatalogException: Catalog Error: Table with name raw_ec_taxi does not exist!
+E           Did you mean "pragma_database_list"?
+E           
+E           LINE 10:     FROM raw_ec_taxi
+E                             ^
+
+src/prc/db.py:26: CatalogException
+_______________ ERROR at setup of test_slice_has_train_and_rank ________________
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3519ff30>
+
+    @pytest.fixture(scope="module")
+    def frame(con):
+        c = duckdb.connect()
+        c.execute("SET TimeZone = 'UTC'")
+        c.execute(f"ATTACH '{paths.DB}' AS src (READ_ONLY)")
+        c.execute(f"CREATE TABLE stg_mvt AS SELECT * FROM src.stg_mvt WHERE {SLICE}")
+        c.execute("CREATE TABLE stg_metar AS SELECT * FROM src.stg_metar WHERE station IN ('EDDM', 'LIRF')")
+        c.execute("DETACH src")
+        for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
+>           db.run_stage(c, stage, verbose=False, prefix=prefix)
+
+tests/test_reproduce_smoke.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3501e1f0>
+stage = '30_features', verbose = False, prefix = ''
+
+    def run_stage(con, stage: str, verbose: bool = True, prefix: str = "") -> None:
+        for f in sql_files(stage):
+            if prefix and not f.name.startswith(prefix):
+                continue
+            t0 = datetime.now()
+>           con.execute(f.read_text())
+E           _duckdb.CatalogException: Catalog Error: Table with name raw_ec_taxi does not exist!
+E           Did you mean "pragma_database_list"?
+E           
+E           LINE 10:     FROM raw_ec_taxi
+E                             ^
+
+src/prc/db.py:26: CatalogException
+________________ ERROR at setup of test_fit_predict_end_to_end _________________
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3519ff30>
+
+    @pytest.fixture(scope="module")
+    def frame(con):
+        c = duckdb.connect()
+        c.execute("SET TimeZone = 'UTC'")
+        c.execute(f"ATTACH '{paths.DB}' AS src (READ_ONLY)")
+        c.execute(f"CREATE TABLE stg_mvt AS SELECT * FROM src.stg_mvt WHERE {SLICE}")
+        c.execute("CREATE TABLE stg_metar AS SELECT * FROM src.stg_metar WHERE station IN ('EDDM', 'LIRF')")
+        c.execute("DETACH src")
+        for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
+>           db.run_stage(c, stage, verbose=False, prefix=prefix)
+
+tests/test_reproduce_smoke.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3501e1f0>
+stage = '30_features', verbose = False, prefix = ''
+
+    def run_stage(con, stage: str, verbose: bool = True, prefix: str = "") -> None:
+        for f in sql_files(stage):
+            if prefix and not f.name.startswith(prefix):
+                continue
+            t0 = datetime.now()
+>           con.execute(f.read_text())
+E           _duckdb.CatalogException: Catalog Error: Table with name raw_ec_taxi does not exist!
+E           Did you mean "pragma_database_list"?
+E           
+E           LINE 10:     FROM raw_ec_taxi
+E                             ^
+
+src/prc/db.py:26: CatalogException
+_______________ ERROR at setup of test_nn_fit_predict_end_to_end _______________
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3519ff30>
+
+    @pytest.fixture(scope="module")
+    def frame(con):
+        c = duckdb.connect()
+        c.execute("SET TimeZone = 'UTC'")
+        c.execute(f"ATTACH '{paths.DB}' AS src (READ_ONLY)")
+        c.execute(f"CREATE TABLE stg_mvt AS SELECT * FROM src.stg_mvt WHERE {SLICE}")
+        c.execute("CREATE TABLE stg_metar AS SELECT * FROM src.stg_metar WHERE station IN ('EDDM', 'LIRF')")
+        c.execute("DETACH src")
+        for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
+>           db.run_stage(c, stage, verbose=False, prefix=prefix)
+
+tests/test_reproduce_smoke.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+con = <_duckdb.DuckDBPyConnection object at 0x7e3e3501e1f0>
+stage = '30_features', verbose = False, prefix = ''
+
+    def run_stage(con, stage: str, verbose: bool = True, prefix: str = "") -> None:
+        for f in sql_files(stage):
+            if prefix and not f.name.startswith(prefix):
+                continue
+            t0 = datetime.now()
+>           con.execute(f.read_text())
+E           _duckdb.CatalogException: Catalog Error: Table with name raw_ec_taxi does not exist!
+E           Did you mean "pragma_database_list"?
+E           
+E           LINE 10:     FROM raw_ec_taxi
+E                             ^
+
+src/prc/db.py:26: CatalogException
+==================================== PASSES ====================================
+_____________________________ test_build_and_check _____________________________
+----------------------------- Captured stdout call -----------------------------
+# motivated-engine_v999.parquet
+
+- predictions: /tmp/pytest-of-m/pytest-13/test_build_and_check0/pred.parquet
+- rows: 344841
+- clipped to (0, 172800): 1 below, 0 above
+- rounded to integer seconds (template dtype)
+- mean 900.4, median 900.4, max 900
+- check: OK
+=========================== short test summary info ============================
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[01_rank_dep_count]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[02_submitting_ids]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[03_mvt_id_unique]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[04_target_identity]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[05_rank_dep_blank]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[06_dep_airport]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[07_metar_unique]
+PASSED tests/test_contracts.py::test_ranking_and_submitting_counts
+PASSED tests/test_contracts.py::test_no_stale_raw_files
+PASSED tests/test_leakage.py::test_model_config_has_no_label_columns
+PASSED tests/test_submit.py::test_build_and_check
+PASSED tests/test_submit.py::test_check_detects_missing_rows
+ERROR tests/test_leakage.py::test_slice_not_empty - _duckdb.CatalogException:...
+ERROR tests/test_leakage.py::test_features_identical_without_dep_labels - _du...
+ERROR tests/test_leakage.py::test_blanking_took_effect - _duckdb.CatalogExcep...
+ERROR tests/test_reproduce_smoke.py::test_slice_has_train_and_rank - _duckdb....
+ERROR tests/test_reproduce_smoke.py::test_fit_predict_end_to_end - _duckdb.Ca...
+ERROR tests/test_reproduce_smoke.py::test_nn_fit_predict_end_to_end - _duckdb...
+12 passed, 6 errors in 9.25s

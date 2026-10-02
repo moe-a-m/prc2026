@@ -1,4 +1,16 @@
 path,bytes,sha256,retrieved_at,source_id
+data/external/adsblol/meta/PREFERRED_RELEASES_2025.txt,101280,3414529a55b3521554e73643a1cebe10617358bd793c989c747f19f114c3079d,2026-10-02T13:44:49+00:00,adsblol
+data/external/adsblol/meta/PREFERRED_RELEASES_2026.txt,85604,68a9523823baa499d06a5f4da74d8e5ab014920c3a45f3cb052f7ca3a8ff6819,2026-10-02T13:44:50+00:00,adsblol
+data/external/eurocontrol_apt/raw/airport_traffic_2025.csv,8275390,b9dae4924d77e7229b8cea43e6219a62c2ef914ed5bae3c6760b39902a6402c1,2026-10-02T13:48:32+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/airport_traffic_2026.csv,5559149,17edc6282f3a8b9a1865d83d3da9651833e2a93f0803f02a17eaf593d1af4fcf,2026-10-02T13:48:55+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/all_pre_departure_delays_2025.csv,6503341,d742eeb626e5f9f7e0c756e2ae3cf90078f4627e989a2e31b8ed21ba8f5510be,2026-10-02T13:48:42+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/all_pre_departure_delays_2026.csv,4344094,5952d20ef5f9c4245018dd6986064c5c4aa15d568a6c0c2dcdcbc73bf8a43fd2,2026-10-02T13:49:02+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/apt_dly_2025.csv.bz2,485563,1fcaa98e2b7050f2d2eac97289189c8fa005248db1887de731b10a9afccf558d,2026-10-02T13:48:35+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/apt_dly_2026.csv.bz2,326768,145024df49cb644d32bf6c5b7ae841519a4ca1a196f6365c549c290b7d589c11,2026-10-02T13:48:58+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/atfm_slot_adherence_2025.csv,6016868,00013ab3ac6c7257782f6365ae85e3bf271ea78c3cdf27e4b5dcd0c1641e61fd,2026-10-02T13:48:48+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/atfm_slot_adherence_2026.csv,4349900,f80f385ba5c5c9c040e79c167902820f31b2633e56dfb33de6b34fa8abad2c19,2026-10-02T13:49:07+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/taxi_out_additional_time_2025.csv,92885,4aedf19520d3f84bebc418b56835762c907b714a9c19e751bb8658f9e62ce598,2026-10-02T13:48:26+00:00,eurocontrol_apt
+data/external/eurocontrol_apt/raw/taxi_out_additional_time_2026.csv,54100,b72040e0987e6c7d5706279d645ef9f814a6506165c83f89d8509022154a1076,2026-10-02T13:48:51+00:00,eurocontrol_apt
 data/external/iem_metar/raw/EDDF_2024-12-30_2026-01-03.csv,3509671,f3158aa7eda3a7bc9d219d880931b5718cecaa0606bbc54d9bcb80e4629b90c4,2026-10-02T12:23:23+00:00,iem_metar
 data/external/iem_metar/raw/EDDF_2025-12-30_2026-08-03.csv,2049955,f663ddc9607d775d0c261a27d5a34f0536c0ed57f7277de6ba1da5e69f3952e0,2026-10-02T12:26:10+00:00,iem_metar
 data/external/iem_metar/raw/EDDM_2024-12-30_2026-01-03.csv,3578014,788f64efb61c3c5b9994d54eba5de433a528251459b173fcf5f1cf04c08fd80a,2026-10-02T12:23:42+00:00,iem_metar

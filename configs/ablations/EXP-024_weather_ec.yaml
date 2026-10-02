@@ -1,0 +1,8 @@
+# M-017: EUROCONTROL airport aggregates (monthly taxi-out reference/additional, daily pre-departure delay,
+# slot adherence) on top of the kept weather model EXP-018.
+base: configs/ablations/EXP-018_weather.yaml
+exp_id: EXP-024
+title: EXP-018 + EUROCONTROL airport aggregates (M-017)
+extra_tables: [feat_dep_ec]
+add_numeric: [ec_m_taxi_ref_s, ec_m_taxi_add_s, ec_m_taxi_mean_s, ec_d_dep, ec_d_predep_dly_min, ec_d_slot_late_share,
+              ec_d_slot_early_share, ec_d_regulated_dep]
