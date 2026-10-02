@@ -1,0 +1,28 @@
+# CatBoost second model family (P5): same features as configs/gbm.yaml.
+exp_id: EXP-013
+title: CatBoost v1 — same inputs as EXP-011
+model: catboost
+seed: 42
+num_boost_round: 2000
+params:
+  loss_function: RMSE
+  learning_rate: 0.1
+  depth: 8
+  l2_leaf_reg: 3
+  border_count: 254
+  thread_count: 4
+  verbose: 500
+categorical: [airport, runway, ap_runway, ap_stand, actype, wake, market, flight_type, flight_rule_mvt, prev_wake_rw,
+  ades_region, flt_prefix, operator]
+numeric: [d_sched, d_lobt, d_iobt, d_eobt1, d_aobt3, dur_plan, dur_act, d_arvt3, aobt3_minus_eobt1, sched_minus_lobt,
+  day_shift, hour_local, sched_hour_local, dow_local, month_of_year, n_dep_ap_10p, n_dep_ap_30p, n_dep_ap_10f, n_arr_ap_10p,
+  n_arr_ap_10f, n_dep_ap_60c, n_arr_ap_60c, arr_taxi_in_30p, n_dep_rw_10p, n_dep_rw_30p, n_arr_rw_10p, n_arr_rw_10f,
+  gap_prev_dep_rw, gap_next_dep_rw, n_takeoffs_since_aobt3, n_landings_since_aobt3, n_takeoffs_since_sched, n_taxiing_at_mvt,
+  gap_arr_stand_1, gap_arr_stand_2, gap_prev_dep_stand, actype_mvt_missing, nm_unmatched, aobt3_round_minute, type_mismatch]
+target_encodings:
+- [airport, stand, runway]
+- [airport, stand]
+- [airport, runway]
+- [airport, operator]
+- [airport, actype]
+- [airport, flt_prefix]

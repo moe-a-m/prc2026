@@ -72,7 +72,40 @@ def design(df, cfg, fit_mask):
     return X
 
 
+class _CatModel:
+    """Thin wrapper so CatBoost and LightGBM share fit/predict/importance/save calls."""
+
+    def __init__(self, cfg, seed):
+        from catboost import CatBoostRegressor
+        self.cats = cfg["categorical"]
+        self.m = CatBoostRegressor(iterations=cfg["num_boost_round"], random_seed=seed,
+                                   allow_writing_files=False, **cfg["params"])
+
+    def _prep(self, X):
+        X = X.copy()
+        for c in self.cats:
+            X[c] = X[c].astype(str).replace({"nan": "NA"})
+        return X
+
+    def fit(self, X, y):
+        from catboost import Pool
+        self.cols = list(X.columns)
+        self.m.fit(Pool(self._prep(X), y, cat_features=self.cats))
+        return self
+
+    def predict(self, X):
+        return self.m.predict(self._prep(X))
+
+    def feature_importance(self, kind="gain"):
+        return self.m.get_feature_importance()
+
+    def save_model(self, path):
+        self.m.save_model(path.replace(".txt", ".cbm"))
+
+
 def fit(X, y, cfg, seed):
+    if cfg.get("model", "lightgbm") == "catboost":
+        return _CatModel(cfg, seed).fit(X, y)
     params = dict(cfg["params"], seed=seed)
     ds = lgb.Dataset(X, y, categorical_feature=cfg["categorical"], free_raw_data=False)
     return lgb.train(params, ds, num_boost_round=cfg["num_boost_round"])
