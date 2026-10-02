@@ -119,6 +119,30 @@ def validate(cfg, seeds=None):
     return r, results
 
 
+def train_and_predict(cfg, seeds=None):
+    """Fit on all 2025 (target encodings leave-one-month-out), predict the ranking set, save models + preds."""
+    df = load_frame()
+    tr = (df.ds == "train").to_numpy()
+    rk = (df.ds == "rank").to_numpy()
+    X = design(df, cfg, tr)
+    out = MODELS / cfg["exp_id"]
+    out.mkdir(parents=True, exist_ok=True)
+    seeds = seeds or [cfg["seed"]]
+    preds = []
+    for s in seeds:
+        t0 = time.time()
+        b = fit(X[tr], df.y[tr].to_numpy(float), cfg, s)
+        b.save_model(str(out / f"seed_{s}.txt"))
+        preds.append(b.predict(X[rk]))
+        print(f"  final seed={s} ({time.time() - t0:.0f}s)", flush=True)
+    pred = pd.DataFrame({"mvt_id": df.mvt_id[rk].to_numpy(), "pred": np.mean(preds, axis=0)})
+    pred.to_parquet(out / "pred_rank.parquet", index=False)
+    (out / "meta.json").write_text(json.dumps({"data": V.data_version(), "git": V.git_sha(), "seeds": seeds,
+                                               "config": cfg["config_hash"]}, indent=1))
+    print(f"wrote {out / 'pred_rank.parquet'} ({len(pred)} rows)")
+    return pred
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["validate", "train", "predict"])
@@ -134,5 +158,8 @@ if __name__ == "__main__":
         cfg["exp_id"] = a.exp_id
     if a.cmd == "validate":
         validate(cfg, a.seeds)
-    else:
-        raise SystemExit("train/predict: implemented in the final-fit step")
+    elif a.cmd == "train":
+        train_and_predict(cfg, a.seeds)
+    else:  # predictions are written by `train`; `predict` builds the submission file from them
+        from prc import submit
+        submit.build(MODELS / cfg["exp_id"] / "pred_rank.parquet")
