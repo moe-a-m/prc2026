@@ -80,3 +80,17 @@ Gradient-boosted trees, L2 objective on the raw target (seconds); no log transfo
 - (c) richardalligier/prc (PRC 2024 winner): LightGBM ensembles *(cite commit in the paper)*.
 - RMSE is minimised by the conditional mean, so L2 on the raw scale is the matching loss; hedging on ambiguous
   rows: (d) a participant, 27/09/2026 23:13 (item 62).
+
+## M-012 METAR weather at the take-off (P4, source `iem_metar`)
+Latest METAR at or before take-off (age-limited to 120 min, else missing + `wx_stale`) and 3 h aggregates
+(min visibility/ceiling/temperature, max wind/gust, any snow/freezing/thunder). Present-weather flags from
+IEM's parsed `wxcodes`, matched against WMO Manual on Codes (WMO-No. 306) code table 4678 abbreviations.
+Hypotheses (each to be measured by ablation, CLAUDE.md §6):
+- de-icing in frozen/freezing precipitation and sub-zero temperatures lengthens the off-block→take-off time where
+  de-icing is done after push-back: ICAO Doc 9640, *Manual of Aircraft Ground De-icing/Anti-icing Operations*
+  *(verify edition/section)*;
+- low-visibility procedures reduce runway throughput: ICAO Doc 9365, *Manual of All-Weather Operations*
+  *(verify)*;
+- (d) a participant, 24/09/2026 (item 34) uses weather (rank 3); a participant, 28/09/2026 (item 63): METAR barely moved
+  results at airports without ADS-B coverage.
+- Data card: `docs/data_sources/iem_metar.md`.

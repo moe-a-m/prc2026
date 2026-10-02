@@ -1,0 +1,9 @@
+# P4 (1): METAR weather features added to EXP-011 (M-012, source iem_metar).
+base: configs/gbm.yaml
+exp_id: EXP-018
+title: EXP-011 + METAR weather (M-012)
+weather: true
+add_numeric: [wx_age_min, wx_stale, wx_temp_c, wx_dewpt_spread_c, wx_wind_ms, wx_gust_ms, wx_vis_m, wx_ceiling_m,
+              wx_rvr_min_m, wx_snow, wx_freezing, wx_thunder, wx_rain, wx_fog, wx3h_n_obs, wx3h_min_vis_m,
+              wx3h_min_ceiling_m, wx3h_min_temp_c, wx3h_max_wind_ms, wx3h_snow, wx3h_freezing, wx3h_thunder,
+              wx3h_snow_obs]

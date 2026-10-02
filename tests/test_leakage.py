@@ -16,12 +16,13 @@ def build(blank_dep_labels: bool) -> pd.DataFrame:
     con.execute("SET TimeZone = 'UTC'")
     con.execute(f"ATTACH '{paths.DB}' AS src (READ_ONLY)")
     con.execute(f"CREATE TABLE stg_mvt AS SELECT * FROM src.stg_mvt WHERE {SLICE}")
+    con.execute("CREATE TABLE stg_metar AS SELECT * FROM src.stg_metar WHERE station IN ('EDDM', 'LIRF')")
     if blank_dep_labels:
         con.execute("UPDATE stg_mvt SET t_block = NULL, y = NULL WHERE phase = 'DEP'")
     con.execute("DETACH src")
     for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
         db.run_stage(con, stage, verbose=False, prefix=prefix)
-    df = con.sql("SELECT * FROM feat_dep ORDER BY mvt_id").df()
+    df = con.sql("SELECT * FROM feat_dep JOIN feat_dep_wx USING (mvt_id) ORDER BY mvt_id").df()
     con.close()
     return df
 

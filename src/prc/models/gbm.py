@@ -22,7 +22,7 @@ EVAL_COLS = ["mvt_id", "ds", "month", "airport", "y", "runway", "stand"] + V.FLA
 
 def load_config(path):
     """YAML config. `base: <path>` inherits another config; `drop_numeric`, `drop_categorical` and
-    `drop_te` (list of key lists) remove inputs from it (feature-family ablations)."""
+    `drop_te` (list of key lists) remove inputs from it (feature-family ablations); `add_numeric` adds inputs."""
     text = (ROOT / path).read_text() if not str(path).startswith("/") else open(path).read()
     cfg = yaml.safe_load(text)
     hashed = text
@@ -30,16 +30,18 @@ def load_config(path):
         base = load_config(cfg.pop("base"))
         hashed = base.pop("config_hash") + text
         cfg = {**base, **cfg}
-    cfg["numeric"] = [c for c in cfg["numeric"] if c not in cfg.get("drop_numeric", [])]
+    cfg["numeric"] = [c for c in cfg["numeric"] + cfg.get("add_numeric", []) if c not in cfg.get("drop_numeric", [])]
     cfg["categorical"] = [c for c in cfg["categorical"] if c not in cfg.get("drop_categorical", [])]
     cfg["target_encodings"] = [k for k in cfg["target_encodings"] if k not in cfg.get("drop_te", [])]
     cfg["config_hash"] = hashlib.sha256(hashed.encode()).hexdigest()[:12]
     return cfg
 
 
-def load_frame() -> pd.DataFrame:
+def load_frame(weather: bool = False) -> pd.DataFrame:
     con = db.connect(read_only=True)
-    df = con.sql("SELECT * FROM feat_dep ORDER BY mvt_id").df()
+    sql = ("SELECT * FROM feat_dep LEFT JOIN feat_dep_wx USING (mvt_id) ORDER BY mvt_id" if weather
+           else "SELECT * FROM feat_dep ORDER BY mvt_id")
+    df = con.sql(sql).df()
     con.close()
     df["ap_runway"] = df.airport + "_" + df.runway.fillna("NA")
     df["ap_stand"] = df.airport + "_" + df.stand.fillna("NA")
@@ -123,7 +125,7 @@ def fit(X, y, cfg, seed):
 
 def validate(cfg, seeds=None):
     t0 = time.time()
-    df = load_frame()
+    df = load_frame(cfg.get("weather", False))
     print(f"  loaded {len(df)} rows ({time.time() - t0:.0f}s)", flush=True)
     tr_all = (df.ds == "train").to_numpy()
     seeds = seeds or [cfg["seed"]]
@@ -164,7 +166,7 @@ def validate(cfg, seeds=None):
 
 def train_and_predict(cfg, seeds=None):
     """Fit on all 2025 (target encodings leave-one-month-out), predict the ranking set, save models + preds."""
-    df = load_frame()
+    df = load_frame(cfg.get("weather", False))
     tr = (df.ds == "train").to_numpy()
     rk = (df.ds == "rank").to_numpy()
     X = design(df, cfg, tr)
