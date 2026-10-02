@@ -1,0 +1,14 @@
+# CatBoost second model family on the v2 inputs (per-airport + weather), for blending with EXP-025.
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-028
+title: per-airport CatBoost + weather — same inputs as EXP-025
+model: catboost
+num_boost_round: 1500
+params:
+  loss_function: RMSE
+  learning_rate: 0.1
+  depth: 8
+  l2_leaf_reg: 3
+  border_count: 254
+  thread_count: 4
+  verbose: 500

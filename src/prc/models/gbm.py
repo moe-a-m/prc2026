@@ -107,8 +107,8 @@ class _CatModel:
 
     def _prep(self, X):
         X = X.copy()
-        for c in self.cats:
-            X[c] = X[c].astype(str).replace({"nan": "NA"})
+        for c in self.cats:  # CatBoost needs str categories without NaN (pandas 3 keeps NaN through astype(str))
+            X[c] = X[c].astype(object).where(X[c].notna(), "NA").astype(str)
         return X
 
     def fit(self, X, y):

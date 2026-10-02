@@ -27,6 +27,8 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 | EXP-023 | 2026-10-02 | same-runway queue counts (M-015) + P10 unimpeded reference (M-016) help | 38425a29854b | ea127b8-dirty | EXP-011 + 3 queue cols + 3 P10 TE, config ff48b6ca9372 | 42 | 361.07 | 403.26 | 385.01 | rejected: paired vs EXP-011 non-LIRF y≤3h +0.7 Jan / +0.6 Jul (no gain); full-RMSE moves are LIRF tail noise; 4× TE build time |
 | EXP-024 | 2026-10-02 | EUROCONTROL airport aggregates as inputs (M-017) | 38425a29854b | ea127b8-dirty | EXP-018 + 8 EC cols, config a37f993dd562 | 42 | 370.04 | 396.09 | 384.68 | rejected as model inputs: paired vs EXP-018 non-LIRF y≤3h +2.3 Jan (EDDF +17.7, EHAM +11.7) / −1.7 Jul (LFPG −8.8); 12 values per airport → month-identity overfit |
 | EXP-025 | 2026-10-02 | weather (M-012) helps inside per-airport models (EXP-022) | 38425a29854b | f04bbc2-dirty | per-airport LGBM, EXP-018 inputs (63 numeric), config 7e508a33bfda | 42 | 347.41 | 378.08 | 364.71 | kept — v2 candidate: paired vs EXP-022 non-LIRF y≤3h −5.1 Jan / −4.0 Jul, 9/9 airports better in Jan, 8/9 in Jul (LTFM −14.6 Jan, EHAM −16.7 Jul) |
+| EXP-019 | 2026-10-02 | MLP + entity embeddings (M-013) competitive with GBM on same inputs | 38425a29854b | 40a7220-dirty | 512-256-128, emb 16, 8 epochs, AdamW + one-cycle, MSE on y/1000; EXP-011 inputs; config 3e80995420ce | 42 | 394.30 | 467.21 | 436.18 | rejected standalone: +21.5 Jan / +69.9 Jul vs EXP-011; non-LIRF y≤3h 221.1 vs 210.4 Jan, 242.6 vs 242.6 Jul — loses mostly on tail rows (consistent with Lee et al. 2016, lit. review) |
+| EXP-027 | 2026-10-02 | cross-fitted NNLS blend GBM + MLP (M-019) | 38425a29854b | 40a7220-dirty | members EXP-011, EXP-019; final weights 0.897 / 0.110 | — | 372.98 | 397.48 | — | rejected: vs EXP-011 +0.2 / +0.2 full; non-LIRF y≤3h −1.5 Jan / +0.8 Jul (mixed) |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).
@@ -35,3 +37,6 @@ Notes on EXP-011: the model learned the LIRF schedule-echo pattern and hedges on
 NM-unmatched LIRF flights that left >3 h late). Remaining top errors: two LFPG Jan rows whose block date lies
 ~23 h before schedule (84,240 s, 58,206 s) with no detectable signal; LIRF unmatched rows where the echo did
 not happen (hedge cost). `reports/experiments/EXP-011.md`.
+
+EXP-013 (global CatBoost, `configs/cat.yaml`) crashed on NaN categoricals under pandas 3 (fixed); superseded by EXP-028
+(per-airport CatBoost on the EXP-025 inputs) and not re-run.
