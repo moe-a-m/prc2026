@@ -141,3 +141,22 @@ departure and ATFM slot-adherence shares (airport × day), joined on the take-of
 - (d) organizer 17/09/2026 (item 3) and 27/09/2026 (item 60): allowed, incl. Jan/Jul 2026 monthly figures.
 - (e) `reports/checks/p4_ec_vs_target.md`: 2025 airport-month correlation 0.98 with our target mean; EHAM Jan-2026
   mean 982 s vs 803 s in Jan-2025 (level shift invisible to a model trained on 2025 only). Measured in EXP-024.
+
+## M-018 ADS-B take-off matching and taxi-segment description (adsb.lol)
+Segment each aircraft's airport points by ground/airborne state and gaps > 20 min; a take-off is an airborne
+segment starting ≤ 1500 ft and climbing ≥ 300 ft, with its adjacent ground segment as the taxi. Departures are matched
+one-to-one to take-offs at the same airport within ±180 s (callsign agreement preferred). From the taxi segment:
+first ground observation, end of the longest stationary run ≥ 120 s (off-block estimate), points/gaps (coverage),
+ground distance after the stand stop, stationary (hold) time. Missing coverage is an explicit state (`adsb_matched`).
+- (d) a participant, 18/09/2026 (item 14): off-block recoverable from surface tracks where coverage is good;
+  organizer, 19/09/2026 (item 18): allowed. a participant, 27/09/2026 (item 59): movement features transferred
+  across years, "where heard" features did not → drift check before keeping.
+- (b) Srivastava, "Improving departure taxi time predictions using ASDE-X surveillance data", 30th DASC, 2011,
+  DOI 10.1109/DASC.2011.6096185 (surface surveillance → queue position, distance to runway).
+
+## M-019 Cross-fitted non-negative blend
+Members' hold-out predictions combined with non-negative least squares (no intercept). Weights fit on one hold-out
+month are scored on the other (cross-fit); final weights fit on both.
+- (b) Breiman, "Stacked Regressions", *Machine Learning* 24, 49–64, 1996 (non-negative stacking weights) — see
+  `docs/references/literature_review_2026-10-02.md` §3.
+- (d) a participant, 27/09/2026 (item 62): second tree family, simple average of predictions.
