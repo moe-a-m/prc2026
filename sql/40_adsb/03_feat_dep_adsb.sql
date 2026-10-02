@@ -3,7 +3,10 @@
 -- Match: same airport, |t_air0 − t_mvt| ≤ 180 s; preference = callsign agreement, then smallest |Δt|;
 -- one-to-one (best departure per event and best event per departure).
 -- Taxi description on the matched ground segment ("how it moved", a participant 27/09: transfers across years):
---   stationary runs = consecutive points with gs < 1 kt; stand stop = longest run ≥ 120 s; off-block estimate = its end.
+--   stationary runs = consecutive points with gs < 1 kt; stand stop = longest run ≥ 120 s (kept, but a poor off-block
+--   estimate: reports/checks/p4_adsb_vs_target_2025-01-01.md);
+--   seen parked = segment starts with ≥ 60 s stationary; first movement = first point with gs ≥ 1 kt — the off-block
+--   estimate (reports/checks/p4_adsb_offblock_variants_2025-01-01.md: 72% within 60 s of the target when seen parked).
 CREATE OR REPLACE TABLE feat_dep_adsb AS
 WITH dep AS (
     SELECT f.mvt_id, f.airport, timezone('UTC', to_timestamp(f.t_mvt_epoch)) AS t_mvt, m.callsign
@@ -41,7 +44,8 @@ stand AS (
     FROM stops WHERE dur >= 120 GROUP BY mvt_id
 ),
 agg AS (
-    SELECT p.mvt_id, min(p.t) AS t_seg0, count(*) AS n_pts, max(p.dt_p) AS max_gap_s
+    SELECT p.mvt_id, min(p.t) AS t_seg0, count(*) AS n_pts, max(p.dt_p) AS max_gap_s,
+           min(p.t) FILTER (WHERE NOT p.still) AS t_first_move, arg_min(p.still, p.t) AS first_still
     FROM pts p GROUP BY p.mvt_id
 ),
 after AS (  -- movement after the stand stop: distance, holds
@@ -58,6 +62,9 @@ SELECT d.mvt_id,
     m.dt                                                   AS adsb_dt_takeoff_s,
     m.ground_seg IS NOT NULL                               AS adsb_has_ground,
     epoch(d.t_mvt) - epoch(a.t_seg0)                       AS adsb_first_ground_s,
+    a.first_still AND epoch(a.t_first_move) - epoch(a.t_seg0) >= 60 AS adsb_seen_parked,
+    epoch(d.t_mvt) - epoch(a.t_first_move)                 AS adsb_first_move_s,
+    CASE WHEN a.first_still THEN epoch(a.t_first_move) - epoch(a.t_seg0) END AS adsb_parked_s,
     epoch(d.t_mvt) - epoch(st.t_stand_end)                 AS adsb_stand_end_s,
     st.stand_stop_s                                        AS adsb_stand_stop_s,
     a.n_pts                                                AS adsb_n_pts,
