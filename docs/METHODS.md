@@ -5,7 +5,7 @@ Every modelling or cleaning method used in the pipeline, with its provenance (CL
 (local, uncommitted export `docs/references/forum_discussion.md` of `#prc-data-competition`; cited by
 author and date, item numbers refer to that export), (e) experiment in this repo.
 Literature citations marked *(verify)* were written from memory and must be checked against the paper before
-the JOAS write-up.
+the JOAS write-up. Verified bibliography with URLs: `docs/references/literature_review_2026-10-02.md`.
 
 ## M-001 Month hold-out validation (Jan-2025, Jul-2025)
 Train on the other 11 months of 2025, predict the held-out month; report both and combined.
@@ -41,17 +41,17 @@ training months.
 ## M-006 Airport and runway congestion counts
 Counts of departures/arrivals at the airport and on the same runway in windows around the take-off
 (10/30 min before, 10 min after, ±30 min), built from both ARR and DEP rows.
-- (b) Idris, Clarke, Bhuva & Kang, "Queuing model for taxi-out time estimation", *Air Traffic Control
-  Quarterly* 10(1), 2002 — number of aircraft taxiing as the main taxi-out predictor *(verify)*.
-- (b) Simaiakis & Balakrishnan, "A queuing model of the airport departure process", *Transportation Science*
-  50(1), 2016 *(verify)*.
+- (b) Idris, Clarke, Bhuva & Kang, "Queuing Model for Taxi-Out Time Estimation", *Air Traffic Control
+  Quarterly* 10(1), 1–22, 2002, DOI 10.2514/atcq.10.1.1 — take-off queue size as the main predictor.
+- (b) Simaiakis & Balakrishnan, "A Queuing Model of the Airport Departure Process", *Transportation Science*
+  50(1), 94–109, 2016, DOI 10.1287/trsc.2015.0603.
 - (d) a participant, 17/09/2026 (item 8): airport-hour congestion aggregates hold most of the signal.
 
 ## M-007 Queue position from NM off-block
 `n_takeoffs_since_aobt3` = departures that took off at the airport between this flight's AOBT_3 and its take-off;
 `n_taxiing_at_mvt` = departures with AOBT_3 ≤ t that are not yet airborne. Implemented with cumulative event
 counts + ASOF joins.
-- (b) Idris et al. 2002 (as M-006) *(verify)*: queue length during the taxi.
+- (b) Idris et al. 2002 (as M-006): queue length during the taxi.
 - (e) measured in EXP-011 (feature importance) and its ablation.
 
 ## M-008 Runway departure sequence and wake category
@@ -87,10 +87,10 @@ Latest METAR at or before take-off (age-limited to 120 min, else missing + `wx_s
 IEM's parsed `wxcodes`, matched against WMO Manual on Codes (WMO-No. 306) code table 4678 abbreviations.
 Hypotheses (each to be measured by ablation, CLAUDE.md §6):
 - de-icing in frozen/freezing precipitation and sub-zero temperatures lengthens the off-block→take-off time where
-  de-icing is done after push-back: ICAO Doc 9640, *Manual of Aircraft Ground De-icing/Anti-icing Operations*
-  *(verify edition/section)*;
-- low-visibility procedures reduce runway throughput: ICAO Doc 9365, *Manual of All-Weather Operations*
-  *(verify)*;
+  de-icing is done after push-back: ICAO Doc 9640, *Manual of Aircraft Ground De-icing/Anti-icing Operations*,
+  3rd edition (section to be cited in the paper);
+- low-visibility procedures reduce runway throughput: ICAO Doc 9365, *Manual of All-Weather Operations*,
+  5th edition (2024);
 - (d) a participant, 24/09/2026 (item 34) uses weather (rank 3); a participant, 28/09/2026 (item 63): METAR barely moved
   results at airports without ADS-B coverage.
 - Data card: `docs/data_sources/iem_metar.md`.
@@ -119,3 +119,17 @@ p are estimated on training months only; the threshold rule was fixed before loo
 - (e) `reports/checks/p1_tail_given_dsched_2025.md` (67.5% echo at LIRF-unmatched > 3 h late); EXP-021.
 - (e) Diagnostic from the EXP-012 hold-outs: the global GBM transfers LIRF's echo pattern to other airports'
   unmatched late flights (e.g. EDDF-unmatched RMSE 1,348 s vs 297 s for a cell mean) → motivates EXP-022.
+
+## M-015 Same-runway queue counts
+Take-offs from the same runway between the flight's proxy off-block (NM AOBT_3; separately the schedule) and its
+own take-off; arrivals on the same runway in the same interval (mixed-mode runways).
+- (b) Idris et al. 2002 (DOI 10.2514/atcq.10.1.1): take-off queue size is the dominant factor.
+- (b) Lee, Malik & Jung, "Taxi-Out Time Prediction for Departures at Charlotte Airport Using Machine Learning
+  Techniques", AIAA ATIO 2016, DOI 10.2514/6.2016-3910: departures on the surface by runway.
+
+## M-016 Unimpeded reference time: P10 per stand × runway (out-of-fold)
+10th percentile of taxi-out per (airport, stand, runway) and coarser keys, leave-one-month-out like M-005.
+- (a) EUROCONTROL, *Additional taxi-out time performance indicator document*, Ed. 01.00, 16 March 2023,
+  https://ansperformance.eu/library/ATXOT_indicator_documentation_mar23.pdf — unimpeded reference = P10 per
+  stand × runway group over a rolling 12 months.
+- (b) Lee et al. 2016 (as M-015): P10 per gate-spot-runway as "unimpeded taxi time" feature.
