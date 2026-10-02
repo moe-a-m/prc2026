@@ -21,6 +21,7 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 | EXP-011 | 2026-10-02 | GBM on challenge data with all P3 families (M-004…M-011) beats baselines | 64a9ec802eeb | d97420b | configs/gbm.yaml 9d3708f71e72; LGBM L2, lr .05, 1500 rounds, 255 leaves; 41 numeric + 13 cat + 6 OOF TE | 42 | 372.78 | 397.32 | 386.56 | kept (−249 vs EXP-010). y≤3h rows: 224.2 / 320.7. Top-2 rows = 48% of Jan sq. err. Seed spread not yet measured |
 
 | EXP-012 | 2026-10-02 | seed spread of EXP-011 config | 53dfd848e02d | 21cccc0 | configs/gbm.yaml 9d3708f71e72 | 7, 99 (avg) | 369.29 | 414.73 | 395.10 | noise estimate: single seeds Jan 366.0/372.8/374.8, Jul 397.3/414.9/417.8. Non-LIRF airports stable within ~2 s; spread is LIRF tail. Decide on non-LIRF + y≤3h RMSE, ≥3 seeds for full RMSE |
+| EXP-021 | 2026-10-02 | explicit calibrated echo hedge beats the GBM's implicit hedge (M-014) | 53dfd848e02d | 45f27da | post-processing of EXP-012 hold-out preds; rule p_echo≥0.2 → only LIRF-unmatched | (EXP-012) | 364.24 | 404.42 | — | kept: paired with EXP-012 (same base preds), −5.1 Jan / −10.3 Jul; y≤3h unchanged |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).

@@ -109,3 +109,13 @@ Mode of round((MVT − AOBT_3)/60) per airport × runway × month = NM default t
 - (e) `reports/checks/p1_x_minute_concentration.md`, `reports/checks/p3_nm_default_value.md`. The check refuted
   the naive reading: MVT − AOBT_3 is *more* accurate at the default minute (RMSE 320 s) than off it (400 s), so the
   feature is kept only if the ablation EXP-020 shows a gain.
+
+## M-014 Calibrated hedge for schedule-echo rows
+For flights that took off > 3 h after schedule, per (airport, NM-match) cell with ≥ 30 training rows and an echo
+share p ≥ 0.2 (|y − d_sched| ≤ 120 s), replace the prediction by p·d_sched + (1−p)·mean(y | not echo). Cells and
+p are estimated on training months only; the threshold rule was fixed before looking at validation results.
+- (d) a participant, 27/09/2026 23:13 (item 62, points 1 and 3): keep defective rows and hedge; "nothing beat a
+  calibrated hedge" for the no-NM lane.
+- (e) `reports/checks/p1_tail_given_dsched_2025.md` (67.5% echo at LIRF-unmatched > 3 h late); EXP-021.
+- (e) Diagnostic from the EXP-012 hold-outs: the global GBM transfers LIRF's echo pattern to other airports'
+  unmatched late flights (e.g. EDDF-unmatched RMSE 1,348 s vs 297 s for a cell mean) → motivates EXP-022.
