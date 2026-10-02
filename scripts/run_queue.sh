@@ -5,6 +5,7 @@ cd "$(dirname "$0")/.."
 while pgrep -f "prc.models.(gbm|nn) validate" >/dev/null; do sleep 30; done
 run() { .venv/bin/python -m "prc.models.$1" validate --config "$2" > "logs/$3.log" 2>&1; }
 run gbm configs/ablations/EXP-022_per_airport.yaml EXP-022
+run gbm configs/ablations/EXP-023_queue_rw_p10.yaml EXP-023
 run nn  configs/nn.yaml EXP-019
 run gbm configs/ablations/EXP-020_nm_default.yaml EXP-020
 run gbm configs/cat.yaml EXP-013
