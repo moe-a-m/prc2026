@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+tmp/
+.ipynb_checkpoints/
+
+# Data, models, credentials, outputs — never committed (CLAUDE.md §1.6)
+data/*
+!data/raw/
+data/raw/*
+!data/raw/MANIFEST.csv
+!data/external/
+data/external/*
+!data/external/MANIFEST.csv
+models/
+*.duckdb
+*.duckdb.wal
+.env
+submissions/
+logs/
+papers/

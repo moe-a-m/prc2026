@@ -1,0 +1,47 @@
+[project]
+name = "motivated-engine"
+version = "0.1.0"
+description = "Opensky repo for motivated-engine-team"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pandas",
+    "geopandas>=1.2.0",
+    "jupyterlab>=4.6.4",
+    "matplotlib>=3.11.2",
+    "openap>=2.6.2",
+    "pitot>=0.3.2",
+    "pyarrow>=25.0.1",
+    "pyrefly>=1.3.2",
+    "requests>=2.34.2",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.18.1",
+    "shapely>=2.1.2",
+    "tqdm>=4.70.1",
+    "traffic>=2.13",
+    "ipywidgets>=8.1.9",
+    "duckdb>=1.5.6",
+    "lightgbm>=4.7.0",
+    "catboost>=1.2.10",
+    "pytest>=9.1.1",
+    "tabulate>=0.10.0",
+    "pyyaml>=6.0.3",
+]
+
+[project.scripts]
+prc = "prc.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.20,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "prc"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
+markers = ["slow: needs the full DuckDB build"]
+
+[tool.uv.sources]
+traffic = { git = "https://github.com/xoolive/traffic.git" }
