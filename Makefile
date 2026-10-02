@@ -36,7 +36,8 @@ validate:
 submit-check:
 	$(PY) -m prc.submit check
 
-test:
-	uv run --frozen pytest -q -rA
+test:           ## run tests and save the summary (CLAUDE.md §1.5)
+	@mkdir -p reports/tests
+	uv run --frozen pytest -q -rA 2>&1 | tee reports/tests/$$(date -u +%F)_$$(git rev-parse --short HEAD).txt
 
 reproduce: env ingest clean features train predict submit-check

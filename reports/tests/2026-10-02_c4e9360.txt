@@ -1,0 +1,16 @@
+............                                                             [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[01_rank_dep_count]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[02_submitting_ids]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[03_mvt_id_unique]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[04_target_identity]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[05_rank_dep_blank]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[06_dep_airport]
+PASSED tests/test_contracts.py::test_ranking_and_submitting_counts
+PASSED tests/test_contracts.py::test_no_stale_raw_files
+PASSED tests/test_leakage.py::test_slice_not_empty
+PASSED tests/test_leakage.py::test_features_identical_without_dep_labels
+PASSED tests/test_leakage.py::test_model_config_has_no_label_columns
+PASSED tests/test_leakage.py::test_blanking_took_effect
+12 passed in 3.74s
