@@ -160,3 +160,11 @@ month are scored on the other (cross-fit); final weights fit on both.
 - (b) Breiman, "Stacked Regressions", *Machine Learning* 24, 49–64, 1996 (non-negative stacking weights) — see
   `docs/references/literature_review_2026-10-02.md` §3.
 - (d) a participant, 27/09/2026 (item 62): second tree family, simple average of predictions.
+
+## M-020 Residual corrector on hold-out base predictions (tested, rejected in EXP-026)
+Small LightGBM (15 leaves, 300 rounds) on r = y − base prediction with base prediction + defect/context inputs,
+cross-fitted between the Jan and Jul hold-outs.
+- (d) a participant, 28/09/2026 (item 63) and a participant, 27/09/2026 (item 59 point 4): corrector on OOF base predictions.
+- (b) Wolpert, "Stacked generalization", *Neural Networks* 5(2), 1992; Breiman 1996 (literature review §3).
+- (e) EXP-026: worse on both months (+8.9 Jan / +5.1 Jul) — residual patterns do not transfer between Jan and Jul.
+  A 12-month OOF corrector (as described on forum) was not run (≈5 h CPU for per-airport base models).
