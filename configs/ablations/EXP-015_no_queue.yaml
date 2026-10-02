@@ -1,0 +1,5 @@
+# Ablation of M-007: queue counts since AOBT_3 / schedule removed.
+base: configs/gbm.yaml
+exp_id: EXP-015
+title: ablation — no queue counts (M-007)
+drop_numeric: [n_takeoffs_since_aobt3, n_landings_since_aobt3, n_takeoffs_since_sched, n_taxiing_at_mvt]

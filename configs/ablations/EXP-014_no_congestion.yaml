@@ -1,0 +1,6 @@
+# Ablation of M-006: airport/runway congestion windows removed.
+base: configs/gbm.yaml
+exp_id: EXP-014
+title: ablation — no congestion windows (M-006)
+drop_numeric: [n_dep_ap_10p, n_dep_ap_30p, n_dep_ap_10f, n_arr_ap_10p, n_arr_ap_10f, n_dep_ap_60c, n_arr_ap_60c,
+               arr_taxi_in_30p, n_dep_rw_10p, n_dep_rw_30p, n_arr_rw_10p, n_arr_rw_10f]

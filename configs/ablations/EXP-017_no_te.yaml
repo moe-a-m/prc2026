@@ -1,0 +1,5 @@
+# Ablation of M-005: out-of-fold target encodings removed (categoricals kept).
+base: configs/gbm.yaml
+exp_id: EXP-017
+title: ablation — no OOF target encodings (M-005)
+drop_te: [[airport, stand, runway], [airport, stand], [airport, runway], [airport, operator], [airport, actype], [airport, flt_prefix]]

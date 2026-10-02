@@ -21,9 +21,19 @@ EVAL_COLS = ["mvt_id", "ds", "month", "airport", "y", "runway", "stand"] + V.FLA
 
 
 def load_config(path):
+    """YAML config. `base: <path>` inherits another config; `drop_numeric`, `drop_categorical` and
+    `drop_te` (list of key lists) remove inputs from it (feature-family ablations)."""
     text = (ROOT / path).read_text() if not str(path).startswith("/") else open(path).read()
     cfg = yaml.safe_load(text)
-    cfg["config_hash"] = hashlib.sha256(text.encode()).hexdigest()[:12]
+    hashed = text
+    if "base" in cfg:
+        base = load_config(cfg.pop("base"))
+        hashed = base.pop("config_hash") + text
+        cfg = {**base, **cfg}
+    cfg["numeric"] = [c for c in cfg["numeric"] if c not in cfg.get("drop_numeric", [])]
+    cfg["categorical"] = [c for c in cfg["categorical"] if c not in cfg.get("drop_categorical", [])]
+    cfg["target_encodings"] = [k for k in cfg["target_encodings"] if k not in cfg.get("drop_te", [])]
+    cfg["config_hash"] = hashlib.sha256(hashed.encode()).hexdigest()[:12]
     return cfg
 
 

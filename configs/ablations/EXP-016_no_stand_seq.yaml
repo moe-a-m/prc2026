@@ -1,0 +1,6 @@
+# Ablation of M-008 + M-009: runway sequence and stand-occupancy features removed.
+base: configs/gbm.yaml
+exp_id: EXP-016
+title: ablation — no runway sequence / stand occupancy (M-008, M-009)
+drop_numeric: [gap_prev_dep_rw, gap_next_dep_rw, gap_arr_stand_1, gap_arr_stand_2, gap_prev_dep_stand]
+drop_categorical: [prev_wake_rw]
