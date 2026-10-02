@@ -29,7 +29,11 @@ def load_config(path):
     if "base" in cfg:
         base = load_config(cfg.pop("base"))
         hashed = base.pop("config_hash") + text
-        cfg = {**base, **cfg}
+        # the parent's add/drop lists are already applied to its numeric/categorical/TE lists: don't re-apply
+        for k in ("add_numeric", "drop_numeric", "drop_categorical", "drop_te"):
+            base.pop(k, None)
+        extra = base.get("extra_tables", []) + [t for t in cfg.get("extra_tables", []) if t not in base.get("extra_tables", [])]
+        cfg = {**base, **cfg, "extra_tables": extra}
     cfg["numeric"] = [c for c in cfg["numeric"] + cfg.get("add_numeric", []) if c not in cfg.get("drop_numeric", [])]
     cfg["categorical"] = [c for c in cfg["categorical"] if c not in cfg.get("drop_categorical", [])]
     cfg["target_encodings"] = [k for k in cfg["target_encodings"] if k not in cfg.get("drop_te", [])]

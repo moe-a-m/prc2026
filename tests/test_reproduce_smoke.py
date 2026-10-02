@@ -66,3 +66,12 @@ def test_nn_fit_predict_end_to_end(frame):
     X = gbm.design(frame, cfg, tr)
     (p,) = tabnn.train_predict(X[tr], frame.y[tr].to_numpy(float), [X[~tr]], cfg, seed=1)
     assert len(p) == (~tr).sum() and np.isfinite(p).all()
+
+
+def test_config_inheritance_no_duplicates():
+    for path in ["configs/gbm.yaml", "configs/ablations/EXP-018_weather.yaml", "configs/ablations/EXP-024_weather_ec.yaml",
+                 "configs/ablations/EXP-025_per_airport_weather.yaml", "configs/nn.yaml"]:
+        cfg = gbm.load_config(path)
+        assert len(cfg["numeric"]) == len(set(cfg["numeric"])), path
+    assert len(gbm.load_config("configs/ablations/EXP-025_per_airport_weather.yaml")["numeric"]) == 63
+    assert gbm.load_config("configs/ablations/EXP-024_weather_ec.yaml")["extra_tables"] == ["feat_dep_ec"]

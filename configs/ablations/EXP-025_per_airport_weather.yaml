@@ -1,0 +1,5 @@
+# Candidate model: per-airport LightGBM (kept, EXP-022) + METAR weather (kept, EXP-018).
+base: configs/ablations/EXP-018_weather.yaml
+exp_id: EXP-025
+title: per-airport LightGBM + METAR weather
+per_airport: true
