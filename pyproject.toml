@@ -26,6 +26,7 @@ dependencies = [
     "pytest>=9.1.1",
     "tabulate>=0.10.0",
     "pyyaml>=6.0.3",
+    "torch>=2.14",
 ]
 
 [project.scripts]
@@ -43,5 +44,11 @@ testpaths = ["tests"]
 addopts = "-p no:cacheprovider"
 markers = ["slow: needs the full DuckDB build"]
 
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
 [tool.uv.sources]
 traffic = { git = "https://github.com/xoolive/traffic.git" }
+torch = { index = "pytorch-cpu" }

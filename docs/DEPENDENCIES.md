@@ -14,6 +14,7 @@ installed package metadata (`importlib.metadata`) on 2026-10-02. All are GPLv3-c
 | catboost | 1.2.10 | Apache-2.0 | gradient-boosted trees, second family (P3/P5) |
 | pyyaml | 6.0.3 | MIT | run configs in `configs/*.yaml` |
 | tabulate | 0.10.0 | MIT | markdown tables in `reports/checks/` (pandas `to_markdown`) |
+| torch | 2.14.1+cpu | Apache-2.0 AND BSD-3-Clause family (multi-licence expression in metadata; GPLv3-compatible) | neural tabular model (M-013); CPU wheel from the explicit `pytorch-cpu` uv index |
 | pytest | 9.1.1 | MIT | tests |
 | scipy | 1.18.1 | BSD-3-Clause | pre-existing (exploration) |
 | matplotlib | 3.11.2 | PSF-based | pre-existing (exploration plots) |
