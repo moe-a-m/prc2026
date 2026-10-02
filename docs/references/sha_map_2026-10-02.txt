@@ -1,0 +1,29 @@
+# Commit history was rewritten on 2026-10-02 to change author identity only (trees unchanged).
+# old SHA -> new SHA; experiment logs and test summaries were remapped accordingly.
+f68699d 5330f00
+8fb137d 7a30731
+490fd98 51d04c8
+bba4adc 8eac4ec
+91eb90a f2a5d66
+3c574ba 483bf85
+d0b8641 ad38ab8
+99ea67d 054df8c
+c4e9360 caea2f3
+ca83484 f7581b8
+c1ba71e 7a6f277
+8e17c77 d97420b
+ef9a421 35bbef7
+a7ffddb 094c4c9
+c9612a2 63cff14
+869b607 a0807cc
+8573cfa bed2d18
+35562bf bed6ef3
+3894222 c56259f
+51117a1 439fab2
+f5b9722 a6cf8ce
+d5bd8bc 0eba327
+3ef1823 d83662e
+99b4a61 9435f1c
+a4b10a4 0092c29
+ee4cf1b 9181840
+f8b2c02 df74cf4
