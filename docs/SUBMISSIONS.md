@@ -6,4 +6,4 @@ Team `motivated-engine`, bucket `prc-2026-motivated-engine`, file name `motivate
 
 | version | file | date (UTC) | experiment | local Jan-25 RMSE | local Jul-25 RMSE | board score | used_pairs | notes |
 |---|---|---|---|---|---|---|---|---|
-| 1 | motivated-engine_v1.parquet | built 2026-10-02, **not uploaded** | EXP-011 (final fit on all 2025, seed 42) | 372.78 | 397.32 | — | — | awaiting user go-ahead; 62 preds clipped at 0 |
+| 1 | motivated-engine_v1.parquet | 2026-10-02 12:19 (uploaded by the user) | EXP-011 (final fit on all 2025, seed 42) | 372.78 | 397.32 | 347.2252 | 344841 | sha256 9b173bc1…f338 identical to local file; 62 preds clipped at 0 |

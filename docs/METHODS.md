@@ -2,7 +2,8 @@
 
 Every modelling or cleaning method used in the pipeline, with its provenance (CLAUDE.md §1.3):
 (a) official documentation, (b) peer-reviewed paper, (c) past PRC repo, (d) dated forum statement
-(`docs/references/forum_2026-10-02.md`, item numbers refer to that export), (e) experiment in this repo.
+(local, uncommitted export `docs/references/forum_2026-10-02.md` of `#prc-data-competition`; cited by
+author and date, item numbers refer to that export), (e) experiment in this repo.
 Literature citations marked *(verify)* were written from memory and must be checked against the paper before
 the JOAS write-up.
 

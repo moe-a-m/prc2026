@@ -26,3 +26,6 @@ data/external/*
 /submissions/
 /logs/
 /papers/
+
+# forum export: kept local, cited by date in docs/METHODS.md (participants' messages; not for a public repo)
+docs/references/forum_*.md
