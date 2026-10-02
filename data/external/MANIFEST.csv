@@ -7,6 +7,8 @@ data/external/adsblol/raw_tmp/v2025.01.01-planes-readsb-prod-0/v2025.01.01-plane
 data/external/adsblol/raw_tmp/v2026.01.01-planes-readsb-prod-0/v2026.01.01-planes-readsb-prod-0.tar.aa,2000000000,1dc34668af7f82dec7d5e9db3f28c71427e42efd98e86075153c962c41b6a9fe,2026-10-02T14:04:35+00:00,adsblol
 data/external/adsblol/raw_tmp/v2026.01.01-planes-readsb-prod-0/v2026.01.01-planes-readsb-prod-0.tar.ab,390996480,7fe933f462cb09b7907a902dadd2b2aa3640d8a4c75e6966cfe3efe8f9aa15ee,2026-10-02T14:10:22+00:00,adsblol
 data/external/adsblol/raw_tmp/v2026.07.01-planes-readsb-prod-0/v2026.07.01-planes-readsb-prod-0.tar.aa,2000000000,76554f8e6f19ebdf210b71c3ac0d0192b32880b913feea009f81ec637bf64676,2026-10-02T14:43:22+00:00,adsblol
+data/external/adsblol/raw_tmp/v2026.07.01-planes-readsb-prod-0/v2026.07.01-planes-readsb-prod-0.tar.ab,2000000000,1cf46c089ccf0f1d47901d32ca28e6d8c0d86952db58264bdd9a217cf3aec7b4,2026-10-02T14:55:41+00:00,adsblol
+data/external/adsblol/raw_tmp/v2026.07.01-planes-readsb-prod-0/v2026.07.01-planes-readsb-prod-0.tar.ac,61168640,7734cd05b8227263f0d342bcd215f030180cc83ed604a397937122a8cb88ce5a,2026-10-02T14:56:33+00:00,adsblol
 data/external/eurocontrol_apt/raw/airport_traffic_2025.csv,8275390,b9dae4924d77e7229b8cea43e6219a62c2ef914ed5bae3c6760b39902a6402c1,2026-10-02T13:48:32+00:00,eurocontrol_apt
 data/external/eurocontrol_apt/raw/airport_traffic_2026.csv,5559149,17edc6282f3a8b9a1865d83d3da9651833e2a93f0803f02a17eaf593d1af4fcf,2026-10-02T13:48:55+00:00,eurocontrol_apt
 data/external/eurocontrol_apt/raw/all_pre_departure_delays_2025.csv,6503341,d742eeb626e5f9f7e0c756e2ae3cf90078f4627e989a2e31b8ed21ba8f5510be,2026-10-02T13:48:42+00:00,eurocontrol_apt
