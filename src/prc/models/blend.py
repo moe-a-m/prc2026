@@ -4,6 +4,8 @@ Cross-fitted to avoid tuning on the scored validation month: weights fit on Jan-
 vice versa. Final weights (for the ranking set) are fit on both folds together.
 
   python -m prc.models.blend --members EXP-018 EXP-019 --exp-id EXP-025 [--hedge]
+  python -m prc.models.blend --average EXP-025:1 EXP-029:2 --exp-id EXP-030      # ranking preds, weighted mean
+  python -m prc.models.blend --final --exp-id EXP-031                            # ranking preds, weights from report
 """
 import argparse
 import json
@@ -68,10 +70,47 @@ def main(members, exp_id, use_hedge=False):
     return r, w_all
 
 
+def _rank_preds(e):
+    return pd.read_parquet(MODELS / e / "pred_rank.parquet").set_index("mvt_id").pred
+
+
+def average(spec, exp_id):
+    """Weighted mean of members' ranking predictions, e.g. seed averages ('EXP-025:1 EXP-029:2')."""
+    parts = [(e, float(w)) for e, w in (x.split(":") for x in spec)]
+    preds = [_rank_preds(e) * w for e, w in parts]
+    out = sum(preds[1:], preds[0]) / sum(w for _, w in parts)
+    (MODELS / exp_id).mkdir(parents=True, exist_ok=True)
+    out.rename("pred").reset_index().to_parquet(MODELS / exp_id / "pred_rank.parquet", index=False)
+    print(f"wrote {MODELS / exp_id / 'pred_rank.parquet'} ({len(out)} rows) from {parts}")
+
+
+def final(exp_id):
+    """Apply the blend's final weights (recorded in reports/experiments/<exp_id>.md) to members' ranking predictions."""
+    import re
+    from prc.paths import REPORTS
+    rep = (REPORTS / "experiments" / f"{exp_id}.md").read_text()
+    w = json.loads(re.search(r"- final_weights: (\{.*\})", rep).group(1))
+    if re.search(r"- hedge: True", rep):
+        raise SystemExit("blend was evaluated with the hedge; apply prc.models.hedge final as well")
+    preds = {e: _rank_preds(e) for e in w}
+    idx = next(iter(preds.values())).index
+    out = sum(preds[e].loc[idx] * wt for e, wt in w.items())
+    (MODELS / exp_id).mkdir(parents=True, exist_ok=True)
+    out.rename("pred").reset_index().to_parquet(MODELS / exp_id / "pred_rank.parquet", index=False)
+    print(f"wrote {MODELS / exp_id / 'pred_rank.parquet'} ({len(out)} rows), weights {w}")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--members", nargs="+", required=True)
+    ap.add_argument("--members", nargs="+")
+    ap.add_argument("--average", nargs="+")
+    ap.add_argument("--final", action="store_true")
     ap.add_argument("--exp-id", required=True)
     ap.add_argument("--hedge", action="store_true")
     a = ap.parse_args()
-    main(a.members, a.exp_id, a.hedge)
+    if a.average:
+        average(a.average, a.exp_id)
+    elif a.final:
+        final(a.exp_id)
+    else:
+        main(a.members, a.exp_id, a.hedge)
