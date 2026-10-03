@@ -22,6 +22,7 @@ data/external/adsblol/extract/2026-07-03.parquet,14020399,828561ebc11d1a49a6be0c
 data/external/adsblol/extract/2026-07-04.parquet,13401560,01be33d317a3dd76c6aae104d008963fbf70d4963244fd2be5d3f26404e9d84f,2026-10-03T00:38:46+00:00,adsblol_extract
 data/external/adsblol/extract/2026-07-05.parquet,14768895,d67914bbd51362968bc0112ce4f625ac87366200601a4c52a3f641b6cdc96bf3,2026-10-03T16:36:50+00:00,adsblol_extract
 data/external/adsblol/extract/2026-07-06.parquet,15392313,ee8c9b887040a45134546f40a34926d7ce8449cf21c2b52219acee1e43a26904,2026-10-03T18:38:45+00:00,adsblol_extract
+data/external/adsblol/extract/2026-07-07.parquet,15013045,c110530f26ffdf8cc7ba393520c2b78e5173d4ee40bc272e851b2def06854596,2026-10-03T20:16:20+00:00,adsblol_extract
 data/external/adsblol/meta/PREFERRED_RELEASES_2025.txt,101280,3414529a55b3521554e73643a1cebe10617358bd793c989c747f19f114c3079d,2026-10-02T13:44:49+00:00,adsblol
 data/external/adsblol/meta/PREFERRED_RELEASES_2026.txt,85604,68a9523823baa499d06a5f4da74d8e5ab014920c3a45f3cb052f7ca3a8ff6819,2026-10-02T13:44:50+00:00,adsblol
 data/external/adsblol/raw_tmp/v2025.01.01-planes-readsb-prod-0/v2025.01.01-planes-readsb-prod-0.tar,1682749440,fb4427608056277c67898e7ec7f6f3e35540147101a453a8c66f1c1dc543178e,2026-10-02T14:28:41+00:00,adsblol
@@ -33,6 +34,7 @@ data/external/adsblol/raw_tmp/v2025.01.04-planes-readsb-prod-0/v2025.01.04-plane
 data/external/adsblol/raw_tmp/v2025.01.04-planes-readsb-prod-0/v2025.01.04-planes-readsb-prod-0.tar.ab,187345920,71009eafaa03211fddb4902fa88472630bd7d9dd821f565b1e6e550e21c6eadb,2026-10-02T23:39:58+00:00,adsblol
 data/external/adsblol/raw_tmp/v2025.01.05-planes-readsb-prod-0/v2025.01.05-planes-readsb-prod-0.tar.aa,2000000000,a78a262b2b3cbadcc37350ccee7d1f276e97094ea116ce86c04b968817063227,2026-10-03T02:57:40+00:00,adsblol
 data/external/adsblol/raw_tmp/v2025.01.05-planes-readsb-prod-0/v2025.01.05-planes-readsb-prod-0.tar.ab,121984000,1c23c9cb291250746e1b6df3377853da9d43e4a2ff573d2bf3236b1d16c654e7,2026-10-03T02:59:41+00:00,adsblol
+data/external/adsblol/raw_tmp/v2025.01.07-planes-readsb-staging-0/v2025.01.07-planes-readsb-staging-0.tar.aa,2000000000,f487df0d0bf53f0daa88ef5a65894cdf1d7633903c2108067d2727b11b54046a,2026-10-03T20:16:59+00:00,adsblol
 data/external/adsblol/raw_tmp/v2025.07.01-planes-readsb-prod-0/v2025.07.01-planes-readsb-prod-0.tar.aa,2000000000,e0309ca749bdbb20554b3f72e80c9b810f2c7b66b3718f68ad404d42141a064e,2026-10-02T15:12:29+00:00,adsblol
 data/external/adsblol/raw_tmp/v2025.07.01-planes-readsb-prod-0/v2025.07.01-planes-readsb-prod-0.tar.ab,1422842880,5957a984d6beb94e5f53073069f88e8b7fffadb8061e9991192b58873de43d05,2026-10-02T15:22:58+00:00,adsblol
 data/external/adsblol/raw_tmp/v2025.07.02-planes-readsb-prod-0/v2025.07.02-planes-readsb-prod-0.tar.aa,2000000000,3bdcee59cdc7f6f36ca154d556cd77639d575050dffd147f57ccb85f52edebac,2026-10-02T16:51:44+00:00,adsblol
