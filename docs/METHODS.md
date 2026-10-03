@@ -177,3 +177,19 @@ else the first at-stand observation (lower bound).
   read 2026-10-02): documented parking position + start of movement. Independent SQL implementation, no code copied.
 - (e) `reports/checks/p4_adsb_stand_offblock_2025.md`: coverage 22.7% of matched 2025 departures (vs 14.0% for the
   seen-parked rule), 80.7% within 60 s of the target when seen stationary at the stand; poor at EGLL/LEMD.
+
+## M-022 Residual to an NM-based proxy (baseline offset)
+Trees learn y − b with b = take-off − AOBT_3, else − EOBT_1, else − schedule (≥ 0), passed as LightGBM `init_score`
+and added back to predictions; a constant-leaf tree can then follow b beyond the training range (long delays, echoes).
+- (a) LightGBM documentation: `init_score` in `lightgbm.Dataset` (installed 4.7.0 signature checked; `predict()`
+  excludes the init score — verified in a toy run).
+- General residual/offset modelling (generalised linear models with an offset term); motivated by a published PRC 2026
+  write-up (Phoenix-Ops-LTD/prc2026-taxiout, METHOD.md, read 2026-10-02 — idea only, no code; user policy:
+  general techniques only). Measured in EXP-034.
+
+## M-023 Linear-leaf gradient boosting (LightGBM `linear_tree`)
+Each leaf holds a ridge-regularised linear model of the numeric features on its path (`linear_lambda` = 1, fixed a priori).
+- (a) LightGBM Parameters documentation, `linear_tree` (https://lightgbm.readthedocs.io/en/stable/Parameters.html).
+- (b) Shi, Li & Li, "Gradient Boosting with Piece-Wise Linear Regression Trees", IJCAI 2019 *(verify)*.
+- (e) Toy check: with x outside the training range, constant leaves stay at 5.0 (truth 15), linear leaves reach 7.3–7.5.
+- Motivated by a published PRC 2026 write-up (radekacar/joyous-rainbow README, read 2026-10-02 — idea only). EXP-033.

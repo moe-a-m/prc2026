@@ -1,0 +1,24 @@
+# M-023: linear models in the leaves (LightGBM linear_tree) on the v2 setup, to extrapolate on long-delay rows.
+# linear_lambda fixed a priori (not tuned).
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-033
+title: per-airport LightGBM + weather with linear_tree leaves
+params:
+  objective: regression
+  learning_rate: 0.05
+  num_leaves: 255
+  min_data_in_leaf: 100
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  lambda_l2: 10.0
+  max_bin: 255
+  cat_smooth: 10
+  min_data_per_group: 100
+  max_cat_threshold: 64
+  deterministic: true
+  force_row_wise: true
+  num_threads: 4
+  verbose: -1
+  linear_tree: true
+  linear_lambda: 1.0

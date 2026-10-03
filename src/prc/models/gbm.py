@@ -135,20 +135,29 @@ def fit(X, y, cfg, seed):
     return lgb.train(params, ds, num_boost_round=cfg["num_boost_round"])
 
 
+def offset(df, cfg):
+    """Baseline offset (M-022): trees learn y − offset; predictions add it back (LightGBM init_score is excluded
+    from predict()). 'nm_proxy' = take-off − AOBT_3, else − EOBT_1, else − schedule, floored at 0."""
+    if cfg.get("offset") != "nm_proxy":
+        return np.zeros(len(df))
+    return df.d_aobt3.fillna(df.d_eobt1).fillna(df.d_sched).clip(lower=0).to_numpy(float)
+
+
 def fit_predict(df, X, fit_mask, pred_mask, cfg, seed):
     """One global model, or one model per airport when cfg['per_airport'] (stops patterns that only hold at one
     airport — e.g. LIRF schedule echoes — from leaking into others, EXP-022). Returns (pred, last_model)."""
     y = df.y.to_numpy(float)
-    if not cfg.get("per_airport"):
-        b = fit(X[fit_mask], y[fit_mask], cfg, seed)
-        return b.predict(X[pred_mask]), b
+    off = offset(df, cfg)
+    groups = [np.ones(len(df), bool)] if not cfg.get("per_airport") else [
+        (df.airport == a).to_numpy() for a in sorted(df.airport.unique())]
     out = np.full(len(df), np.nan)
-    for a in sorted(df.airport.unique()):
-        am = (df.airport == a).to_numpy()
+    b = None
+    for am in groups:
         if not (pred_mask & am).any():
             continue
-        b = fit(X[fit_mask & am], y[fit_mask & am], cfg, seed)
-        out[pred_mask & am] = b.predict(X[pred_mask & am])
+        fm, pm = fit_mask & am, pred_mask & am
+        b = fit(X[fm], y[fm] - off[fm], cfg, seed)
+        out[pm] = b.predict(X[pm]) + off[pm]
     return out[pred_mask], b
 
 

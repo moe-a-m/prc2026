@@ -1,0 +1,5 @@
+# M-022: trees learn the residual to an NM-based proxy (init_score offset), so predictions scale with the proxy.
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-034
+title: per-airport LightGBM + weather, residual to NM proxy (offset)
+offset: nm_proxy
