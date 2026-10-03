@@ -39,6 +39,7 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 | EXP-030 | 2026-10-03 | 3-seed LightGBM average | — | — | (EXP-025 + 2×EXP-029)/3, no training | 42, 7, 99 | 346.23 | 378.43 | — | kept: normal rows 205.6 / 235.7 |
 | EXP-031 | 2026-10-03 | cross-fitted NNLS blend EXP-030 + EXP-028 | 6defa75af1e0 | 4cd1bbb-dirty | members EXP-030, EXP-028 | — | 347.72 | 361.72 | — | kept — v3 candidate: normal rows 199.6 / 231.4 (v2: 207.1 / 237.4); final weights 0.490 / 0.508 |
 | EXP-032 | 2026-10-03 | EXP-031 + echo hedge (M-014) | 6defa75af1e0 | 4cd1bbb-dirty | members EXP-030, EXP-028 | — | 356.56 | 370.98 | — | rejected: hedge on top of the blend +8.8 / +9.3 |
+| EXP-039 | 2026-10-03 | three-regime hedge (echo / day-minus / normal) for LIRF-unmatched ≥ 6 h late (M-026) | 8ea6490e1653 | 2df673c-dirty | post-processing of EXP-031 hold-outs; shares cross-fitted; bands 6–14 h / ≥ 14 h × later-day | — | 339.82 | 330.46 | — | kept — v4 candidate: −7.9 Jan / −31.3 Jul vs EXP-031; 21 rows changed, 17 better; echo rows 6–14 h now exact; band edges chosen post hoc (caveat) |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).

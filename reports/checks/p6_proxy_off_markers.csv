@@ -1,0 +1,11 @@
+marker,n_marked,pct_rows,pct_proxy_off_if_marked,pct_proxy_off_if_not,n_marked_and_off,pct_total_sq_err_marked,pct_total_sq_err_marked_and_off
+m_proxy_gt2h,19,0.001,57.89,0.087,11,4.35,0.01
+m_proxy_negative,1012,0.049,30.73,0.073,311,0.31,0.2
+m_aobt3_eobt1_gt1h,3197,0.155,29.28,0.042,936,2.32,1.33
+m_aobt3_1h_before_sched,1200,0.058,27.75,0.072,333,0.01,0.0
+m_type_mismatch,7013,0.34,2.45,0.08,172,0.27,0.12
+m_sched_lobt_gt3h,8807,0.427,0.51,0.086,45,3.3,0.01
+m_late6h,2252,0.109,0.31,0.087,7,5.32,0.0
+m_lirf,159216,7.719,0.29,0.071,457,17.11,1.69
+m_ades_mismatch,29160,1.414,0.15,0.087,45,0.88,0.1
+m_callsign_neq_flight,557756,27.043,0.06,0.099,315,6.77,0.61

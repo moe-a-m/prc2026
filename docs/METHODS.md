@@ -207,3 +207,17 @@ airport within ±60 min. Minute-rounded records mark manually recorded movements
 - (e) `reports/checks/p6_rounding_mvt_vs_block.md`: P(block on a whole minute | take-off on a whole minute) ≈ 50% vs
   4.5% at five airports; RMS label +134 s (LFPG) / +159 s (LIRF) on rounded rows; `reports/checks/p6_error_budget_EXP-031.md`:
   minute-rounded-block rows are 6.4% of rows and 22% of hold-out squared error. Label-free. Measured in EXP-038.
+
+## M-026 Three-regime mixture for very late NM-unmatched flights at echo-prone airports
+At airports qualifying under M-014 (currently LIRF), NM-unmatched departures ≥ 6 h after schedule follow three label
+regimes: schedule echo (y ≈ take-off − schedule), "day-minus" (real off-block written ~24 h early, y ≈ 86,400 + taxi,
+only possible when take-off is on a later calendar day than the schedule) and normal. Prediction =
+p_echo·d_sched + p_dm·mean(y|dm) + p_normal·mean(y|normal), with shares per (airport, band 6–14 h / ≥ 14 h, later-day)
+estimated on training months only (cells < 5 rows fall back to the pooled band).
+- (e) Found by the cleaning investigation (`docs/references/cleaning_investigation_2026-10-03.md`,
+  `reports/checks/p6_lirf_unmatched_regimes_by_band.md`, `p6_dayshift_precursors.md`); EXP-039.
+- (b) Mixture / regime models for corrupted labels: E[y|x] = Σ_k P(k|x) E[y|x,k]; Patrini et al., "Making deep neural
+  networks robust to label noise: a loss correction approach", arXiv:1609.03683 (forward modelling of a known
+  corruption process, classification analogue).
+- Caveat: the 6 h and 14 h band edges were chosen after looking at all 2025 months (incl. the hold-outs); the shares
+  are cross-fitted. Gain rests on 21 hold-out rows (17 improve).

@@ -1,0 +1,11 @@
+airport,n_stand_codes,n_after_norm,n_codes_merged,n_rows_null,n_rows_placeholder,n_rows_changed_by_norm,examples_changed,n_rows_non_numeric
+EDDF,252,252,0,,,,,266458.0
+EDDM,213,213,0,,,,,1305.0
+EGLL,231,231,0,6.0,,,,33031.0
+EHAM,263,263,0,,,,,286133.0
+LEBL,233,233,0,,,325.0,"03,01,02,04",6138.0
+LEMD,381,381,0,,,,,76609.0
+LFPG,414,414,0,16.0,,,,279424.0
+LIRF,143,143,0,10.0,,,,24.0
+LSZH,219,219,0,,,,,148611.0
+LTFM,419,419,0,,,,,285743.0

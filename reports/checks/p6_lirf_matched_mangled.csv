@@ -1,0 +1,3 @@
+mangled,n_train,pct_echo_late1h,pct_proxy_off1h,pct_late3h_2025,pct_late3h_2026,n_hold,rmse_hold,pct_total_sq_err,rmse_raw_proxy_hold
+True,2742,1.06,0.4,4.96,6.57,485,1205.0,1.62,589.0
+False,156475,0.6,0.29,0.5,0.77,25646,513.0,15.49,649.0

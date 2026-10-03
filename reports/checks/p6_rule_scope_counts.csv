@@ -1,0 +1,7 @@
+rule_scope,n_train2025,n_rank_jan2026,n_rank_jul2026
+R1 LIRF-unm 6-14h,43,9,11
+R1 LIRF-unm >=14h,20,2,4
+R2 LIRF-unm 1-6h,1312,78,244
+R3 matched non-suspect >3h,12654,1757,1394
+flag proxy_suspect,4832,509,550
+other,2066186,150364,189919

@@ -1,0 +1,9 @@
+pred_vs_proxy,proxy_suspect,n,pct_proxy_within5min,pct_model_closer,pct_total_sq_err_now,pct_total_sq_err_if_proxy
+a <=10min,False,321854,77.0,66.6,29.91,62.01
+a <=10min,True,204,51.5,66.7,0.34,0.43
+b 10-30min,False,15115,8.7,87.8,7.01,35.22
+b 10-30min,True,271,15.9,70.8,0.59,1.44
+c 30-60min,False,929,3.0,91.2,1.32,13.29
+c 30-60min,True,291,0.7,93.5,0.82,6.37
+d >60min,False,117,14.5,70.9,7.61,4.15
+d >60min,True,265,0.0,97.0,0.74,19.86

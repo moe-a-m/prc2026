@@ -1,0 +1,15 @@
+unmatched,fn_class,n_train,n_rank,pct_prefix_empty,pct_operator_null,top_airport,n_hold,rmse_hold,pct_total_sq_err
+True,icao3+num,16654,3660,0.0,100.0,LFPG,3955,2113.0,40.55
+True,iata2+num,3869,1284,100.0,100.0,EHAM,1045,448.0,0.48
+True,letters_only(reg?),1333,197,0.0,100.0,LSZH,253,937.0,0.51
+True,letters4+num,228,47,0.0,100.0,EHAM,34,267.0,0.01
+True,mangled_repeat,167,48,0.0,100.0,LIRF,40,10433.0,10.0
+True,other,108,24,97.7,100.0,LSZH,34,1032.0,0.08
+True,null,65,23,100.0,100.0,LIRF,5,1362.0,0.02
+False,icao3+num,1609559,268979,0.0,0.0,LTFM,265093,260.0,41.18
+False,iata2+num,436945,67927,100.0,0.0,EHAM,71114,178.0,5.19
+False,letters_only(reg?),9213,1456,0.0,0.0,EHAM,1547,236.0,0.2
+False,other,3489,644,98.5,0.0,LSZH,696,243.0,0.09
+False,mangled_repeat,2756,434,0.0,0.0,LIRF,488,1202.0,1.62
+False,letters4+num,538,83,0.0,0.0,EHAM,95,237.0,0.01
+False,null,123,35,100.0,0.0,LIRF,20,1099.0,0.06
