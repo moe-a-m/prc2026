@@ -23,8 +23,11 @@
 ## Coverage
 - requested: all days of Jan + Jul 2025 and Jan + Jul 2026 (124 days), no margin days (a departure pushing back before
   00:00 UTC on the 1st is only partially covered — documented limitation)
-- measured per airport-month: `reports/checks/p4_adsblol_coverage.md` (to be produced after extraction)
-- known weak coverage (review): LTFM ~none, LFPG thin
+- measured per airport-month: `reports/checks/p4_adsblol_coverage.md` (first run 2026-10-03 on 24 extracted days;
+  re-run when all days exist). Ground (taxi) segment found for: LTFM 0% all months; LFPG 0–17%; LIRF 0% Jan-2025 and
+  Jul-2026, 61–81% otherwise; LEMD 0% Jan-2025, 12% Jul-2025, 59–97% in 2026; EDDM 0.1% Jul-2025 vs ≥ 97% other months;
+  EGLL 8–41% except 97% Jul-2026; EHAM, LEBL, LSZH, EDDF stable (55–99%). Strong 2025→2026 drift → features are
+  used only through the agreement-gated M-028 step, never as raw model inputs.
 
 ## Retrieval
 - script: `scripts/fetch/adsblol.py download` and `... extract` (two background processes); helper `src/prc/fetchutil.py`
