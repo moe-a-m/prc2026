@@ -122,7 +122,13 @@ def cmd_download():
             if dest.exists() and F.listed(dest) and F.listed(dest)["sha256"] == digest:
                 continue
             t0 = time.time()
-            F.download(u, dest, n_conn=N_CONN, expected_size=size, log=log.info)
+            while True:  # network outages: wait and resume (chunks already written are kept)
+                try:
+                    F.download(u, dest, n_conn=N_CONN, expected_size=size, log=log.info)
+                    break
+                except (IOError, requests.RequestException) as e:
+                    log.warning("%s: %s — retrying in 5 min", name, e)
+                    time.sleep(300)
             sha = F.sha256_file(dest)
             if digest and sha != digest:
                 dest.unlink()

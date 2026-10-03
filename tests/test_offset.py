@@ -29,3 +29,11 @@ def test_no_offset_is_zero():
     df, _ = _df(50)
     assert not gbm.offset(df, {}).any()
     assert np.allclose(gbm.offset(df, {"offset": "nm_proxy"}), df.d_aobt3)
+
+
+def test_split_unmatched_groups():
+    df, X = _df(2000)
+    df["nm_unmatched"] = np.arange(len(df)) % 5 == 0
+    fm = np.arange(len(df)) < 1500
+    p, _ = gbm.fit_predict(df, X, fm, ~fm, {**CFG, "per_airport": True, "split_unmatched": ["A"]}, 1)
+    assert len(p) == (~fm).sum() and np.isfinite(p).all()

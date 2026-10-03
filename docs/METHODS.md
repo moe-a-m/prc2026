@@ -221,3 +221,10 @@ estimated on training months only (cells < 5 rows fall back to the pooled band).
   corruption process, classification analogue).
 - Caveat: the 6 h and 14 h band edges were chosen after looking at all 2025 months (incl. the hold-outs); the shares
   are cross-fitted. Gain rests on 21 hold-out rows (17 improve).
+
+## M-027 Separate models for NM-matched and unmatched departures at an echo-prone airport
+At LIRF, one LightGBM per (airport, NM-match status) instead of one per airport.
+- (e) Cleaning investigation: the single LIRF model transfers the unmatched schedule-echo hedge to matched flights
+  (112 negative hold-out predictions; `reports/checks/p6_proxy_clip_rules.md`). Same logic as the per-airport split
+  (EXP-022, M-014 diagnostic). Chosen instead of clipping to the NM proxy (user policy: general techniques only).
+  Measured in EXP-040 (LIRF rows only, paired with EXP-025).

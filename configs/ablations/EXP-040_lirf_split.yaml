@@ -1,0 +1,8 @@
+# M-027: separate LIRF models for NM-matched and NM-unmatched departures (v2 setup); validated on LIRF only and
+# compared with EXP-025 on the same rows. Motivation: the LIRF model carries the unmatched echo hedge over to matched
+# flights (cleaning investigation, reports/checks/p6_proxy_clip_rules.md).
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-040
+title: per-airport LightGBM + weather, LIRF split by NM match (LIRF rows only)
+split_unmatched: [LIRF]
+only_airports: [LIRF]

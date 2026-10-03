@@ -150,6 +150,11 @@ def fit_predict(df, X, fit_mask, pred_mask, cfg, seed):
     off = offset(df, cfg)
     groups = [np.ones(len(df), bool)] if not cfg.get("per_airport") else [
         (df.airport == a).to_numpy() for a in sorted(df.airport.unique())]
+    split = set(cfg.get("split_unmatched", []))   # M-027: separate NM-matched / unmatched models at these airports
+    if split:
+        um = df.nm_unmatched.fillna(False).to_numpy(bool)
+        groups = [g2 for g in groups for g2 in (
+            [g & um, g & ~um] if df.airport[g].iloc[0] in split else [g])] if cfg.get("per_airport") else groups
     out = np.full(len(df), np.nan)
     b = None
     for am in groups:
@@ -166,6 +171,8 @@ def validate(cfg, seeds=None):
     df = load_frame(cfg.get("weather", False), tuple(cfg.get("extra_tables", [])))
     print(f"  loaded {len(df)} rows ({time.time() - t0:.0f}s)", flush=True)
     tr_all = (df.ds == "train").to_numpy()
+    if cfg.get("only_airports"):   # validate a subset of airports (per-airport models are independent)
+        tr_all &= df.airport.isin(cfg["only_airports"]).to_numpy()
     seeds = seeds or [cfg["seed"]]
     results, per_seed, importance = {}, {}, {}
     for fold, trm, vam in V.folds(df.month.where(tr_all)):
