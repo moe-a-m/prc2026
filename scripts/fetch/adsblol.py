@@ -46,12 +46,15 @@ N_CONN = 4
 
 
 def days():
-    """Jan and Jul of 2025 and 2026, interleaved so a partial run stays balanced between training and ranking."""
-    out = []
+    """Jan and Jul of 2025 and 2026 in priority order (bandwidth is the bottleneck, ~1-2 MB/s):
+    1) every 2026 day interleaved with every second 2025 day (ranking rows need their own day; the model needs
+       enough labelled 2025 days to learn the ADS-B features), 2) the remaining 2025 days."""
+    first, rest = [], []
     for d in range(31):
-        for y, m in [(2026, 1), (2025, 1), (2026, 7), (2025, 7)]:
-            out.append(date(y, m, 1) + timedelta(days=d))
-    return out
+        first += [date(2026, 1, 1) + timedelta(days=d), date(2026, 7, 1) + timedelta(days=d)]
+        pair = [date(2025, 1, 1) + timedelta(days=d), date(2025, 7, 1) + timedelta(days=d)]
+        (first if d % 2 == 0 else rest).extend(pair)
+    return first + rest
 
 
 def log_setup(name):
