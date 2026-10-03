@@ -1,0 +1,14 @@
+# CatBoost capacity variant chosen a priori (not searched): depth 8, learning rate 0.05, 3000 iterations.
+# Compared with EXP-028 (depth 8, lr 0.1, 1500) on non-LIRF y ≤ 3 h hold-out RMSE; full RMSE must not degrade.
+base: configs/cat_pa_wx.yaml
+exp_id: EXP-037
+title: per-airport CatBoost + weather, depth 8 / lr 0.05 / 3000 iterations
+num_boost_round: 3000
+params:
+  loss_function: RMSE
+  learning_rate: 0.05
+  depth: 8
+  l2_leaf_reg: 3
+  border_count: 254
+  thread_count: 4
+  verbose: 500
