@@ -45,6 +45,7 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 | EXP-035 | 2026-10-03 | stand remoteness from ARR taxi-in (M-024) | 8ea6490e1653 | 0af5385 | EXP-025 + 2 cols, config 5b78de7f4118 | 42 | 347.82 | 380.83 | 366.46 | rejected: non-LIRF y≤3h −0.0 / −0.0, LIRF slightly worse |
 | EXP-038 | 2026-10-03 | record-precision markers (M-025) | 8ea6490e1653 | 0af5385 | EXP-025 + 2 cols, config 9c083a777df7 | 42 | 347.65 | 382.18 | 367.17 | rejected: non-LIRF y≤3h −0.25 / +0.13 (noise), LIRF slightly worse |
 | EXP-036 | 2026-10-03 | CatBoost depth 10 (a-priori variant) | — | — | configs/ablations/EXP-036_cat_depth10.yaml | 42 | 361.06 | — | — | abandoned: Jan fold worse than EXP-028 (357.84) after 3 h; Jul fold lost when the session's processes were stopped; not re-run |
+| EXP-040 | 2026-10-03 | separate LIRF models for NM-matched / unmatched (M-027) | 8ea6490e1653 | 6dd84e4-dirty | EXP-025 with split_unmatched [LIRF], LIRF rows only, config fc1db172348d | 42 | 815.32 | 1845.80 | — | rejected: LIRF Jan 430→815, Jul 1,062→1,846 vs EXP-025; matched Jan 311→296 but Jul 678→806; unmatched model (≈1.4k rows) far worse (Jul 5,535→11,186) |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).

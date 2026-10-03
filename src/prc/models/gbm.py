@@ -172,7 +172,7 @@ def validate(cfg, seeds=None):
     print(f"  loaded {len(df)} rows ({time.time() - t0:.0f}s)", flush=True)
     tr_all = (df.ds == "train").to_numpy()
     if cfg.get("only_airports"):   # validate a subset of airports (per-airport models are independent)
-        tr_all &= df.airport.isin(cfg["only_airports"]).to_numpy()
+        tr_all = tr_all & df.airport.isin(cfg["only_airports"]).to_numpy()
     seeds = seeds or [cfg["seed"]]
     results, per_seed, importance = {}, {}, {}
     for fold, trm, vam in V.folds(df.month.where(tr_all)):
