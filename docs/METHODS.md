@@ -200,3 +200,10 @@ Median ARR taxi-in (0–3600 s) per (airport, stand) over 2025 + 2026 arrivals, 
   stands unseen in 2025 departures; correlation with taxi-out 0.0–0.46 by airport. Arrival labels are intact in the
   ranking set (CLAUDE.md §2), so this is current for 2026 and reads no departure label. Measured in EXP-035.
 - (b) Lee, Malik & Jung 2016 (gate–runway distance as a predictor) — stand remoteness as a distance proxy.
+
+## M-025 Record-precision markers
+`mvt_sec0` = take-off time on a whole minute; `arr_mvt_sec0_share_60m` = share of minute-rounded arrival records at the
+airport within ±60 min. Minute-rounded records mark manually recorded movements, where block-time defects concentrate.
+- (e) `reports/checks/p6_rounding_mvt_vs_block.md`: P(block on a whole minute | take-off on a whole minute) ≈ 50% vs
+  4.5% at five airports; RMS label +134 s (LFPG) / +159 s (LIRF) on rounded rows; `reports/checks/p6_error_budget_EXP-031.md`:
+  minute-rounded-block rows are 6.4% of rows and 22% of hold-out squared error. Label-free. Measured in EXP-038.

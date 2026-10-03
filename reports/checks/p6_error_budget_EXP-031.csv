@@ -1,0 +1,11 @@
+category,n,pct_rows,pct_sq_err,rmse
+A unmatched NM,5366,1.56,51.7,2047.0
+B echo: |BLOCK-SCHED|<=10s & late>1h,344,0.1,13.4,4113.0
+C day-shift: y>20h,7,0.0,28.6,42178.0
+"D y in (3h,20h]",53,0.02,14.3,10824.0
+"E matched, NM proxy off by >1h",473,0.14,3.5,1790.0
+F label <= 0,83,0.02,0.1,699.0
+G ADES mvt!=flt (wrong NM join?),4832,1.4,0.9,281.0
+H aircraft type mvt!=flt,1234,0.36,0.3,311.0
+I minute-rounded block,22119,6.42,22.0,657.0
+regular (none of A-F),338428,98.26,39.5,226.0

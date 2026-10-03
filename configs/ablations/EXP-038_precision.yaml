@@ -1,0 +1,6 @@
+# M-025: record-precision markers (minute-rounded take-off time; local share of rounded ARR records) on the v2 setup.
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-038
+title: per-airport LightGBM + weather + record-precision markers
+extra_tables: [feat_dep_precision]
+add_numeric: [mvt_sec0, arr_mvt_sec0_share_60m]

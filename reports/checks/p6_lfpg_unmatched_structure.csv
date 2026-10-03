@@ -1,0 +1,5 @@
+y_band,n,med_dsched,pct_block_eq_sched,pct_late3h,pct_actype_missing,top_prefix,med_y
+1 y>20h,1,1740.0,0.0,0.0,0.0,EJU,84240.0
+2 3-20h,1,2043.0,0.0,0.0,0.0,EJU,58206.0
+3 1-3h,44,8733.0,9.1,15.9,0.0,AFR,4742.0
+4 ≤1h,3719,5821.0,0.6,6.7,0.1,AFR,1020.0

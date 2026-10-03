@@ -3,6 +3,7 @@ data/external/adsblol/extract/2025-01-01.parquet,4740316,cb64f929f24522b844b1949
 data/external/adsblol/extract/2025-01-02.parquet,5283945,1d0155066d6ad6bac1c8ca3cb338f122ceb54b84c9c81e84601c92d79100e802,2026-10-02T16:13:25+00:00,adsblol_extract
 data/external/adsblol/extract/2025-01-03.parquet,5638470,ffc323d207a23097f00544c05d9c70c8a8a37a6e7001fb3abcb9fe1c33b6dfec,2026-10-02T18:19:06+00:00,adsblol_extract
 data/external/adsblol/extract/2025-01-04.parquet,5215555,260868099ae019db18e9b4a9cbbcb4d202a50b929543f41a4ac13483e335cf02,2026-10-02T23:45:16+00:00,adsblol_extract
+data/external/adsblol/extract/2025-01-05.parquet,6077977,6652101bbdd2d14c01e8c4cffdaeee9517b04eda59d647eba506e13654a6dfa6,2026-10-03T03:03:34+00:00,adsblol_extract
 data/external/adsblol/extract/2025-07-01.parquet,11190178,53ade514a7dd8935ab0252ba7625ecfbe84338b1d3381ee0601183e23b71026f,2026-10-02T15:32:16+00:00,adsblol_extract
 data/external/adsblol/extract/2025-07-02.parquet,10905655,178a57b9adfec8796942d4ba29cde96747bba3f8fccb20912c4acdbc855640ae,2026-10-02T17:18:19+00:00,adsblol_extract
 data/external/adsblol/extract/2025-07-03.parquet,9855689,dacd0c84549e2ddaec42f378bb64160811140d79bc565e4dcde7fc0fd5115204,2026-10-02T21:59:07+00:00,adsblol_extract
