@@ -1,0 +1,6 @@
+# M-024: stand remoteness from arrival taxi-in (2025 + 2026 ARR rows) on the v2 setup.
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-035
+title: per-airport LightGBM + weather + ARR stand taxi-in
+extra_tables: [feat_dep_arrstand]
+add_numeric: [arr_stand_taxi_in_med, arr_stand_n]

@@ -193,3 +193,10 @@ Each leaf holds a ridge-regularised linear model of the numeric features on its 
 - (b) Shi, Li & Li, "Gradient Boosting with Piece-Wise Linear Regression Trees", IJCAI 2019 *(verify)*.
 - (e) Toy check: with x outside the training range, constant leaves stay at 5.0 (truth 15), linear leaves reach 7.3–7.5.
 - Motivated by a published PRC 2026 write-up (radekacar/joyous-rainbow README, read 2026-10-02 — idea only). EXP-033.
+
+## M-024 Stand remoteness from arrival taxi-in
+Median ARR taxi-in (0–3600 s) per (airport, stand) over 2025 + 2026 arrivals, joined to departures by stand.
+- (e) `reports/checks/p5_arr_stand_taxi_in.md`: covers 100% of ranking departures, incl. all 1,178 EDDM departures at
+  stands unseen in 2025 departures; correlation with taxi-out 0.0–0.46 by airport. Arrival labels are intact in the
+  ranking set (CLAUDE.md §2), so this is current for 2026 and reads no departure label. Measured in EXP-035.
+- (b) Lee, Malik & Jung 2016 (gate–runway distance as a predictor) — stand remoteness as a distance proxy.
