@@ -228,3 +228,19 @@ At LIRF, one LightGBM per (airport, NM-match status) instead of one per airport.
   (112 negative hold-out predictions; `reports/checks/p6_proxy_clip_rules.md`). Same logic as the per-airport split
   (EXP-022, M-014 diagnostic). Chosen instead of clipping to the NM proxy (user policy: general techniques only).
   Measured in EXP-040 (LIRF rows only, paired with EXP-025).
+
+## M-028 Shrinking predictions toward the ADS-B stand off-block estimate
+Post-processing of the final blend for departures seen stationary at their own stand (M-021). est' = est + per-airport
+median(y − est) (pooled when < 30 rows); where |est' − pred| ≤ 600 s, pred' = pred + w·(est' − pred) with one
+least-squares weight per gap bin (≤ 60, 60–180, 180–600 s), clipped to [0, 1]. Offsets and weights are fit on the
+hold-out predictions of the other 2025 month (cross-fit); final values on both months.
+- (b) Stacked regression / non-negative combination of predictors: Breiman, "Stacked Regressions", *Machine Learning*
+  24, 49–64, 1996 (as M-019); here a two-member combination whose weight depends on the members' agreement.
+- (e) `reports/checks/p4_adsblol_vs_v4_holdout.md`: on rows seen stationary at the stand with |est − pred| ≤ 600 s the
+  raw estimate has RMSE 101 vs 155 for the v4 hold-out prediction; beyond 600 s the estimate is far off (median abs
+  error 3.4 ks — another stop, e.g. the arrival). Gate and bins were fixed from that table before fitting.
+  `reports/checks/p4_adsblol_stand_by_airport.md`: per-airport bias stable Jan vs Jul (EGLL ≈ −140 s, LEMD/LIRF ≈ −90 s,
+  others −30…+13 s) → per-airport offset. "Last stationary point" variant rejected
+  (`reports/checks/p4_adsblol_stand_last_vs_v4.md`: it misses the push-back). Measured in EXP-042.
+- Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
+  (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).
