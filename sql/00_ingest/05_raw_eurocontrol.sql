@@ -1,3 +1,4 @@
+-- requires-glob: data/external/eurocontrol_apt/raw/*.csv
 -- Verbatim loads of EUROCONTROL AIU airport files (docs/data_sources/eurocontrol_apt.md). Files are not modified.
 CREATE OR REPLACE TABLE raw_ec_taxi AS
 SELECT *, regexp_extract(filename, '[^/]+$') AS src_file

@@ -75,13 +75,25 @@ def _rank_preds(e):
 
 
 def average(spec, exp_id):
-    """Weighted mean of members' ranking predictions, e.g. seed averages ('EXP-025:1 EXP-029:2')."""
+    """Weighted mean of members' predictions, e.g. seed averages ('EXP-025:1 EXP-029:2'). Writes the ranking
+    predictions and/or the hold-out predictions, whichever the members have."""
     parts = [(e, float(w)) for e, w in (x.split(":") for x in spec)]
-    preds = [_rank_preds(e) * w for e, w in parts]
-    out = sum(preds[1:], preds[0]) / sum(w for _, w in parts)
-    (MODELS / exp_id).mkdir(parents=True, exist_ok=True)
-    out.rename("pred").reset_index().to_parquet(MODELS / exp_id / "pred_rank.parquet", index=False)
-    print(f"wrote {MODELS / exp_id / 'pred_rank.parquet'} ({len(out)} rows) from {parts}")
+    wsum = sum(w for _, w in parts)
+    if all((MODELS / e / "pred_rank.parquet").exists() for e, _ in parts):
+        preds = [_rank_preds(e) * w for e, w in parts]
+        out = sum(preds[1:], preds[0]) / wsum
+        (MODELS / exp_id).mkdir(parents=True, exist_ok=True)
+        out.rename("pred").reset_index().to_parquet(MODELS / exp_id / "pred_rank.parquet", index=False)
+        print(f"wrote {MODELS / exp_id / 'pred_rank.parquet'} ({len(out)} rows) from {parts}")
+    for fold in V.HOLDOUTS:
+        files = [MODELS / "oof" / f"{e}_{fold}.parquet" for e, _ in parts]
+        if not all(f.exists() for f in files):
+            continue
+        base = pd.read_parquet(files[0])
+        base["pred"] = sum(pd.read_parquet(f).set_index("mvt_id").loc[base.mvt_id, "pred"].to_numpy() * w
+                           for f, (_, w) in zip(files, parts)) / wsum
+        base.to_parquet(MODELS / "oof" / f"{exp_id}_{fold}.parquet")
+        print(f"wrote hold-out average {exp_id}_{fold} ({len(base)} rows)")
 
 
 def final(exp_id):

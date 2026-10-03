@@ -1,3 +1,4 @@
+-- requires-glob: data/external/eurocontrol_apt/raw/*.csv
 -- EUROCONTROL airport aggregates joined to each departure (M-017), config-gated (extra_tables).
 --   monthly (airport × UTC month of take-off): unimpeded reference and additional taxi-out per flight, seconds
 --   daily (airport × UTC date of take-off): pre-departure delay per IFR departure (min), ATFM slot adherence shares
