@@ -99,9 +99,11 @@ Hypotheses (each to be measured by ablation, CLAUDE.md §6):
 Same design matrix as the GBM (numeric + OOF target encodings + categoricals). Numeric inputs quantile-normalised
 (fit on training rows) with missing indicators; one embedding table per categorical (rare categories pooled);
 3 hidden layers with batch-norm, ReLU, dropout; AdamW + one-cycle LR; MSE loss on the raw target / 1000.
-- (b) Guo & Berkhahn, "Entity Embeddings of Categorical Variables", arXiv:1604.06737, 2016 *(verify)*.
+- (b) Guo & Berkhahn, "Entity Embeddings of Categorical Variables", arXiv:1604.06737, 2016 (checked 2026-10-03,
+  https://arxiv.org/abs/1604.06737).
 - (b) Gorishniy, Rubachev, Khrulkov & Babenko, "Revisiting Deep Learning Models for Tabular Data", NeurIPS 2021
-  (MLP/ResNet baselines; quantile-normalised inputs) *(verify)*.
+  (MLP/ResNet baselines; Appendix B.2 "By default, we used the quantile transformation from the Scikit-learn library";
+  checked 2026-10-03, arXiv:2106.11959).
 - Purpose: a second, structurally different model family for averaging (a participant, 27/09/2026, item 62).
 
 ## M-004b NM default-taxi detection features
@@ -190,7 +192,8 @@ and added back to predictions; a constant-leaf tree can then follow b beyond the
 ## M-023 Linear-leaf gradient boosting (LightGBM `linear_tree`)
 Each leaf holds a ridge-regularised linear model of the numeric features on its path (`linear_lambda` = 1, fixed a priori).
 - (a) LightGBM Parameters documentation, `linear_tree` (https://lightgbm.readthedocs.io/en/stable/Parameters.html).
-- (b) Shi, Li & Li, "Gradient Boosting with Piece-Wise Linear Regression Trees", IJCAI 2019 *(verify)*.
+- (b) Shi, Li & Li, "Gradient Boosting with Piece-Wise Linear Regression Trees", IJCAI 2019, pp. 3432–3438,
+  DOI 10.24963/ijcai.2019/476 (checked 2026-10-03).
 - (e) Toy check: with x outside the training range, constant leaves stay at 5.0 (truth 15), linear leaves reach 7.3–7.5.
 - Motivated by a published PRC 2026 write-up (radekacar/joyous-rainbow README, read 2026-10-02 — idea only). EXP-033.
 
