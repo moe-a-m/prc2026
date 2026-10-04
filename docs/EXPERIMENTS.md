@@ -51,6 +51,10 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 | EXP-043 | 2026-10-04 | 3-seed CatBoost average | — | — | (EXP-028 + 2×EXP-041)/3, no training | 42, 7, 99 | 356.30 | 366.64 | — | kept as blend member |
 | EXP-044 | 2026-10-04 | cross-fitted NNLS blend EXP-030 + EXP-043 | 1f034ea54ffc | 9ca3cf5-dirty | members EXP-030 (3-seed LightGBM), EXP-043 (3-seed CatBoost) | — | 347.31 | 361.12 | 355.02 | kept: vs EXP-031 −0.41 / −0.60; y≤3h 211.37 / 305.63 (EXP-031: 212.25 / 306.84); final weights 0.478 / 0.521 |
 | EXP-045 | 2026-10-04 | EXP-044 + three-regime hedge (M-026) | 1f034ea54ffc | 9ca3cf5-dirty | post-processing as EXP-039 | — | 339.26 | 330.23 | 334.29 | kept — v5 base candidate: vs EXP-039 (v4) −0.56 / −0.23, y≤3h −0.88 / −1.21; a priori variance reduction (seed averaging); needs final fits of CatBoost seeds 7/99 (queue F) |
+| EXP-037 | 2026-10-04 | CatBoost lr 0.05 × 3000 (a-priori capacity variant) | 1f034ea54ffc | f06616d | configs/ablations/EXP-037_cat_lr005.yaml | 42 | 355.69 | 363.07 | 359.79 | alone better than EXP-028 (−2.2 / −4.6) and than the 3-seed EXP-043; gain vanishes in the blend (EXP-047) → not adopted |
+| EXP-046 | 2026-10-04 | cross-fitted NNLS blend EXP-030 + EXP-037 | 1f034ea54ffc | f06616d | members EXP-030, EXP-037 | — | 347.47 | 359.59 | — | see EXP-047 |
+| EXP-047 | 2026-10-04 | EXP-046 + three-regime hedge (M-026) | 1f034ea54ffc | f06616d | as EXP-045 with EXP-037 for EXP-043 | — | 339.37 | 329.91 | 334.17 | rejected vs EXP-045: −0.12 combined, y≤3h −0.31 (noise); would need a new ≈3.4 h final fit |
+| EXP-048/049 | 2026-10-04 | blend EXP-030 + EXP-043 + EXP-037 (+ hedge) | 1f034ea54ffc | f06616d | three members | — | 339.37 | 329.89 | 334.15 | rejected: NNLS gives EXP-043 weight 0; same as EXP-047 |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).
