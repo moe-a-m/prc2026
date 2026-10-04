@@ -16,6 +16,7 @@ import bisect
 import gzip
 import io
 import logging
+import os
 import shutil
 import sys
 import tarfile
@@ -41,7 +42,7 @@ LOGDIR = ROOT / "logs" / "fetch"
 AIRPORTS = ["EDDF", "EDDM", "EGLL", "EHAM", "LEBL", "LEMD", "LFPG", "LIRF", "LSZH", "LTFM"]
 MARGIN_KM = 2.0
 MAX_ALT_FT = 3000
-BUFFER = 3
+BUFFER = int(os.environ.get("ADSBLOL_BUFFER", "3"))  # raw days waiting for extraction (≈ 4 GB each)
 N_CONN = 4
 
 
