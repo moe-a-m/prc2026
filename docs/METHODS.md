@@ -273,6 +273,8 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
   others −30…+13 s) → per-airport offset. "Last stationary point" variant rejected
   (`reports/checks/p4_adsblol_stand_last_vs_v4.md`: it misses the push-back). Measured in EXP-042 (10 days) and EXP-050
   (all 124 days: −2.0 on both hold-out months; `reports/checks/p4_adsblol_vs_EXP-045_holdout.md`,
-  `p4_adsblol_stand_by_airport_EXP-045.md`).
+  `p4_adsblol_stand_by_airport_EXP-045.md`). Second source not added: flights only "seen parked" (M-018, no OSM
+  stand match) have a raw estimate no better than the model even when they agree within 180 s (RMSE 115.5 vs 115.3,
+  137.1 vs 133.4; same check).
 - Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
   (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).
