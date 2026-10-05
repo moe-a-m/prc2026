@@ -31,3 +31,17 @@ def test_unknown_airport_uses_pooled_offset():
     m = {"offset": {}, "pooled_offset": 30.0, "w": {0: 1.0, 1: 1.0, 2: 1.0}}
     df = pd.DataFrame({"airport": ["ZZZZ"], "est": [500.0]})
     assert S.apply(df, np.array([520.0]), m).tolist() == [530.0]
+
+
+def test_sources_have_separate_models_and_unmatched_rows_untouched():
+    models = {"still": {"offset": {"AAAA": 0.0}, "pooled_offset": 0.0, "w": {0: 1.0, 1: 1.0, 2: 1.0}},
+              "moving": {"offset": {"AAAA": 100.0}, "pooled_offset": 0.0, "w": {0: 0.5, 1: 0.5, 2: 0.5}}}
+    df = pd.DataFrame({"airport": ["AAAA"] * 3, "est": [500.0, 400.0, np.nan], "src": ["still", "moving", np.nan]})
+    out = S.apply_sources(df, np.array([450.0, 450.0, 450.0]), models)
+    assert out.tolist() == [500.0, 475.0, 450.0]  # still: full step; moving: offset +100 then half step; no source: same
+
+
+def test_fit_sources_one_model_per_source():
+    a, b = _frame(seed=1).assign(src="still"), _frame(seed=2).assign(src="moving")
+    m = S.fit_sources(pd.concat([a, b]))
+    assert set(m) == {"still", "moving"}

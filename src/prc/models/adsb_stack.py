@@ -1,7 +1,8 @@
 """Shrink predictions toward the ADS-B off-block estimate where the aircraft was seen leaving its own stand (M-028).
 
-est = take-off − first movement at the own OSM stand (feat_dep_adsb_stand.adsb_stand_move_s, M-021), only for rows
-seen stationary at the stand. Fitted on hold-out predictions of the other month (cross-fit, as M-019):
+Sources (--sources, priority order): `still` = take-off − first movement at the own OSM stand
+(adsb_stand_move_s, M-021), rows seen stationary there; `moving` = take-off − first observation within 60 m of the
+stand (adsb_stand_first_s), rows seen at the stand only while moving. Each source gets its own offsets and weights. Fitted on hold-out predictions of the other month (cross-fit, as M-019):
     est'  = est + b_airport           b = median(y − est) per airport (pooled median when n < N_MIN)
     gap   = |est' − pred|             rows with gap > GATE_S are left unchanged (estimate likely from another stop)
     pred' = pred + w_bin · (est' − pred),   w_bin = least-squares slope of (y − pred) on (est' − pred), clipped to [0, 1]
@@ -24,13 +25,21 @@ BINS = [0, 60, 180, GATE_S]
 N_MIN = 30
 
 
-def _est():
+SOURCES = {  # one estimate per departure; a row belongs to the first source that applies
+    "still": "s.adsb_still_at_stand AND s.adsb_stand_move_s IS NOT NULL",                      # M-021 first movement
+    "moving": "s.adsb_seen_at_stand AND NOT s.adsb_still_at_stand AND s.adsb_stand_first_s IS NOT NULL",  # first sighting
+}
+EST_COL = {"still": "s.adsb_stand_move_s", "moving": "s.adsb_stand_first_s"}
+
+
+def _est(sources=("still",)):
     con = db.connect(read_only=True)
-    e = con.sql("""SELECT f.mvt_id, f.airport, s.adsb_stand_move_s AS est
-                   FROM feat_dep f JOIN feat_dep_adsb_stand s USING (mvt_id)
-                   WHERE s.adsb_still_at_stand AND s.adsb_stand_move_s IS NOT NULL""").df()
+    parts = [f"SELECT f.mvt_id, f.airport, {EST_COL[k]} AS est, '{k}' AS src FROM feat_dep f "
+             f"JOIN feat_dep_adsb_stand s USING (mvt_id) WHERE {SOURCES[k]}" for k in sources]
+    e = con.sql(" UNION ALL ".join(parts)).df()
     con.close()
-    return e
+    order = {k: i for i, k in enumerate(sources)}
+    return e.assign(_o=e.src.map(order)).sort_values("_o").drop_duplicates("mvt_id").drop(columns="_o")
 
 
 def _bin(gap):
@@ -65,26 +74,43 @@ def apply(df: pd.DataFrame, pred: np.ndarray, model: dict) -> np.ndarray:
 
 def _fold_frame(base, fold, est):
     va = pd.read_parquet(MODELS / "oof" / f"{base}_{fold}.parquet")
-    return va.merge(est[["mvt_id", "est"]], on="mvt_id", how="left")
+    return va.merge(est[["mvt_id", "est", "src"]], on="mvt_id", how="left")
 
 
-def evaluate(base: str, exp_id: str):
-    est = _est()
+def fit_sources(df: pd.DataFrame) -> dict:
+    """One offset/weight model per estimate source (rows with an estimate only)."""
+    return {k: fit(g) for k, g in df[df.est.notna()].groupby("src")}
+
+
+def apply_sources(df: pd.DataFrame, pred: np.ndarray, models: dict) -> np.ndarray:
+    out = np.asarray(pred, float).copy()
+    for k, m in models.items():
+        mask = (df.src == k).to_numpy()
+        out[mask] = apply(df[mask], out[mask], m)
+    return out
+
+
+def _round(models):
+    return {k: {**m, "offset": {a: round(o, 1) for a, o in m["offset"].items()}} for k, m in models.items()}
+
+
+def evaluate(base: str, exp_id: str, sources=("still",)):
+    est = _est(sources)
     frames = {fold: _fold_frame(base, fold, est) for fold in V.HOLDOUTS}
     results, models = {}, {}
     names = list(frames)
     for i, fold in enumerate(names):
-        other = frames[names[1 - i]]
-        model = fit(other[other.est.notna()])
+        model = fit_sources(frames[names[1 - i]])
         models[fold] = model
         va = frames[fold].copy()
         before = va.pred.to_numpy().copy()
-        va["pred"] = apply(va, before, model)
+        va["pred"] = apply_sources(va, before, model)
         va["adsb_changed"] = va.pred != before
         results[fold] = va
     meta = {"base": base, "data": V.data_version(), "git": V.git_sha(),
-            "rule": f"M-028: stand estimate, per-airport median offset (n≥{N_MIN}), bins {BINS}, gate {GATE_S}s, cross-fit",
-            "models": json.dumps({k: {**m, "offset": {a: round(o, 1) for a, o in m["offset"].items()}} for k, m in models.items()})}
+            "rule": f"M-028: sources {list(sources)}, per-(source, airport) median offset (n≥{N_MIN}), bins {BINS}, "
+                    f"gate {GATE_S}s, cross-fit",
+            "models": json.dumps({k: _round(m) for k, m in models.items()})}
     text = V.report_md(exp_id, f"ADS-B stand off-block shrinkage (M-028) on {base} hold-out predictions", results, meta)
     rows = []
     for fold, va in results.items():
@@ -93,30 +119,30 @@ def evaluate(base: str, exp_id: str):
         rows.append({"fold": fold, "n_rows": len(va), "n_changed": len(ch),
                      "rmse_changed_before": round(V.rmse(ch.y, b), 1), "rmse_changed_after": round(V.rmse(ch.y, ch.pred), 1),
                      "rmse_before": round(V.rmse(va.y, frames[fold].pred), 2), "rmse_after": round(V.rmse(va.y, va.pred), 2)})
-        for ap, g in ch.groupby("airport"):
+        for (sk, ap), g in ch.groupby(["src", "airport"]):
             gb = frames[fold].set_index("mvt_id").loc[g.mvt_id, "pred"].to_numpy()
-            rows.append({"fold": fold, "airport": ap, "n_changed": len(g),
+            rows.append({"fold": fold, "source": sk, "airport": ap, "n_changed": len(g),
                          "rmse_changed_before": round(V.rmse(g.y, gb), 1), "rmse_changed_after": round(V.rmse(g.y, g.pred), 1)})
     text += "\n## Changed rows\n\n" + pd.DataFrame(rows).to_markdown(index=False) + "\n"
     V.write_report(exp_id, text)
     for fold, va in results.items():
-        va.drop(columns=["est", "adsb_changed"]).to_parquet(MODELS / "oof" / f"{exp_id}_{fold}.parquet")
+        va.drop(columns=["est", "src", "adsb_changed"]).to_parquet(MODELS / "oof" / f"{exp_id}_{fold}.parquet")
     r = {k: round(V.rmse(v.y, v.pred), 2) for k, v in results.items()}
     print(exp_id, r)
     print(pd.DataFrame(rows).to_string())
     return r
 
 
-def final(base: str, pred_path, out_path):
+def final(base: str, pred_path, out_path, sources=("still",)):
     """Fit on both hold-out months of `base` and apply to its ranking predictions."""
-    est = _est()
+    est = _est(sources)
     fitdf = pd.concat([_fold_frame(base, fold, est) for fold in V.HOLDOUTS])
-    model = fit(fitdf[fitdf.est.notna()])
+    model = fit_sources(fitdf)
     p = pd.read_parquet(pred_path).merge(est, on="mvt_id", how="left")
     before = p.pred.to_numpy().copy()
-    p["pred"] = apply(p, before, model)
+    p["pred"] = apply_sources(p, before, model)
     p[["mvt_id", "pred"]].to_parquet(out_path, index=False)
-    print(json.dumps(model, indent=1))
+    print(json.dumps(_round(model), indent=1))
     print(f"changed {int((p.pred != before).sum())} rows; wrote {out_path}")
 
 
@@ -127,8 +153,10 @@ if __name__ == "__main__":
     ap.add_argument("--exp-id")
     ap.add_argument("--pred")
     ap.add_argument("--out")
+    ap.add_argument("--sources", default="still", help="comma list, priority order: still,moving")
     a = ap.parse_args()
+    src = tuple(a.sources.split(","))
     if a.cmd == "eval":
-        evaluate(a.base, a.exp_id)
+        evaluate(a.base, a.exp_id, src)
     else:
-        final(a.base, a.pred, a.out)
+        final(a.base, a.pred, a.out, src)
