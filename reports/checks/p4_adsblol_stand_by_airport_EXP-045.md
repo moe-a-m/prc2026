@@ -1,6 +1,6 @@
 # Check: p4_adsblol_stand_by_airport_EXP-045
 
-Run at 2026-10-05T10:49:20+00:00 (UTC), duckdb 1.5.6.
+Run at 2026-10-05T11:19:06+00:00 (UTC), duckdb 1.5.6.
 
 Rows seen stationary at the own stand with |est − pred| ≤ 600 s (pred = EXP-045 hold-out), all extracted 2025 days: per-airport bias and RMSE of the raw estimate vs the model.
 

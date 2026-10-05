@@ -1,6 +1,6 @@
 # Check: p4_adsblol_vs_EXP-045_holdout
 
-Run at 2026-10-05T10:49:20+00:00 (UTC), duckdb 1.5.6.
+Run at 2026-10-05T11:19:06+00:00 (UTC), duckdb 1.5.6.
 
 EXP-045 Jan/Jul-2025 hold-out predictions vs the raw ADS-B off-block estimate (stand = M-021, parked = M-018), all extracted 2025 days, binned by |est − pred|.
 

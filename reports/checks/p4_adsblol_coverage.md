@@ -1,6 +1,6 @@
 # Check: p4_adsblol_coverage
 
-Run at 2026-10-05T10:49:19+00:00 (UTC), duckdb 1.5.6.
+Run at 2026-10-05T11:19:06+00:00 (UTC), duckdb 1.5.6.
 
 Departures on the 124 UTC days with adsb.lol extracts (full Jan + Jul 2025/2026 archive). Share of departures with a matched take-off, a ground (taxi) segment, seen parked (≥ 60 s stationary at segment start), seen within 60 m of the OSM stand, seen stationary there. Points/gaps are on the ground segment. Drift check 2025 vs 2026 per CLAUDE.md §3 (a participant 27/09: receiver network changed).
 
