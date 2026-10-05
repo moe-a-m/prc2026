@@ -7,7 +7,7 @@ author and date, item numbers refer to that export), (e) experiment in this repo
 Literature citations marked *(verify)* were written from memory and must be checked against the paper before
 the JOAS write-up. Verified bibliography with URLs: `docs/references/literature_review_2026-10-02.md`.
 
-## Final model at a glance (submission v5 = EXP-050, board 283.18)
+## Final model at a glance (submission v6 = EXP-051, board 279.83)
 Task framing: at ranking time the take-off is known, so predicting taxi-out = estimating the airport-recorded
 off-block (AOBT). Errors are dominated by label defects (schedule echoes, day-shifted dates) on a small share of
 rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dropped (M-002).
@@ -25,7 +25,7 @@ rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dro
 | 7b | M-028 second source | same for aircraft seen at the stand only while moving (first sighting there) | 335.8 / 327.0 (EXP-051) |
 
 Board history (`docs/SUBMISSIONS.md`): v1 347.2 (stage 2) → v2 319.9 (4) → v3 299.1 (5, 1-seed CatBoost) →
-v4 287.5 (6) → v5 283.2 (7). The board moved in the direction of the local hold-outs every time; no choice was made
+v4 287.5 (6) → v5 283.2 (7) → v6 279.8 (7b). The board moved in the direction of the local hold-outs every time; no choice was made
 on board scores.
 
 Tried and rejected (each with its experiment row in `docs/EXPERIMENTS.md`): `MVT − AOBT_3` as the answer (EXP-009),
