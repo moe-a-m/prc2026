@@ -244,6 +244,8 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
   error 3.4 ks — another stop, e.g. the arrival). Gate and bins were fixed from that table before fitting.
   `reports/checks/p4_adsblol_stand_by_airport.md`: per-airport bias stable Jan vs Jul (EGLL ≈ −140 s, LEMD/LIRF ≈ −90 s,
   others −30…+13 s) → per-airport offset. "Last stationary point" variant rejected
-  (`reports/checks/p4_adsblol_stand_last_vs_v4.md`: it misses the push-back). Measured in EXP-042.
+  (`reports/checks/p4_adsblol_stand_last_vs_v4.md`: it misses the push-back). Measured in EXP-042 (10 days) and EXP-050
+  (all 124 days: −2.0 on both hold-out months; `reports/checks/p4_adsblol_vs_EXP-045_holdout.md`,
+  `p4_adsblol_stand_by_airport_EXP-045.md`).
 - Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
   (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).

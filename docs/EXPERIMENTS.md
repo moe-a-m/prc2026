@@ -55,6 +55,7 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 | EXP-046 | 2026-10-04 | cross-fitted NNLS blend EXP-030 + EXP-037 | 1f034ea54ffc | f06616d | members EXP-030, EXP-037 | — | 347.47 | 359.59 | — | see EXP-047 |
 | EXP-047 | 2026-10-04 | EXP-046 + three-regime hedge (M-026) | 1f034ea54ffc | f06616d | as EXP-045 with EXP-037 for EXP-043 | — | 339.37 | 329.91 | 334.17 | rejected vs EXP-045: −0.12 combined, y≤3h −0.31 (noise); would need a new ≈3.4 h final fit |
 | EXP-048/049 | 2026-10-04 | blend EXP-030 + EXP-043 + EXP-037 (+ hedge) | 1f034ea54ffc | f06616d | three members | — | 339.37 | 329.89 | 334.15 | rejected: NNLS gives EXP-043 weight 0; same as EXP-047 |
+| EXP-050 | 2026-10-05 | ADS-B stand shrinkage (M-028) on EXP-045, all 124 adsb.lol days | 1f034ea54ffc | 692b291-dirty | post-processing of EXP-045 hold-outs, rule as EXP-042; run on Modal (run adsb-eval-1), DB rebuilt from raw there (build-db-1, 27 tests passed) | — | 337.24 | 328.24 | — | kept — v5: vs EXP-045 −2.02 / −1.99; y≤3h 211.37→208.11 / 305.63→303.48; changed rows 14,595 Jan / 18,379 Jul, RMSE 136.7→65.3 / 166.6→119.1; all airports better except LIRF Jul (263 rows 362.8→379.2) |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).
