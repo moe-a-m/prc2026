@@ -13,7 +13,9 @@ FROM stg_mvt;
 
 -- cumulative counts at each event time, per airport and kind; looked up with ASOF joins
 CREATE OR REPLACE TABLE ev_cum AS
-SELECT airport, kind, ts, row_number() OVER (PARTITION BY airport, kind ORDER BY ts) AS cnt
+-- cnt = number of events of that kind at or before ts, ties included (count with the default RANGE frame covers peers);
+-- row_number() here made counts depend on the arbitrary order of tied timestamps (AOBT_3 is minute-rounded).
+SELECT airport, kind, ts, count(*) OVER (PARTITION BY airport, kind ORDER BY ts) AS cnt
 FROM (
     SELECT airport, 'dep_mvt' AS kind, t_mvt AS ts FROM ev_mvt WHERE phase = 'DEP'
     UNION ALL SELECT airport, 'arr_mvt', t_mvt FROM ev_mvt WHERE phase = 'ARR'

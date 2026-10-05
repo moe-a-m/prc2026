@@ -20,8 +20,8 @@ cand AS (
       ON e.airport = d.airport AND e.t_air0 BETWEEN d.t_mvt - INTERVAL 180 SECOND AND d.t_mvt + INTERVAL 180 SECOND
 ),
 r AS (
-    SELECT *, row_number() OVER (PARTITION BY mvt_id ORDER BY cs_match DESC, abs(dt)) AS r_dep,
-              row_number() OVER (PARTITION BY icao24, airport, air_seg ORDER BY cs_match DESC, abs(dt)) AS r_ev
+    SELECT *, row_number() OVER (PARTITION BY mvt_id ORDER BY cs_match DESC, abs(dt), icao24, air_seg) AS r_dep,
+              row_number() OVER (PARTITION BY icao24, airport, air_seg ORDER BY cs_match DESC, abs(dt), mvt_id) AS r_ev  -- unique tie-breaks
     FROM cand
 ),
 m AS (SELECT * FROM r WHERE r_dep = 1 AND r_ev = 1),
@@ -40,8 +40,8 @@ stops AS (
     FROM runs WHERE still GROUP BY ALL
 ),
 stand AS (
-    SELECT mvt_id, arg_max(s1, dur) AS t_stand_end, max(dur) AS stand_stop_s
-    FROM stops WHERE dur >= 120 GROUP BY mvt_id
+    SELECT mvt_id, max(s1) FILTER (WHERE dur = longest) AS t_stand_end, max(dur) AS stand_stop_s  -- latest of tied longest stops
+    FROM (SELECT *, max(dur) OVER (PARTITION BY mvt_id) AS longest FROM stops WHERE dur >= 120) GROUP BY mvt_id
 ),
 agg AS (
     SELECT p.mvt_id, min(p.t) AS t_seg0, count(*) AS n_pts, max(p.dt_p) AS max_gap_s,

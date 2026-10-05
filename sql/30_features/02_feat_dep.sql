@@ -33,7 +33,7 @@ seq AS (  -- same-runway departure sequence
         epoch(lead(t_mvt) OVER w) - epoch(t_mvt) AS gap_next_dep_rw,
         lag(wake) OVER w AS prev_wake_rw
     FROM stg_mvt WHERE phase = 'DEP'
-    WINDOW w AS (PARTITION BY airport, runway ORDER BY t_mvt)
+    WINDOW w AS (PARTITION BY airport, runway ORDER BY t_mvt, mvt_id)  -- mvt_id: deterministic order of tied take-offs
 )
 SELECT
     d.ds, d.month, d.mvt_id, d.airport, d.y,

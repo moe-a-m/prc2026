@@ -1,11 +1,11 @@
 -- Same-runway queue counts (M-015). Label-free: take-off times of all departures, landing times of all
 -- arrivals, NM AOBT_3 and the schedule. Identical for training and ranking rows.
 CREATE OR REPLACE TABLE feat_dep_queue_rw AS
-WITH dc AS (SELECT airport, runway, t_mvt AS ts,
-                   row_number() OVER (PARTITION BY airport, runway ORDER BY t_mvt) AS cnt
+WITH dc AS (SELECT airport, runway, t_mvt AS ts,  -- counts include ties (see 01_feat_events.sql)
+                   count(*) OVER (PARTITION BY airport, runway ORDER BY t_mvt) AS cnt
             FROM ev_mvt WHERE phase = 'DEP' AND runway IS NOT NULL),
      ac AS (SELECT airport, runway, t_mvt AS ts,
-                   row_number() OVER (PARTITION BY airport, runway ORDER BY t_mvt) AS cnt
+                   count(*) OVER (PARTITION BY airport, runway ORDER BY t_mvt) AS cnt
             FROM ev_mvt WHERE phase = 'ARR' AND runway IS NOT NULL),
      d AS (SELECT mvt_id, airport, runway, t_mvt, t_aobt3, t_sched FROM stg_mvt WHERE phase = 'DEP'),
      q AS (

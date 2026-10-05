@@ -31,7 +31,7 @@ WITH t AS (
     FROM raw_metar
 ),
 r AS (
-    SELECT *, row_number() OVER (PARTITION BY station, t_obs ORDER BY is_cor DESC, length(metar) DESC) AS rn FROM t
+    SELECT *, row_number() OVER (PARTITION BY station, t_obs ORDER BY is_cor DESC, length(metar) DESC, metar) AS rn FROM t  -- metar: deterministic tie-break
 )
 SELECT * EXCLUDE (rn),
     -- present-weather groups, WMO code table 4678 (w'w') descriptors/phenomena, matched on IEM's parsed codes
