@@ -53,12 +53,21 @@ def run(cmd: str, run_id: str, write_db: bool = False) -> int:
         shutil.copy2(db_vol, db)
     out = vol / "runs" / run_id
     out.mkdir(parents=True, exist_ok=True)
+    import time
+    start = time.time() - 1
     with open(out / "stdout.log", "w") as log:
         rc = subprocess.run(["bash", "-o", "pipefail", "-c", cmd], cwd=repo, stdout=log, stderr=subprocess.STDOUT,
                             env={**os.environ}).returncode
+    # copy back only files the command wrote (an unchanged image copy of docs/ once overwrote newer local docs)
+    changed = []
     for d in ("reports", "logs", "docs"):
-        if (repo / d).exists():
-            shutil.copytree(repo / d, out / d, dirs_exist_ok=True)
+        for f in (repo / d).rglob("*") if (repo / d).exists() else []:
+            if f.is_file() and f.stat().st_mtime >= start:
+                rel = f.relative_to(repo)
+                (out / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(f, out / rel)
+                changed.append(str(rel))
+    (out / "changed.txt").write_text("\n".join(sorted(changed)) + "\n")
     if write_db and rc == 0 and db.exists():
         shutil.copy2(db, db_vol)
     (out / "exit_code").write_text(str(rc))

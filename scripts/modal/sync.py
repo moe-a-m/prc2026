@@ -24,22 +24,34 @@ def _get(remote: str, local: Path):
 
 
 def sync_run(run_id: str):
+    """Copy the run's outputs into the working tree. Runs record the files they wrote in changed.txt; only those are
+    copied. Older runs (no changed.txt) copied whole trees, so for them only files missing locally are copied."""
     dest = ROOT / "logs" / "modal" / "runs"
     dest.mkdir(parents=True, exist_ok=True)
     _get(f"/runs/{run_id}", dest)
     run = dest / run_id
-    changed = []
+    listed = (run / "changed.txt").read_text().split() if (run / "changed.txt").exists() else None
+    changed, skipped = [], []
     for sub in ("reports", "docs"):
         src = run / sub
         for f in src.rglob("*") if src.exists() else []:
-            if f.is_file():
-                tgt = ROOT / sub / f.relative_to(src)
-                if not tgt.exists() or not filecmp.cmp(f, tgt, shallow=False):
-                    tgt.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(f, tgt)
-                    changed.append(str(tgt.relative_to(ROOT)))
+            if not f.is_file():
+                continue
+            rel = f.relative_to(run)
+            tgt = ROOT / rel
+            if listed is not None and str(rel) not in listed:
+                continue
+            if listed is None and tgt.exists():
+                if not filecmp.cmp(f, tgt, shallow=False):
+                    skipped.append(str(rel))
+                continue
+            if not tgt.exists() or not filecmp.cmp(f, tgt, shallow=False):
+                tgt.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(f, tgt)
+                changed.append(str(rel))
     rc = (run / "exit_code").read_text().strip() if (run / "exit_code").exists() else "?"
-    print(f"run {run_id}: exit code {rc}; {len(changed)} files updated")
+    print(f"run {run_id}: exit code {rc}; {len(changed)} files updated"
+          + ("" if listed is not None else f" (old-style run: {len(skipped)} differing existing files NOT copied)"))
     for c in changed:
         print("  ", c)
 
