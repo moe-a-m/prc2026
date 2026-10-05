@@ -46,9 +46,9 @@ make clean        # flags (never deletes rows)
 make fetch        # all external sources (see table above)
 make features     # feature tables (all SQL, DuckDB); ADS-B stage runs when extracts exist
 make baselines    # P2 reference baselines
-make train        # final fits on all 2025: per-airport LightGBM (3 seeds) + per-airport CatBoost, ≈ 4 h
-make predict      # blend (weights from reports/experiments/EXP-031.md) + three-regime hedge → submissions/
-make validate     # hold-out validation of the final recipe (Jan-2025, Jul-2025), ≈ 10 h
+make train        # final fits on all 2025: per-airport LightGBM (3 seeds) + per-airport CatBoost (3 seeds), ≈ 9 h
+make predict      # blend (weights from reports/experiments/EXP-044.md) + hedge + ADS-B step → submissions/
+make validate     # hold-out validation of the final recipe (Jan-2025, Jul-2025), ≈ 20 h
 make test         # pytest: data contracts, leakage, parity
 make reproduce    # end-to-end
 ```
@@ -70,8 +70,8 @@ Feature build ≈ 8 min. One validation fold: global LightGBM ≈ 12–13 min, p
 final fit on all 2025 ≈ 14 min (global). Measured times are in `logs/EXP-*.log`.
 
 ## Expected validation scores
-Final recipe (submission v4 = EXP-039): Jan-2025 hold-out RMSE 339.8 s, Jul-2025 330.5 s; public board 287.50
-(`docs/SUBMISSIONS.md`). Full log of every experiment, kept and rejected: `docs/EXPERIMENTS.md`.
+Final recipe (submission v5 = EXP-050): Jan-2025 hold-out RMSE 337.2 s, Jul-2025 328.2 s (v4 = EXP-039: 339.8 / 330.5,
+public board 287.50; `docs/SUBMISSIONS.md`). Full log of every experiment, kept and rejected: `docs/EXPERIMENTS.md`.
 
 Determinism: LightGBM runs with `deterministic=true, force_row_wise=true`; CatBoost with a fixed `random_seed`. On the
 development machine `make predict` regenerates the v4 file byte-for-byte (same SHA256 as the uploaded file); results on
