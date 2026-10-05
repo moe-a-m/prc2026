@@ -4,9 +4,18 @@ Open, reproducible model predicting departure taxi-out time (take-off − off-bl
 EDDF, EDDM, EGLL, EHAM, LEBL, LEMD, LFPG, LIRF, LTFM and LSZH, for the EUROCONTROL PRC Data Challenge 2026.
 Licence: GNU GPLv3 (`LICENSE`).
 
-## Status
-Work in progress. Methods: `docs/METHODS.md`; experiment log with validation scores: `docs/EXPERIMENTS.md`;
-data sources: `docs/DATA_SOURCES.md`; dependencies and licences: `docs/DEPENDENCIES.md`.
+## Approach in one paragraph
+At ranking time the take-off is known, so the task is to estimate the airport-recorded off-block. Per-airport
+LightGBM and CatBoost models (3 seeds each, cross-fitted blend) use NM time deltas, congestion and runway-sequence
+counts from both arrivals and departures, stand occupancy, month-grouped target encodings, label-defect indicators
+and METAR weather. Two post-processing steps follow: a calibrated three-regime hedge for very late flights whose
+airport block time may echo the schedule, and — where adsb.lol surface tracks show the aircraft leaving its own stand
+— a gated, cross-fitted shrinkage toward that observed off-block. Validation is month hold-out (Jan-2025, Jul-2025),
+mirroring the Jan/Jul-2026 ranking months; current submission v5 scores 337.2 / 328.2 locally and 283.18 on the board.
+
+Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
+rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources and licences `docs/DATA_SOURCES.md`;
+dependencies `docs/DEPENDENCIES.md`; open questions `docs/OPEN_QUESTIONS.md`.
 
 ## Getting the challenge data
 Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them with

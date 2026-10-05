@@ -7,6 +7,33 @@ author and date, item numbers refer to that export), (e) experiment in this repo
 Literature citations marked *(verify)* were written from memory and must be checked against the paper before
 the JOAS write-up. Verified bibliography with URLs: `docs/references/literature_review_2026-10-02.md`.
 
+## Final model at a glance (submission v5 = EXP-050, board 283.18)
+Task framing: at ranking time the take-off is known, so predicting taxi-out = estimating the airport-recorded
+off-block (AOBT). Errors are dominated by label defects (schedule echoes, day-shifted dates) on a small share of
+rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dropped (M-002).
+
+| Stage | Method | What it does | Hold-out RMSE Jan / Jul 2025 after the stage |
+|---|---|---|---|
+| 0 | M-001 | month hold-out validation (train 11 months, predict Jan or Jul) | — |
+| 1 | M-003 | reference: global median | 610.5 / 753.8 (EXP-001) |
+| 2 | M-004…M-011 | LightGBM (L2, raw target) on NM time deltas, calendar, congestion, runway sequence, stand occupancy from ARR rows, label-defect indicators, month-grouped target encodings | 372.8 / 397.3 (EXP-011) |
+| 3 | per-airport models (M-014 diagnostic) | one model per airport stops LIRF's echo pattern leaking to other airports | 350.9 / 386.8 (EXP-022) |
+| 4 | M-012 | METAR weather (IEM) | 347.4 / 378.1 (EXP-025) |
+| 5 | M-019 + seeds | 3-seed LightGBM (EXP-030) and 3-seed CatBoost (EXP-043) on the same inputs, cross-fitted NNLS blend (0.478 / 0.521) | 347.3 / 361.1 (EXP-044) |
+| 6 | M-026 | three-regime hedge for NM-unmatched flights ≥ 6 h late at echo-prone airports (26 ranking rows) | 339.3 / 330.2 (EXP-045) |
+| 7 | M-018, M-021, M-028 | adsb.lol surface tracks: where the aircraft is seen leaving its own stand, shrink toward that off-block estimate (gated, per-airport offset, cross-fitted) | 337.2 / 328.2 (EXP-050) |
+
+Board history (`docs/SUBMISSIONS.md`): v1 347.2 (stage 2) → v2 319.9 (4) → v3 299.1 (5, 1-seed CatBoost) →
+v4 287.5 (6) → v5 283.2 (7). The board moved in the direction of the local hold-outs every time; no choice was made
+on board scores.
+
+Tried and rejected (each with its experiment row in `docs/EXPERIMENTS.md`): `MVT − AOBT_3` as the answer (EXP-009),
+MLP with entity embeddings alone or blended (EXP-019, EXP-027), residual corrector (EXP-026), same-runway queue +
+P10 unimpeded reference (EXP-023), EUROCONTROL airport aggregates as inputs (EXP-024), NM default-taxi features
+(EXP-020), linear-leaf trees (EXP-033), NM-proxy offset (EXP-034), stand remoteness (EXP-035), record-precision
+markers (EXP-038), split LIRF models (EXP-040), CatBoost lr 0.05 (gain vanished in the blend, EXP-047).
+Data sources and licences: `docs/DATA_SOURCES.md`.
+
 ## M-001 Month hold-out validation (Jan-2025, Jul-2025)
 Train on the other 11 months of 2025, predict the held-out month; report both and combined.
 - (d) a participant, 27/09/2026 (item 59): month-based validation on the scored months tracked the board in direction;
