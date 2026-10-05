@@ -53,6 +53,17 @@ make test         # pytest: data contracts, leakage, parity
 make reproduce    # end-to-end
 ```
 
+## Optional: cloud runs on Modal
+`scripts/modal/` runs the same pipeline commands in a container built from `uv.lock` (needs a Modal account and the
+`modal` client; challenge data go to a private Modal volume — never public). Every launch passes a budget guard
+(`scripts/modal/budget.py`: billed usage + worst-case cost of recent jobs must stay under a fixed cap) and has a hard
+timeout. `scripts/modal/sync.py <run_id>` copies a run's reports/logs back into the repo. Not needed to reproduce.
+
+```
+PYENV_VERSION=3.13.15 MODAL_IMAGE_BUILDER_VERSION=2025.06 modal run scripts/modal/app.py \
+    --run-id <id> --timeout-h 6 --cmd "python -m prc.models.gbm validate --config configs/cat_pa_wx.yaml"
+```
+
 ## Hardware and runtime
 Compute: Modal containers (2 physical cores = 4 threads, 16 GiB, no GPU).
 Feature build ≈ 8 min. One validation fold: global LightGBM ≈ 12–13 min, per-airport ≈ 25 min (4 threads);
