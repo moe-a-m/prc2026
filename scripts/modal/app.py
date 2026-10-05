@@ -43,7 +43,7 @@ def run(cmd: str, run_id: str, write_db: bool = False) -> int:
 
     repo, vol = Path("/repo"), Path("/vol")
     (repo / "data").mkdir(exist_ok=True)
-    for name, target in [("data/raw", vol / "raw"), ("data/external", vol / "external"), ("models", vol / "models")]:
+    for name, target in [("data/raw", vol / "raw"), ("data/external", vol / "external"), ("models", vol / "models"), ("submissions", vol / "submissions")]:
         target.mkdir(parents=True, exist_ok=True)
         if not (repo / name).exists():
             (repo / name).symlink_to(target)
