@@ -281,3 +281,13 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
   31 s vs 83 s for the model (`p4_adsblol_moving_at_stand_EXP-045.md`); −1.4 / −1.3 on the hold-outs.
 - Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
   (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).
+
+## M-029 Level calibration to the EUROCONTROL monthly mean taxi-out (tested, rejected in EXP-052)
+Per airport, the 2025 gap between our target mean (y ≤ 2 h) and the EC monthly mean is modelled as c + s·snow share;
+a target airport-month's level = EC + gap; normal predictions are shifted toward it with a cross-fitted shrink.
+- (a) EUROCONTROL Additional taxi-out time indicator (2023), as M-016/M-017; EC monthly figures in `feat_dep_ec`.
+- (d) a participant, 27/09/2026 15:49 (forum export item 58): may the published Jan/Jul-2026 monthly taxi-out figures be
+  used as a model input? organizer, 27/09/2026 18:14 (item 60): "I already answered above: yes".
+- (e) 2025 gap analysis (this session, query in the EXP-052 code): gap grows with snow at EDDF, EDDM, LFPG, LSZH, LTFM
+  (corr 0.88–0.98: EC excludes de-icing there), flat at EGLL, EHAM, LEBL, LEMD, LIRF. EXP-052: no gain on the
+  hold-outs (+0.16 / −0.05), unstable shrink → rejected. Code kept (`prc.models.level_calib`) for the record.
