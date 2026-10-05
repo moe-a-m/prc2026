@@ -22,6 +22,7 @@ rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dro
 | 5 | M-019 + seeds | 3-seed LightGBM (EXP-030) and 3-seed CatBoost (EXP-043) on the same inputs, cross-fitted NNLS blend (0.478 / 0.521) | 347.3 / 361.1 (EXP-044) |
 | 6 | M-026 | three-regime hedge for NM-unmatched flights ≥ 6 h late at echo-prone airports (26 ranking rows) | 339.3 / 330.2 (EXP-045) |
 | 7 | M-018, M-021, M-028 | adsb.lol surface tracks: where the aircraft is seen leaving its own stand, shrink toward that off-block estimate (gated, per-airport offset, cross-fitted) | 337.2 / 328.2 (EXP-050) |
+| 7b | M-028 second source | same for aircraft seen at the stand only while moving (first sighting there) | 335.8 / 327.0 (EXP-051) |
 
 Board history (`docs/SUBMISSIONS.md`): v1 347.2 (stage 2) → v2 319.9 (4) → v3 299.1 (5, 1-seed CatBoost) →
 v4 287.5 (6) → v5 283.2 (7). The board moved in the direction of the local hold-outs every time; no choice was made
@@ -275,6 +276,8 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
   (all 124 days: −2.0 on both hold-out months; `reports/checks/p4_adsblol_vs_EXP-045_holdout.md`,
   `p4_adsblol_stand_by_airport_EXP-045.md`). Second source not added: flights only "seen parked" (M-018, no OSM
   stand match) have a raw estimate no better than the model even when they agree within 180 s (RMSE 115.5 vs 115.3,
-  137.1 vs 133.4; same check).
+  137.1 vs 133.4; same check). Second source added (EXP-051): aircraft seen within 60 m of its stand but never
+  stationary there → first sighting at the stand (M-021 fallback), own per-airport offsets and weights; median abs error
+  31 s vs 83 s for the model (`p4_adsblol_moving_at_stand_EXP-045.md`); −1.4 / −1.3 on the hold-outs.
 - Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
   (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).
