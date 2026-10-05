@@ -84,3 +84,21 @@ FROM e GROUP BY ROLLUP (airport, gap) ORDER BY airport NULLS LAST, gap NULLS LAS
 db.save_check(con, f"p4_adsblol_moving_at_stand_{BASE}", Q_MOVE,
               f"Rows seen within 60 m of the own OSM stand but never stationary there (M-021 fallback: first at-stand "
               f"observation = lower bound on taxi-out) vs {BASE} hold-out predictions, all extracted 2025 days.")
+
+Q_GROUND = f"""
+WITH o AS (SELECT mvt_id, pred FROM {OOF}),
+e AS (SELECT f.airport, f.y, o.pred, a.adsb_first_ground_s AS est
+      FROM o JOIN feat_dep f USING (mvt_id) JOIN feat_dep_adsb a USING (mvt_id)
+      LEFT JOIN feat_dep_adsb_stand s USING (mvt_id)
+      WHERE a.adsb_has_ground AND NOT coalesce(s.adsb_seen_at_stand, false) AND NOT coalesce(a.adsb_seen_parked, false)
+        AND a.adsb_first_ground_s IS NOT NULL)
+SELECT CASE WHEN abs(est - pred) <= 60 THEN 'a ≤60' WHEN abs(est - pred) <= 180 THEN 'b 60–180'
+            WHEN abs(est - pred) <= 600 THEN 'c 180–600' ELSE 'd >600' END AS gap,
+  count(*) n, round(median(est - y), 0) med_est_minus_y, round(sqrt(avg((pred - y)^2)), 1) rmse_model,
+  round(sqrt(avg((est - y)^2)), 1) rmse_est, round(median(abs(pred - y)), 1) medae_model,
+  round(median(abs(est - y)), 1) medae_est
+FROM e GROUP BY ROLLUP (gap) ORDER BY gap NULLS LAST
+"""
+db.save_check(con, f"p4_adsblol_first_ground_{BASE}", Q_GROUND,
+              f"Rows with an ADS-B taxi segment but never seen at their OSM stand nor parked: est = take-off − first "
+              f"ground observation (M-018, a lower bound) vs {BASE} hold-out predictions, all extracted 2025 days.")

@@ -278,7 +278,9 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
   stand match) have a raw estimate no better than the model even when they agree within 180 s (RMSE 115.5 vs 115.3,
   137.1 vs 133.4; same check). Second source added (EXP-051): aircraft seen within 60 m of its stand but never
   stationary there → first sighting at the stand (M-021 fallback), own per-airport offsets and weights; median abs error
-  31 s vs 83 s for the model (`p4_adsblol_moving_at_stand_EXP-045.md`); −1.4 / −1.3 on the hold-outs.
+  31 s vs 83 s for the model (`p4_adsblol_moving_at_stand_EXP-045.md`); −1.4 / −1.3 on the hold-outs. Third source not
+  added: first ground observation for aircraft never seen at their stand is first seen mid-taxi (median −401 s vs the
+  target; worse than the model in every gap bin, `p4_adsblol_first_ground_EXP-051.md`).
 - Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
   (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).
 
