@@ -15,7 +15,7 @@ mirroring the Jan/Jul-2026 ranking months; current submission v5 scores 337.2 / 
 
 Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
 rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources and licences `docs/DATA_SOURCES.md`;
-dependencies `docs/DEPENDENCIES.md`; open questions `docs/OPEN_QUESTIONS.md`.
+dependencies `docs/DEPENDENCIES.md`; open questions `docs/OPEN_QUESTIONS.md`; paper outline `docs/PAPER_OUTLINE.md`.
 
 ## Getting the challenge data
 Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them with

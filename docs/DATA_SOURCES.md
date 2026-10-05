@@ -21,7 +21,7 @@ Candidates not yet used: see the CLAUDE.md §4 ledger.
 - Cloud copy (2026-10-05, user decision): the raw files are also stored on the team's **private** Modal volume
   `prc2026-data` for optional cloud runs (`scripts/modal/`); checksums re-verified there (`verify-raw: 14 files, 0 problems`).
   Not public, not redistributed.
-- Bucket path: not recorded at download time — see `docs/OPEN_QUESTIONS.md`.
+- Bucket paths: recorded per file in `data/raw/MANIFEST.csv` (`dc26:prc-2026-datasets/…`).
 
 ## Change log
 - 2026-10-05: adsb.lol archive complete; challenge + external files copied to the private Modal volume.
