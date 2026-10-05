@@ -58,6 +58,7 @@ Until commit after d97420b the hash covered the whole manifest file; `64a9ec802e
 | EXP-050 | 2026-10-05 | ADS-B stand shrinkage (M-028) on EXP-045, all 124 adsb.lol days | 1f034ea54ffc | 692b291-dirty | post-processing of EXP-045 hold-outs, rule as EXP-042; run on Modal (run adsb-eval-1), DB rebuilt from raw there (build-db-1, 27 tests passed) | — | 337.24 | 328.24 | — | kept — v5: vs EXP-045 −2.02 / −1.99; y≤3h 211.37→208.11 / 305.63→303.48; changed rows 14,595 Jan / 18,379 Jul, RMSE 136.7→65.3 / 166.6→119.1; all airports better except LIRF Jul (263 rows 362.8→379.2) |
 | EXP-051 | 2026-10-05 | second ADS-B source: first sighting at the own stand when never stationary there (M-028 + M-021 fallback) | 1f034ea54ffc | 4403a08+ | EXP-045 base, `--sources still,moving`, own offsets/weights per source; Modal run adsb-eval-2 (CHK-050 = still only reproduces EXP-050 exactly) | — | 335.81 | 326.99 | 330.96 | kept — v6 candidate: vs EXP-050 −1.43 / −1.25; y≤3h 208.11→205.79 / 303.48→302.14; moving source changes 11,556 Jan / 11,503 Jul rows, better at every airport-month incl. LIRF Jul (244 vs 263); offsets stable Jan↔Jul |
 | EXP-052 | 2026-10-05 | level calibration to the EUROCONTROL monthly mean (M-029) | 1f034ea54ffc | 68acbe7+ | post-processing of EXP-051 hold-outs; gap = c + s·snow per airport (leave-month-out), rows pred ≤ 2 h, cross-fitted shrink; Modal run level-eval-1 | — | 335.97 | 326.94 | — | rejected: +0.16 Jan / −0.05 Jul vs EXP-051; shrink unstable (0.75 / 0.12); EDDM Jan worse (131.6→138.0, snow-slope gap misestimated). 2025 monthly levels are already within ~20 s; the 2026 deviations (EHAM Jan ≈ −61 s) cannot be validated without labels — not used |
+| EXP-053–056 | 2026-10-05 | extra seeds 11 / 23 (LightGBM EXP-053/054, CatBoost EXP-055/056), on Modal | 1f034ea54ffc | a849004 | per-seed validate + final fit | 11, 23 | LGB 347.87 / 347.91; CAT 356.42 / 359.03 | LGB 381.60 / 379.27; CAT 368.03 / 369.93 | — | superseded: trained on the non-deterministic queue counts (see the 2026-10-05 note below); re-run on deterministic features as EXP-060–069 |
 
 Notes on the baselines: in every baseline the top 20 rows (of 344,419) carry ≈ 50% of the squared error, and NM-
 unmatched rows (1.6%) have RMSE ≈ 4,000 s vs ≈ 400 s for matched rows (`reports/experiments/EXP-010.md`).
@@ -69,3 +70,14 @@ not happen (hedge cost). `reports/experiments/EXP-011.md`.
 
 EXP-013 (global CatBoost, `configs/cat.yaml`) crashed on NaN categoricals under pandas 3 (fixed); superseded by EXP-028
 (per-airport CatBoost on the EXP-025 inputs) and not re-run.
+
+**2026-10-05 — reproducibility finding and data-version change.** A clean rebuild of the database on Modal (run repro-1,
+full `make` chain) did not reproduce v5: final-fit predictions differed by 24–63 s RMS. A column fingerprint
+(`scripts/checks/feature_fingerprint.py`) of the local vs the rebuilt feature tables isolated four queue counts
+(`n_takeoffs_since_aobt3`, `n_landings_since_aobt3`, `n_takeoffs_since_sched`, `n_taxiing_at_mvt`): `row_number()` over
+minute-rounded AOBT_3 timestamps numbered tied events arbitrarily, so counts depended on thread scheduling. Fixed in
+b987eb2 (tie-inclusive counts, unique tie-breaks in all ordered windows and ADS-B matching; regression test
+`tests/test_sql_determinism.py`). Two independent rebuilds (runs det-a, det-b) then gave identical fingerprints for all
+114 columns of the model input tables except `adsb_taxi_dist_m` (last-bit float sum order, equal at 6 dp, not a model
+input). Data version 1f034ea54ffc → f3abfc38ce80. All models are re-run on it (EXP-060–069). repro-1 also exposed a
+script bug (it ran /repo's package and wrote into the shared volume; fixed in 5c99c43, originals restored).
