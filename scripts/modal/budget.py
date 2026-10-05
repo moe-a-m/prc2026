@@ -13,6 +13,7 @@ $0.00000222 / GiB / s (standard functions).
 import csv
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -30,12 +31,16 @@ START_MONTH = (2026, 10)
 FIELDS = ["run_id", "launched_at", "cpu", "memory_gib", "timeout_s", "worst_case_usd", "cmd"]
 
 
+ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
 def _modal(*args) -> str:
-    env = {**os.environ, "PYENV_VERSION": os.environ.get("PYENV_VERSION", "3.13.15")}
+    env = {**os.environ, "PYENV_VERSION": os.environ.get("PYENV_VERSION", "3.13.15"), "NO_COLOR": "1", "TERM": "dumb"}
+    env.pop("FORCE_COLOR", None)
     r = subprocess.run(["modal", *args], capture_output=True, text=True, env=env, timeout=120)
     if r.returncode != 0:
         raise RuntimeError(f"modal {' '.join(args)} failed: {r.stderr.strip()[:300]}")
-    return r.stdout
+    return ANSI.sub("", r.stdout)  # the CLI may colour its JSON even when piped
 
 
 def billed_usd(now: datetime | None = None) -> float:
