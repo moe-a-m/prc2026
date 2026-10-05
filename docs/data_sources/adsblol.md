@@ -23,15 +23,31 @@
 ## Coverage
 - requested: all days of Jan + Jul 2025 and Jan + Jul 2026 (124 days), no margin days (a departure pushing back before
   00:00 UTC on the 1st is only partially covered — documented limitation)
-- measured per airport-month: `reports/checks/p4_adsblol_coverage.md` (first run 2026-10-03 on 24 extracted days;
-  re-run when all days exist). Ground (taxi) segment found for: LTFM 0% all months; LFPG 0–17%; LIRF 0% Jan-2025 and
-  Jul-2026, 61–81% otherwise; LEMD 0% Jan-2025, 12% Jul-2025, 59–97% in 2026; EDDM 0.1% Jul-2025 vs ≥ 97% other months;
-  EGLL 8–41% except 97% Jul-2026; EHAM, LEBL, LSZH, EDDF stable (55–99%). Strong 2025→2026 drift → features are
-  used only through the agreement-gated M-028 step, never as raw model inputs.
+- measured per airport-month (all 124 days, 31 per month): `reports/checks/p4_adsblol_coverage.md`, run 2026-10-05.
+  Share of departures with a ground (taxi) segment, Jan-25 / Jul-25 / Jan-26 / Jul-26:
+
+  | airport | ground % | seen stationary at own OSM stand % (used by M-028) |
+  |---|---|---|
+  | EDDF | 79 / 82 / 60 / 62 | 6 / 8 / 3 / 2 |
+  | EDDM | 97 / 36 / 95 / 97 | 39 / 12 / 39 / 31 |
+  | EGLL | 29 / 10 / 64 / 97 | 4 / 0.5 / 12 / 43 |
+  | EHAM | 97 / 97 / 95 / 97 | 35 / 50 / 45 / 51 |
+  | LEBL | 97 / 82 / 88 / 92 | 10 / 15 / 15 / 18 |
+  | LEMD | 0 / 4 / 95 / 45 | 0 / 0.4 / 13 / 7 |
+  | LFPG | 0 / 6 / 8 / 8 | 0 / 0 / 0 / 0 |
+  | LIRF | 0 / 81 / 63 / 0.1 | 0 / 3 / 5 / 0 |
+  | LSZH | 80 / 77 / 86 / 89 | 26 / 21 / 30 / 9 |
+  | LTFM | 0 / 0 / 0 / 0 | 0 / 0 / 0 / 0 |
+
+  Strong 2025→2026 drift at EDDM, EGLL, LEMD, LIRF → the tracks are used only through the agreement-gated M-028 step
+  (it acts only where the aircraft is seen; elsewhere predictions are unchanged), never as raw model inputs.
 
 ## Retrieval
 - script: `scripts/fetch/adsblol.py download` and `... extract` (two background processes); helper `src/prc/fetchutil.py`
-- 4 parallel HTTP range requests of 64 MB; measured link ~1.8–2.4 MB/s → ~28 min per day
+- 4 parallel HTTP range requests of 64 MB; measured 0.07–5.7 MB/s (typically 2–5 MB/s) → 15–40 min per day
+- retrieved 2026-10-02 … 2026-10-05: 384 parts, 388.5 GB, all SHA256 equal to the GitHub digests. Interruptions: a local
+  DNS outage (2026-10-04 05:35–11:54, resumed automatically), a reboot (2026-10-04 15:42, relaunched, partial file
+  resumed) and a GitHub API timeout that stopped the process (fixed in 98b3b94: the API lookup now retries)
 - GitHub API (unauthenticated, ~1 call/day) for asset sizes and SHA256 digests, cached in `data/external/adsblol/meta/`
 - logs: `logs/fetch/adsblol_download.log`, `logs/fetch/adsblol_extract.log`
 
@@ -47,7 +63,11 @@
 - filter: inside the airport box (OurAirports runway-threshold extent + 2 km) and (on ground or alt ≤ 3000 ft)
 
 ## Lineage
-- extract parquet → `raw_adsb` → `stg_adsb` → per-departure features `feat_dep_adsb` (to be written)
+- extract parquet → `stg_adsb` (`sql/40_adsb/01_stg_adsb.sql`) → `adsb_seg`, `adsb_takeoff` (`02_adsb_takeoffs.sql`)
+  → `feat_dep_adsb` (`03_feat_dep_adsb.sql`, M-018) and, with OSM stand positions `stg_stand_geo`,
+  `feat_dep_adsb_stand` (`04_feat_dep_adsb_stand.sql`, M-021) → `prc.models.adsb_stack` (M-028)
+- copies: the extracts are also stored on the team's private Modal volume for cloud runs (internal use, not a
+  publication under ODbL 4.4)
 
 ## Quality
 - SHA256 of every part vs GitHub digest (mismatch → file removed, run stops); unreadable trace members counted per day
@@ -55,7 +75,9 @@
   between years — features about *where* an aircraft was heard may not transfer)
 
 ## Value
-- to be measured (EXP-0xx) on Jan/Jul 2025 hold-outs
+- EXP-042 (10 days) and EXP-050 (all days): kept — gated shrinkage toward the stand off-block estimate, −2.0 on both
+  2025 hold-out months; v5 board 283.18 (v4 287.50). Rejected: "last stationary point" variant
+  (`p4_adsblol_stand_last_vs_v4.md`), "seen parked" second source (`p4_adsblol_vs_EXP-045_holdout.md`).
 
 ## Re-fetch policy
 - a part already listed with a matching digest is not downloaded again; a mismatch stops the run.

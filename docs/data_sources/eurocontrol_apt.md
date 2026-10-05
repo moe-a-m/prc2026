@@ -47,7 +47,8 @@
   Winter gap EC < ours at EDDM/LFPG/LSZH consistent with the de-icing exclusion.
 
 ## Value
-- EXP-024 (pending)
+- EXP-024: rejected as model inputs (paired vs EXP-018, non-LIRF y≤3h +2.3 Jan / −1.7 Jul; level shifts between
+  2025 and 2026 a 2025-trained model cannot use). Kept only as a documentation/consistency check (`p4_ec_vs_target`).
 
 ## Re-fetch policy
 - listed files are never overwritten; checksum mismatch stops the script.
