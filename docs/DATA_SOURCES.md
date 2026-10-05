@@ -4,10 +4,10 @@
 |---|---|---|---|
 | challenge | PRC Data Challenge 2026 training / ranking / submitting parquet files | (this page, below) | in use |
 | iem_metar | METAR, IEM ASOS archive (public domain) | [iem_metar.md](data_sources/iem_metar.md) | fetched 2026-10-02; kept (EXP-018) |
-| adsblol | adsb.lol globe_history, ODbL-1.0 | [adsblol.md](data_sources/adsblol.md) | downloading since 2026-10-02 (124 days, stream-extract) |
+| adsblol | adsb.lol globe_history, ODbL-1.0 | [adsblol.md](data_sources/adsblol.md) | complete 2026-10-05 (124 days, 388.5 GB streamed, 1.2 GB extracts); kept via M-028 (EXP-050) |
 | ourairports | OurAirports runways/airports (public domain) | [ourairports.md](data_sources/ourairports.md) | fetched 2026-10-02 |
 | osm_aeroway | OpenStreetMap aeroway features (ODbL), date-pinned Overpass | [osm_aeroway.md](data_sources/osm_aeroway.md) | fetched 2026-10-02; stand coordinates for ADS-B off-block (M-021) |
-| eurocontrol_apt | EUROCONTROL AIU airport datasets (custom terms: attribution, non-commercial, no modification; organizer-approved) | [eurocontrol_apt.md](data_sources/eurocontrol_apt.md) | fetched 2026-10-02; EXP-024 |
+| eurocontrol_apt | EUROCONTROL AIU airport datasets (custom terms: attribution, non-commercial, no modification; organizer-approved) | [eurocontrol_apt.md](data_sources/eurocontrol_apt.md) | fetched 2026-10-02; rejected as inputs (EXP-024) |
 
 Candidates not yet used: see the CLAUDE.md §4 ledger.
 
@@ -18,9 +18,13 @@ Candidates not yet used: see the CLAUDE.md §4 ledger.
   (check: `tests/test_contracts.py::test_no_stale_raw_files`). Ranking DEP count = submitting rows = 344,841
   with identical ID sets (`reports/checks/p1_submitting_vs_ranking.md`).
 - Licence: not stated by the organizers ("ask the owner"); raw files and row-level extracts are never committed.
+- Cloud copy (2026-10-05, user decision): the raw files are also stored on the team's **private** Modal volume
+  `prc2026-data` for optional cloud runs (`scripts/modal/`); checksums re-verified there (`verify-raw: 14 files, 0 problems`).
+  Not public, not redistributed.
 - Bucket path: not recorded at download time — see `docs/OPEN_QUESTIONS.md`.
 
 ## Change log
+- 2026-10-05: adsb.lol archive complete; challenge + external files copied to the private Modal volume.
 - 2026-10-02: training files moved from `data/raw/` to `data/raw/training/` (no content change; hashes in manifest).
 
 ## Combined attribution block
@@ -30,5 +34,5 @@ Candidates not yet used: see the CLAUDE.md §4 ledger.
 - Contains information from adsb.lol globe_history, which is made available here under the Open Database License
   (ODbL), https://github.com/adsblol/globe_history_2025, https://opendatacommons.org/licenses/odbl/1.0/.
 - Airport/runway data: OurAirports (public domain), https://ourairports.com/data/.
-- © OpenStreetMap contributors (ODbL), if stand coordinates are used.
+- © OpenStreetMap contributors (ODbL) — stand coordinates (M-021).
 - Airport performance data: Source: EUROCONTROL Aviation Intelligence Portal, https://ansperformance.eu/.
