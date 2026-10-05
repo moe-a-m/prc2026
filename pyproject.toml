@@ -1,7 +1,9 @@
 [project]
 name = "motivated-engine"
 version = "0.1.0"
-description = "Opensky repo for motivated-engine-team"
+description = "PRC Data Challenge 2026 — taxi-out time prediction (team motivated-engine)"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
