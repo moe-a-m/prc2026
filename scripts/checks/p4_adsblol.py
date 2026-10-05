@@ -68,3 +68,19 @@ db.save_check(con, f"p4_adsblol_stand_by_airport_{BASE}", Q_AP,
               f"Rows seen stationary at the own stand with |est − pred| ≤ 600 s (pred = {BASE} hold-out), all extracted "
               "2025 days: per-airport bias and RMSE of the raw estimate vs the model.")
 print(f"saved ADS-B checks ({days} days, base {BASE})")
+
+Q_MOVE = f"""
+WITH o AS (SELECT mvt_id, pred FROM {OOF}),
+e AS (SELECT f.airport, f.y, o.pred, s.adsb_stand_first_s AS est
+      FROM o JOIN feat_dep f USING (mvt_id) JOIN feat_dep_adsb_stand s USING (mvt_id)
+      WHERE s.adsb_seen_at_stand AND NOT s.adsb_still_at_stand AND s.adsb_stand_first_s IS NOT NULL)
+SELECT airport, CASE WHEN abs(est - pred) <= 60 THEN 'a ≤60' WHEN abs(est - pred) <= 180 THEN 'b 60–180'
+                     WHEN abs(est - pred) <= 600 THEN 'c 180–600' ELSE 'd >600' END AS gap,
+  count(*) n, round(median(est - y), 0) med_est_minus_y, round(sqrt(avg((pred - y)^2)), 1) rmse_model,
+  round(sqrt(avg((est - y)^2)), 1) rmse_est, round(median(abs(pred - y)), 1) medae_model,
+  round(median(abs(est - y)), 1) medae_est
+FROM e GROUP BY ROLLUP (airport, gap) ORDER BY airport NULLS LAST, gap NULLS LAST
+"""
+db.save_check(con, f"p4_adsblol_moving_at_stand_{BASE}", Q_MOVE,
+              f"Rows seen within 60 m of the own OSM stand but never stationary there (M-021 fallback: first at-stand "
+              f"observation = lower bound on taxi-out) vs {BASE} hold-out predictions, all extracted 2025 days.")
