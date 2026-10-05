@@ -88,12 +88,18 @@ def assets(year: int, tag: str) -> dict:
     """asset name -> (size, sha256) from the GitHub releases API (unauthenticated; ~1 call per day)."""
     cache = META / f"{tag}.assets.json"
     if not cache.exists():
+        r = None
         for attempt in range(10):
-            r = requests.get(f"https://api.github.com/repos/adsblol/globe_history_{year}/releases/tags/{tag}",
-                             headers={**F.UA, "Accept": "application/vnd.github+json"}, timeout=60)
-            if r.status_code == 200:
+            try:
+                r = requests.get(f"https://api.github.com/repos/adsblol/globe_history_{year}/releases/tags/{tag}",
+                                 headers={**F.UA, "Accept": "application/vnd.github+json"}, timeout=60)
+            except requests.RequestException:  # network outage: wait and retry like the downloads
+                r = None
+            if r is not None and r.status_code == 200:
                 break
             time.sleep(120 * (attempt + 1))  # rate limit: 60 requests/hour unauthenticated
+        if r is None:
+            raise RuntimeError(f"GitHub API unreachable for {tag}")
         r.raise_for_status()
         cache.write_bytes(r.content)
     js = orjson.loads(cache.read_bytes())
