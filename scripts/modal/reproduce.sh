@@ -8,6 +8,10 @@ set -euo pipefail
 RUN_ID=${1:?run id}
 CLEAN=/tmp/clean
 rm -rf "$CLEAN" && git clone --quiet /repo "$CLEAN" && cd "$CLEAN"
+# the image sets PYTHONPATH=/repo/src; point it at the clone so code AND output paths (prc.paths.ROOT) are the clone's
+# (repro-1, 2026-10-05, ran /repo's package and wrote into the shared volume through /repo's symlinks)
+export PYTHONPATH="$CLEAN/src"
+python -c "import prc.paths as P; assert str(P.ROOT) == '$CLEAN', P.ROOT; print('ROOT', P.ROOT)"
 echo "commit $(git rev-parse --short HEAD), status: $(git status --porcelain | wc -l) changed files"
 mkdir -p data && ln -s /vol/raw data/raw && ln -s /vol/external data/external
 python -c "import duckdb; duckdb.sql('INSTALL spatial')"
