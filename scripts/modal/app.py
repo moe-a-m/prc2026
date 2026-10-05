@@ -68,11 +68,18 @@ def run(cmd: str, run_id: str, write_db: bool = False) -> int:
 
 @app.local_entrypoint()
 def main(cmd: str, run_id: str = "", cpu: float = 2.0, memory_gib: int = 16, timeout_h: float = 6.0,
-         write_db: bool = False):
+         write_db: bool = False, spawn: bool = False):
+    """--spawn (use with `modal run --detach`): submit and return at once, so a local network drop cannot cancel the
+    job (2026-10-05: four detached jobs were cancelled when the blocking client hit a DNS failure). Results are read
+    from the volume (runs/<run_id>/exit_code) with sync.py."""
     run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
     timeout_s = int(timeout_h * 3600)
     budget.authorize(run_id, cpu, memory_gib, timeout_s, cmd)  # raises SystemExit when over the cap
     f = run.with_options(cpu=cpu, memory=memory_gib * 1024, timeout=timeout_s)
     print(f"run {run_id}: {shlex.quote(cmd)} (cpu {cpu}, {memory_gib} GiB, timeout {timeout_h} h)")
+    if spawn:
+        call = f.spawn(cmd, run_id, write_db)
+        print(f"run {run_id} spawned: function call {call.object_id}")
+        return
     rc = f.remote(cmd, run_id, write_db)
     print(f"run {run_id} exit code {rc}")
