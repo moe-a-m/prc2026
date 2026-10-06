@@ -356,3 +356,14 @@ this interval (and floored at 0). Rows without LOBT (1.5% of the ranking set) ar
 - Result (EXP-101, `prc.models.lobt_window`): hold-out Jan 335.43 → 334.48, Jul 325.40 → 300.98; 53 / 170 rows
   changed, each airport-month's changed rows improve. Data contract `sql/90_checks/08_lobt_window.sql` enforces the bound
   on every rebuild; `tests/test_lobt_window.py` checks the never-farther property.
+
+## M-032 Schedule-echo classifier hedge for LIRF NM-unmatched departures 1–6 h late (tested, rejected in EXP-102)
+Month-held-out gradient-boosting classifier for p(echo) on label-free inputs; hedge p·d_sched + (1 − p)·mean normal y,
+blended with the model by a cross-fitted least-squares weight (`prc.models.echo_clf`).
+- (e) `docs/references/cleaning_investigation_2026-10-03.md` §2 (AUC 0.867, −2.2% SE averaged with EXP-031); two-point
+  mixture as M-014 / M-026.
+- Result: classifier separates well (AUC 0.866 / 0.810) but the current base already hedges these rows; the blend
+  weight is not identifiable from 49 January rows (0.677 vs 0.033) and the July gain at a fixed weight sits in 10 rows
+  where the base predicts above d_sched. Not used. Off-block before schedule is common (16% of matched 2025
+  departures, 681 by > 1 h), so no feasible-set cap applies here (unlike M-031).
+
