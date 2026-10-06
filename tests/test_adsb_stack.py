@@ -45,3 +45,16 @@ def test_fit_sources_one_model_per_source():
     a, b = _frame(seed=1).assign(src="still"), _frame(seed=2).assign(src="moving")
     m = S.fit_sources(pd.concat([a, b]))
     assert set(m) == {"still", "moving"}
+
+
+def test_final_model_round_trips_through_report(tmp_path, monkeypatch):
+    import json
+    from prc import paths
+    m = S.fit_sources(pd.concat([_frame(seed=1).assign(src="still"), _frame(seed=2).assign(src="moving")]))
+    (tmp_path / "experiments").mkdir()
+    (tmp_path / "experiments" / "EXP-999.md").write_text(f"# x\n\n- final_model: {json.dumps(m)}\n")
+    monkeypatch.setattr(paths, "REPORTS", tmp_path)
+    back = S.load_final_model("EXP-999")
+    df = pd.DataFrame({"airport": ["AAAA", "BBBB"], "est": [500.0, 520.0], "src": ["still", "moving"]})
+    pred = np.array([450.0, 470.0])
+    assert np.array_equal(S.apply_sources(df, pred, back), S.apply_sources(df, pred, m))

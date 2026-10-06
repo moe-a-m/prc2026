@@ -110,7 +110,9 @@ def evaluate(base: str, exp_id: str, sources=("still",)):
     meta = {"base": base, "data": V.data_version(), "git": V.git_sha(),
             "rule": f"M-028: sources {list(sources)}, per-(source, airport) median offset (n≥{N_MIN}), bins {BINS}, "
                     f"gate {GATE_S}s, cross-fit",
-            "models": json.dumps({k: _round(m) for k, m in models.items()})}
+            "models": json.dumps({k: _round(m) for k, m in models.items()}),
+            # exact parameters fit on both months — what `final --from-report` applies (no hold-out files needed)
+            "final_model": json.dumps(fit_sources(pd.concat(frames.values())))}
     text = V.report_md(exp_id, f"ADS-B stand off-block shrinkage (M-028) on {base} hold-out predictions", results, meta)
     rows = []
     for fold, va in results.items():
@@ -133,11 +135,27 @@ def evaluate(base: str, exp_id: str, sources=("still",)):
     return r
 
 
-def final(base: str, pred_path, out_path, sources=("still",)):
-    """Fit on both hold-out months of `base` and apply to its ranking predictions."""
+def load_final_model(exp_id: str) -> dict:
+    """Parameters saved by `evaluate` (`- final_model:` line of reports/experiments/<exp_id>.md)."""
+    import re
+    from prc.paths import REPORTS
+    rep = (REPORTS / "experiments" / f"{exp_id}.md").read_text()
+    models = json.loads(re.search(r"^- final_model: (\{.*\})$", rep, re.M).group(1))
+    for m in models.values():
+        m["w"] = {int(k): v for k, v in m["w"].items()}
+    return models
+
+
+def final(base: str, pred_path, out_path, sources=("still",), from_report: str | None = None):
+    """Apply to ranking predictions: parameters from the evaluation report (`from_report`, reproducible without the
+    hold-out files) or re-fit on both hold-out months of `base`."""
     est = _est(sources)
-    fitdf = pd.concat([_fold_frame(base, fold, est) for fold in V.HOLDOUTS])
-    model = fit_sources(fitdf)
+    if from_report:
+        model = load_final_model(from_report)
+        assert set(model) <= set(sources), (set(model), sources)
+    else:
+        fitdf = pd.concat([_fold_frame(base, fold, est) for fold in V.HOLDOUTS])
+        model = fit_sources(fitdf)
     p = pd.read_parquet(pred_path).merge(est, on="mvt_id", how="left")
     before = p.pred.to_numpy().copy()
     p["pred"] = apply_sources(p, before, model)
@@ -154,9 +172,10 @@ if __name__ == "__main__":
     ap.add_argument("--pred")
     ap.add_argument("--out")
     ap.add_argument("--sources", default="still", help="comma list, priority order: still,moving")
+    ap.add_argument("--from-report", help="final: apply the parameters saved in reports/experiments/<EXP>.md")
     a = ap.parse_args()
     src = tuple(a.sources.split(","))
     if a.cmd == "eval":
         evaluate(a.base, a.exp_id, src)
     else:
-        final(a.base, a.pred, a.out, src)
+        final(a.base, a.pred, a.out, src, a.from_report)
