@@ -254,6 +254,12 @@ estimated on training months only (cells < 5 rows fall back to the pooled band).
 - Caveat: the 6 h and 14 h band edges were chosen after looking at all 2025 months (incl. the hold-outs); the shares
   are cross-fitted. Gain rests on 21 hold-out rows (17 improve).
 
+- Robustness (`reports/checks/m026_stability.md`): 2025 shares (95% Wilson) — band 6–14 h echo 42/43 = 0.977
+  [0.879, 0.996]; band ≥ 14 h echo 9/20 = 0.45 [0.26, 0.66], day-minus 0.55; no month contradicts the pattern. The
+  exposure is one-sided: with both bands at the lower interval end the 26 hedged ranking rows would add ≈ +12.8 to the
+  board RMSE (upper end −0.6). The −11.6 board gain when M-026 was introduced (v4) is evidence that 2026 echo shares
+  are high.
+
 ## M-027 Separate models for NM-matched and unmatched departures at an echo-prone airport
 At LIRF, one LightGBM per (airport, NM-match status) instead of one per airport.
 - (e) Cleaning investigation: the single LIRF model transfers the unmatched schedule-echo hedge to matched flights
@@ -289,6 +295,14 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
 - Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
   (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).
 
+- Robustness (`reports/checks/m028_sensitivity.md`, Modal run m028-sens): hold-out RMSE moves smoothly with the
+  near radius (100 / 150 / 200 m: 335.60 / 335.46 / 335.28 Jan; 326.43 / 326.29 / 326.19 Jul) and the gate (300 / 600
+  / 900 s: 336.95 / 335.46 / 334.79 Jan) — the chosen values are not a knife-edge optimum; they were fixed before this
+  scan and kept (no selection on it). Transfer to 2026 without labels: per source and airport the gap
+  (est + offset − base prediction) has similar medians and p10/p90 in 2025 hold-outs and 2026 ranking rows, incl.
+  EGLL whose coverage rises from ~2% to ~27% of departures. Weakest transfer: LEMD offsets come from 47–78 rows in
+  2025 but apply to ~9,850 ranking rows (27% of LEMD 2026 departures).
+
 ## M-029 Level calibration to the EUROCONTROL monthly mean taxi-out (tested, rejected in EXP-052)
 Per airport, the 2025 gap between our target mean (y ≤ 2 h) and the EC monthly mean is modelled as c + s·snow share;
 a target airport-month's level = EC + gap; normal predictions are shifted toward it with a cross-fitted shrink.
@@ -303,7 +317,8 @@ a target airport-month's level = EC + gap; normal predictions are shifted toward
 The GBM fit (not the target encodings, not the scoring) uses labels ≤ 3 h only (`fit_y_mode: drop`) or labels
 winsorized at 3 h (`clip`); config keys `fit_y_max`, `fit_y_mode` in `prc.models.gbm`. Defect rows are still predicted;
 their hedge stays with M-026. Labels are never edited in the database (M-002).
-- (b) Huber, "Robust Estimation of a Location Parameter", *Annals of Mathematical Statistics* 35(1), 73–101, 1964
+- (b) Huber, "Robust Estimation of a Location Parameter", *Annals of Mathematical Statistics* 35(1), 73–101, 1964,
+  doi:10.1214/aoms/1177703732 (verified on projecteuclid.org 2026-10-06)
   (bounding the influence of gross errors on a squared-loss fit).
 - (e) `reports/checks/m030_label_tail.md`: 202 of 2,085,047 training departures have y > 3 h (188 at LIRF) and carry
   42% of the squared deviation from the per-airport median — a single such label shifts a 1,000-row leaf by ~80 s.
