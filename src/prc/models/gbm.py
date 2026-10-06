@@ -162,7 +162,8 @@ def fit_predict(df, X, fit_mask, pred_mask, cfg, seed):
             continue
         fm, pm = fit_mask & am, pred_mask & am
         yf = y
-        if cfg.get("fit_y_max"):   # M-030: robust training labels (fit only; target encodings and scoring unchanged)
+        skip = df.airport[am].iloc[0] in cfg.get("fit_y_skip_airports", []) if cfg.get("per_airport") else False
+        if cfg.get("fit_y_max") and not skip:   # M-030: robust training labels (fit only; target encodings and scoring unchanged)
             if cfg.get("fit_y_mode", "drop") == "drop":
                 fm = fm & (y <= cfg["fit_y_max"])
             else:

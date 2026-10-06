@@ -1,0 +1,8 @@
+# v9 candidate LightGBM (M-030): final LightGBM config (EXP-025 per-airport + weather) with training labels winsorized
+# at 3 h, except at LIRF (raw labels keep the implicit echo/day-shift hedge: EXP-081–085).
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-086
+title: per-airport LightGBM + weather, labels > 3 h winsorized except LIRF (M-030)
+fit_y_max: 10800
+fit_y_mode: clip
+fit_y_skip_airports: [LIRF]

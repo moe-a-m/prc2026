@@ -1,0 +1,7 @@
+# v9 candidate CatBoost (M-030): final CatBoost config with training labels winsorized at 3 h, except at LIRF.
+base: configs/cat_pa_wx.yaml
+exp_id: EXP-091
+title: per-airport CatBoost + weather, labels > 3 h winsorized except LIRF (M-030)
+fit_y_max: 10800
+fit_y_mode: clip
+fit_y_skip_airports: [LIRF]
