@@ -11,7 +11,7 @@ counts from both arrivals and departures, stand occupancy, month-grouped target 
 and METAR weather. Two post-processing steps follow: a calibrated three-regime hedge for very late flights whose
 airport block time may echo the schedule, and — where adsb.lol surface tracks show the aircraft leaving its own stand
 — a gated, cross-fitted shrinkage toward that observed off-block. Validation is month hold-out (Jan-2025, Jul-2025),
-mirroring the Jan/Jul-2026 ranking months; current submission v7 scores 335.9 / 326.7 locally and 279.40 on the board.
+mirroring the Jan/Jul-2026 ranking months; current submission v8 scores 335.5 / 326.3 locally and 278.54 on the board.
 
 Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
 rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources and licences `docs/DATA_SOURCES.md`;
@@ -93,7 +93,7 @@ per-airport LightGBM ≈ 38 min validation (both folds) + 22 min final fit, per-
 database rebuild from raw ≈ 15 min. The thread count (4) is fixed in the configs, so the same commands run locally.
 
 ## Expected validation scores
-Final recipe (submission v8 = EXP-080, v7 + a 150 m "near stand" ADS-B source): Jan-2025 hold-out RMSE 335.5 s, Jul-2025 326.3 s (v7 = EXP-079: 335.9 / 326.7, public board 279.40)
+Final recipe (submission v8 = EXP-080, v7 + a 150 m "near stand" ADS-B source): Jan-2025 hold-out RMSE 335.5 s, Jul-2025 326.3 s ; public board 278.54 (v7 = EXP-079: 335.9 / 326.7, board 279.40)
 (v6 279.83, v5 283.18, v4 287.50; `docs/SUBMISSIONS.md`).
 
 Determinism: feature SQL is order-independent (tie-inclusive counts, unique tie-breaks; `tests/test_sql_determinism.py`),
