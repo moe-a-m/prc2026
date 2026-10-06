@@ -77,6 +77,9 @@ PYENV_VERSION=3.13.15 MODAL_IMAGE_BUILDER_VERSION=2025.06 modal run scripts/moda
 Compute: Modal containers (2 physical cores = 4 threads, 16 GiB, no GPU).
 Feature build ≈ 8 min. One validation fold: global LightGBM ≈ 12–13 min, per-airport ≈ 25 min (4 threads);
 final fit on all 2025 ≈ 14 min (global). Measured times are in `logs/EXP-*.log`.
+The v7 models were trained on Modal containers (2 physical cores = 4 threads, 16 GiB; `scripts/modal/`): per seed,
+per-airport LightGBM ≈ 38 min validation (both folds) + 22 min final fit, per-airport CatBoost ≈ 75–90 min + 43 min;
+database rebuild from raw ≈ 15 min. The thread count (4) is fixed in the configs, so the same commands run locally.
 
 ## Expected validation scores
 Final recipe (submission v7 = EXP-079): Jan-2025 hold-out RMSE 335.9 s, Jul-2025 326.7 s; public board 279.40
