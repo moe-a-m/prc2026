@@ -282,6 +282,10 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
   31 s vs 83 s for the model (`p4_adsblol_moving_at_stand_EXP-045.md`); −1.4 / −1.3 on the hold-outs. Third source not
   added: first ground observation for aircraft never seen at their stand is first seen mid-taxi (median −401 s vs the
   target; worse than the model in every gap bin, `p4_adsblol_first_ground_EXP-051.md`).
+  Third source added (EXP-080, `near`): aircraft never within 60 m of its stand but within 150 m — 10% of departures
+  with a ground segment (`reports/checks/p4_adsblol_stand_gap.md`; 5% have no OSM stand position, 44% are first heard
+  > 150 m away); estimate = first movement within 150 m if stationary there, else first sighting within 150 m
+  (sql/40_adsb/05). Own offsets/weights; changed rows improve at every airport-month; −0.44 / −0.44 on the hold-outs.
 - Caveat: the 2025 fit rows are only the extracted Jan/Jul 2025 days; 2026 coverage differs by airport
   (`reports/checks/p4_adsblol_coverage.md`: EGLL Jul-2026 ≈ 43% of departures vs 0.4% Jul-2025; LIRF Jul-2026 none).
 

@@ -2,7 +2,8 @@
 
 Sources (--sources, priority order): `still` = take-off − first movement at the own OSM stand
 (adsb_stand_move_s, M-021), rows seen stationary there; `moving` = take-off − first observation within 60 m of the
-stand (adsb_stand_first_s), rows seen at the stand only while moving. Each source gets its own offsets and weights. Fitted on hold-out predictions of the other month (cross-fit, as M-019):
+stand (adsb_stand_first_s), rows seen at the stand only while moving; `near` (EXP-080) = the same with a 150 m radius (feat_dep_adsb_near), rows not
+covered by the first two. Each source gets its own offsets and weights. Fitted on hold-out predictions of the other month (cross-fit, as M-019):
     est'  = est + b_airport           b = median(y − est) per airport (pooled median when n < N_MIN)
     gap   = |est' − pred|             rows with gap > GATE_S are left unchanged (estimate likely from another stop)
     pred' = pred + w_bin · (est' − pred),   w_bin = least-squares slope of (y − pred) on (est' − pred), clipped to [0, 1]
@@ -28,14 +29,16 @@ N_MIN = 30
 SOURCES = {  # one estimate per departure; a row belongs to the first source that applies
     "still": "s.adsb_still_at_stand AND s.adsb_stand_move_s IS NOT NULL",                      # M-021 first movement
     "moving": "s.adsb_seen_at_stand AND NOT s.adsb_still_at_stand AND s.adsb_stand_first_s IS NOT NULL",  # first sighting
+    "near": "s.adsb_seen_near_stand AND s.adsb_near_s IS NOT NULL",                            # 150 m radius (EXP-080)
 }
-EST_COL = {"still": "s.adsb_stand_move_s", "moving": "s.adsb_stand_first_s"}
+EST_COL = {"still": "s.adsb_stand_move_s", "moving": "s.adsb_stand_first_s", "near": "s.adsb_near_s"}
+TABLE = {"still": "feat_dep_adsb_stand", "moving": "feat_dep_adsb_stand", "near": "feat_dep_adsb_near"}
 
 
 def _est(sources=("still",)):
     con = db.connect(read_only=True)
     parts = [f"SELECT f.mvt_id, f.airport, {EST_COL[k]} AS est, '{k}' AS src FROM feat_dep f "
-             f"JOIN feat_dep_adsb_stand s USING (mvt_id) WHERE {SOURCES[k]}" for k in sources]
+             f"JOIN {TABLE[k]} s USING (mvt_id) WHERE {SOURCES[k]}" for k in sources]
     e = con.sql(" UNION ALL ".join(parts)).df()
     con.close()
     order = {k: i for i, k in enumerate(sources)}
@@ -171,7 +174,7 @@ if __name__ == "__main__":
     ap.add_argument("--exp-id")
     ap.add_argument("--pred")
     ap.add_argument("--out")
-    ap.add_argument("--sources", default="still", help="comma list, priority order: still,moving")
+    ap.add_argument("--sources", default="still", help="comma list, priority order: still,moving,near")
     ap.add_argument("--from-report", help="final: apply the parameters saved in reports/experiments/<EXP>.md")
     a = ap.parse_args()
     src = tuple(a.sources.split(","))
