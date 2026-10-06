@@ -85,9 +85,12 @@ database rebuild from raw ≈ 15 min. The thread count (4) is fixed in the confi
 Final recipe (submission v7 = EXP-079): Jan-2025 hold-out RMSE 335.9 s, Jul-2025 326.7 s; public board 279.40
 (v6 279.83, v5 283.18, v4 287.50; `docs/SUBMISSIONS.md`).
 
-Determinism: LightGBM runs with `deterministic=true, force_row_wise=true`; CatBoost with a fixed `random_seed`. On the
-development machine `make predict` regenerates the v4 file byte-for-byte (same SHA256 as the uploaded file); results on
-other CPUs/thread counts may differ in the last digits.
+Determinism: feature SQL is order-independent (tie-inclusive counts, unique tie-breaks; `tests/test_sql_determinism.py`),
+LightGBM runs with `deterministic=true, force_row_wise=true` and 4 threads, CatBoost with a fixed `random_seed` and 4
+threads. **Verified 2026-10-06:** a clean `git clone` of commit 96108a9 on a fresh Modal container ran
+`make verify-raw ingest clean features train predict submit-check` from the raw files (3.5 h) and produced a submission
+byte-identical to the uploaded v7 (SHA256 e40eedd0…b474; `scripts/modal/reproduce.sh`, run repro-v7-3, log in
+`logs/modal/runs/repro-v7-3/`). Other CPU types or thread counts may change GBM results in the last digits.
 
 ## Attributions
 Challenge data: EUROCONTROL PRC / OpenSky Network (movements from APDF, `_flt` columns from EUROCONTROL NM).

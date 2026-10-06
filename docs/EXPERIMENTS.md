@@ -87,3 +87,9 @@ b987eb2 (tie-inclusive counts, unique tie-breaks in all ordered windows and ADS-
 114 columns of the model input tables except `adsb_taxi_dist_m` (last-bit float sum order, equal at 6 dp, not a model
 input). Data version 1f034ea54ffc → f3abfc38ce80. All models are re-run on it (EXP-060–069). repro-1 also exposed a
 script bug (it ran /repo's package and wrote into the shared volume; fixed in 5c99c43, originals restored).
+
+**2026-10-06 — v7 reproduced byte for byte.** Run repro-v7-3 (`scripts/modal/reproduce.sh`): `git clone --no-local` of
+96108a9 (0 changed files) on a fresh non-preemptible Modal container, raw files verified (14 files, 0 problems), then
+`make verify-raw ingest clean features train predict submit-check` → `submissions/motivated-engine_v8.parquet` (named v8
+because v7 is logged) with SHA256 e40eedd0…b474 = the uploaded v7. Elapsed 12,739 s. Two earlier attempts stopped at
+setup (repro-v7-1: hardlink clone error; repro-v7-2: data links inside the committed data/raw) — script fixes 5c99c43…96108a9.
