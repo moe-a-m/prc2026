@@ -6,7 +6,7 @@ Licence: GNU GPLv3 (`LICENSE`).
 
 ## Approach in one paragraph
 At ranking time the take-off is known, so the task is to estimate the airport-recorded off-block. Per-airport
-LightGBM and CatBoost models (3 seeds each, cross-fitted blend) use NM time deltas, congestion and runway-sequence
+LightGBM and CatBoost models (5 seeds each, cross-fitted blend) use NM time deltas, congestion and runway-sequence
 counts from both arrivals and departures, stand occupancy, month-grouped target encodings, label-defect indicators
 and METAR weather. Two post-processing steps follow: a calibrated three-regime hedge for very late flights whose
 airport block time may echo the schedule, and — where adsb.lol surface tracks show the aircraft leaving its own stand
@@ -55,7 +55,7 @@ make clean        # flags (never deletes rows)
 make fetch        # all external sources (see table above)
 make features     # feature tables (all SQL, DuckDB); ADS-B stage runs when extracts exist
 make baselines    # P2 reference baselines
-make train        # final fits on all 2025: per-airport LightGBM (3 seeds) + per-airport CatBoost (3 seeds), ≈ 9 h
+make train        # final fits on all 2025: per-airport LightGBM + per-airport CatBoost, 5 seeds each, ≈ 16 h on 4 threads
 make predict      # blend (weights from reports/experiments/EXP-044.md) + hedge + ADS-B step → submissions/
 make validate     # hold-out validation of the final recipe (Jan-2025, Jul-2025), ≈ 20 h
 make test         # pytest: data contracts, leakage, parity
@@ -79,8 +79,8 @@ Feature build ≈ 8 min. One validation fold: global LightGBM ≈ 12–13 min, p
 final fit on all 2025 ≈ 14 min (global). Measured times are in `logs/EXP-*.log`.
 
 ## Expected validation scores
-Final recipe (submission v5 = EXP-050): Jan-2025 hold-out RMSE 337.2 s, Jul-2025 328.2 s (v4 = EXP-039: 339.8 / 330.5,
-public board 287.50; `docs/SUBMISSIONS.md`). Full log of every experiment, kept and rejected: `docs/EXPERIMENTS.md`.
+Final recipe (submission v7 = EXP-079): Jan-2025 hold-out RMSE 335.9 s, Jul-2025 326.7 s; public board 279.40
+(v6 279.83, v5 283.18, v4 287.50; `docs/SUBMISSIONS.md`).
 
 Determinism: LightGBM runs with `deterministic=true, force_row_wise=true`; CatBoost with a fixed `random_seed`. On the
 development machine `make predict` regenerates the v4 file byte-for-byte (same SHA256 as the uploaded file); results on

@@ -23,6 +23,7 @@ rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dro
 | 6 | M-026 | three-regime hedge for NM-unmatched flights ≥ 6 h late at echo-prone airports (26 ranking rows) | 339.3 / 330.2 (EXP-045) |
 | 7 | M-018, M-021, M-028 | adsb.lol surface tracks: where the aircraft is seen leaving its own stand, shrink toward that off-block estimate (gated, per-airport offset, cross-fitted) | 337.2 / 328.2 (EXP-050) |
 | 7b | M-028 second source | same for aircraft seen at the stand only while moving (first sighting there) | 335.8 / 327.0 (EXP-051) |
+| 8 | determinism fix + 5 seeds | tie-inclusive queue counts (identical features on every rebuild), 5 seeds per family (EXP-060–069), same stages 5–7b → final model | 335.9 / 326.7 (EXP-079) |
 
 Board history (`docs/SUBMISSIONS.md`): v1 347.2 (stage 2) → v2 319.9 (4) → v3 299.1 (5, 1-seed CatBoost) →
 v4 287.5 (6) → v5 283.2 (7) → v6 279.8 (7b) → v7 279.4 (same recipe, 5 seeds per family, deterministic features). The board moved in the direction of the local hold-outs every time; no choice was made
