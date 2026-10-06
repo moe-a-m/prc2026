@@ -325,3 +325,31 @@ their hedge stays with M-026. Labels are never edited in the database (M-002).
 - Result (EXP-081–085): at LIRF the raw labels must stay — the GBM's implicit hedge of the echo/day-shift tail is
   worth more than the gain on normal LIRF rows, even with M-026 on top. Elsewhere (14 labels > 3 h) clipping helped on
   a single LightGBM seed: Jan −0.27, Jul −1.72 overall (`reports/checks/m030_paired_*.md`).
+
+## M-031 Feasible-interval projection: off-block within ±3,606 s of the NM LOBT (proposed; EXP-101)
+For a departure with an NM last known off-block time (LOBT), the airport off-block lies within ±3,606 s of it, so the
+taxi-out lies in [d_lobt − 3,606, d_lobt + 3,606] (d_lobt = take-off − LOBT). The final prediction is projected onto
+this interval (and floored at 0). Rows without LOBT (1.5% of the ranking set) are unchanged.
+- (e) Our data, `reports/checks/lobt_window_train.md`, `lobt_window_references.md`, `lobt_window_tails.md`
+  (scripts/checks/lobt_window.py): 0 of 2,062,577 matched 2025 departures fall outside ±3,606 s, at every airport; the
+  edge is exact (max 3,606 s at 7 of 10 airports; 249 rows in the last 6 s, none beyond). Only the **off-block** is
+  bounded and only by **LOBT**: the take-off exceeds ±3,606 s of LOBT for 29,162 rows, and IOBT / EOBT_1 / schedule
+  leak (58 / 614 / 107,499 rows). The bound is therefore a property of how airport records were associated with NM
+  flights, not an operational regularity.
+- (a) Mechanism: AOBT is one of the keys used to associate APDF flight records with NM data (EUROCONTROL
+  Specification for Operational ANS Performance Monitoring — Airport Operator Data Flow, Ed. 1.0, 15 Jan 2019, §4,
+  p. 27); LOBT is kept current by delay messages, which are mandatory once the departure slips beyond the filed EOBT
+  (ICAO Doc 4444 PANS-ATM, 15th Ed. 2007, §4.4.2.1.3: amend or re-file after a 30-min delay for controlled flights;
+  IFPS: any EOBT change > 15 min must be notified — EUROCONTROL EOBT/A-CDM service page, read 2026-10-06). The
+  organizer's data page states only that movements were left-joined with NM flights (no tolerance published), so the
+  ±3,606 s width is measured, not documented.
+- (b) Guarantee: Euclidean projection onto a closed convex set returns its closest point (Boyd & Vandenberghe,
+  *Convex Optimization*, 2004, §8.1, pp. 397–398; Ex. 8.4); for any target inside the set the projected prediction is
+  never farther from it, row by row. Projection onto known constraints is an established forecast post-processing
+  step with a guaranteed accuracy gain: Panagiotelis, Gamakumara, Athanasopoulos & Hyndman, "Forecast reconciliation:
+  A geometric view with new insights on bias correction", *Int. J. Forecasting* 37(1), 343–359, 2021.
+- Assumption: the same association rule holds for the 2026 ranking rows (same organizer pipeline); not checkable
+  locally because 2026 departure labels are blank.
+- Disclosure: a projection to this window also appears in a competitor's public repository (EnioAguiar/
+  prc-taxiout-2026, GPL-3.0, commit 30e23de, `docs/research/2026-09-27-janela-lobt.md`), which prompted us to test it.
+  No code or constants were taken from it; the bound, its mechanism and its evaluation above are our own.

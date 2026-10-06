@@ -1,0 +1,5 @@
+reference,n,min_block_minus_ref_s,max_block_minus_ref_s,n_block_outside_3606,n_block_in_last_minute,n_takeoff_outside_3606,max_abs_takeoff_minus_ref_s
+EOBT_1 (FPL-based trajectory),2062577,-10383.0,8705.0,614,667,20355,87001.0
+IOBT (initial off-block),2062577,-3840.0,10737.0,58,1157,29236,87001.0
+LOBT (last known off-block),2062577,-3606.0,3606.0,0,1159,29162,87001.0
+schedule (airport),2085047,-114415.0,269095.0,107499,4668,193936,270508.0
