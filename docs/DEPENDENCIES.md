@@ -25,6 +25,7 @@ installed package metadata (`importlib.metadata`) on 2026-10-02. All are GPLv3-c
 | openap | 2.6.2 | LGPL-3.0 | pre-existing; not used by the pipeline |
 | pitot | 0.3.2 | MIT | pre-existing; not used by the pipeline |
 | requests | 2.34.2 | Apache-2.0 | external fetch scripts (P4) |
+| minio | 7.2.20 | Apache-2.0 (package metadata) | `make download`: challenge files from the organizers' S3 bucket (`scripts/fetch/challenge.py`); also used by pyopensky |
 | tqdm | 4.70.1 | MPL-2.0 AND MIT | progress bars |
 | jupyterlab / ipywidgets | 4.6.4 / 8.1.9 | BSD-3-Clause | exploration notebooks only |
 | pyrefly | 1.3.2 | MIT | type checking (dev) |
@@ -32,5 +33,6 @@ installed package metadata (`importlib.metadata`) on 2026-10-02. All are GPLv3-c
 ### Optional (not in `uv.lock`, not needed for `make reproduce`)
 | Tool | Version | Licence | Why |
 |---|---|---|---|
-| mc (MinIO client, AIStor Client) | RELEASE.2025-08-13 | AGPL-3.0-or-later (Homebrew formula `minio-mc` metadata, read 2026-10-06; run as an external program, not linked) | `make data`: downloads the challenge files from the organizers' bucket (`scripts/fetch/challenge.py`) |
 | modal (client) | 1.5.3 | Apache-2.0 (package metadata) | optional cloud runs of the same commands (`scripts/modal/`); installed outside the project venv (Python 3.13). The container image is built from this repo's `uv.lock` (Python 3.14.7, uv 0.12.20) + Debian `libgomp1`, so library versions match the local run |
+
+The MinIO command-line client `mc` is not needed by the pipeline; the team uses it only to upload submissions.

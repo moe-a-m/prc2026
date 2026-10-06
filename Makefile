@@ -2,13 +2,13 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -c
 PY := uv run --frozen python
-.PHONY: env data verify-raw fetch ingest clean features train predict validate submit-check reproduce test baselines
+.PHONY: env download verify-raw fetch ingest clean features train predict validate submit-check reproduce test baselines
 
 env:            ## rebuild the pinned environment from uv.lock
 	uv sync --frozen
 	$(PY) -m prc.envinfo > reports/env.txt
 
-data:           ## download the challenge files from the organizers' MinIO bucket (keys from .env), verify against the manifest
+download:       ## download the challenge files from the organizers' S3 bucket into data/raw/ (keys from .env), verify
 	$(PY) scripts/fetch/challenge.py
 
 verify-raw:     ## recompute SHA256 of challenge files against data/raw/MANIFEST.csv
@@ -85,4 +85,4 @@ test:           ## run tests and save the summary (CLAUDE.md §1.5)
 	@mkdir -p reports/tests
 	uv run --frozen pytest -q -rA --color=no 2>&1 | tee reports/tests/$$(date -u +%F)_$$(git rev-parse --short HEAD).txt
 
-reproduce: env data fetch ingest clean features train predict submit-check
+reproduce: env download fetch ingest clean features train predict submit-check

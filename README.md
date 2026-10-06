@@ -19,16 +19,16 @@ dependencies `docs/DEPENDENCIES.md`; open questions `docs/OPEN_QUESTIONS.md`; pa
 
 ## Getting the challenge data
 Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them from the
-organizers' MinIO bucket with their team keys:
+organizers' S3 bucket (OpenSky MinIO, `prc-2026-datasets`) with their team keys:
 
 ```
-cp .env.example .env          # then fill in ACCESS_KEY and SECRET_KEY (never commit .env)
-make data                     # = uv run python scripts/fetch/challenge.py
+cp .env.example .env          # fill in ACCESS_KEY and SECRET_KEY (never commit .env)
+make download                 # = uv run python scripts/fetch/challenge.py   (--check: list only, no download)
 ```
 
-`scripts/fetch/challenge.py` needs the MinIO client `mc`. It reads the object paths from the committed
-`data/raw/MANIFEST.csv`, downloads each missing file to a temporary name, checks size and SHA256 against the manifest and
-only then moves it into place:
+`scripts/fetch/challenge.py` follows the PRC 2024 recipe (pyopensky's `S3Client`: a `minio` client on
+`s3.opensky-network.org:443`, `list_objects(..., recursive=True)`, one download per object) — the Python equivalent of
+`mc cp --recursive <alias>/prc-2026-datasets data` — and sorts every object into the layout the pipeline expects:
 
 ```
 data/raw/training/training_2025-MM-01_….parquet   (12 files)
@@ -36,9 +36,10 @@ data/raw/ranking/ranking.parquet                  (reissued 2026-09-04)
 data/raw/submitting/submitting.parquet
 ```
 
-A changed or stale (pre-reissue) upstream file stops the run; nothing is overwritten. `--check` lists what is missing
-without downloading. Keys are passed to `mc` as a temporary alias (`MC_HOST_<alias>`), so no `mc` config file is written.
-`make verify-raw` re-checks every file against the manifest at any time.
+Each file is downloaded to a temporary name and checked against the committed `data/raw/MANIFEST.csv` (bytes + SHA256)
+before it is moved into place; files already present and verified are skipped. A changed or stale (pre-reissue) upstream
+file, or an object that is not in the manifest, stops the run with a report — nothing verified is overwritten.
+`make verify-raw` re-checks every file at any time.
 
 ## External data
 All sources are fetched by scripts that store unmodified raw bytes under `data/external/<source>/raw/` and record
