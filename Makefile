@@ -32,51 +32,52 @@ features:       ## all feature SQL; sql/40_adsb runs only when adsb.lol extracts
 baselines:
 	$(PY) -m prc.models.baselines
 
-# Final model (submission v8, docs/SUBMISSIONS.md), on deterministic features (data f3abfc38ce80): per-airport LightGBM +
-# weather and per-airport CatBoost + weather, 5 seeds each (42, 7, 99, 11, 23), cross-fitted NNLS blend EXP-077,
-# three-regime hedge EXP-078 (M-026), ADS-B stand shrinkage with three sources EXP-080 (M-028; needs the adsb.lol
+# Final model (submission v9, docs/SUBMISSIONS.md), on deterministic features: per-airport LightGBM + weather and
+# per-airport CatBoost + weather with training labels > 3 h winsorized except at LIRF (M-030), 5 seeds each (42, 7, 99,
+# 11, 23), cross-fitted NNLS blend EXP-098, three-regime hedge EXP-099 (M-026), ADS-B stand shrinkage with three
+# sources EXP-100 (M-028; needs the adsb.lol
 # extracts and sql/40_adsb). Blend weights and ADS-B parameters are read from the committed experiment reports, so
 # `make train predict` does not need the hold-out files. ≈ 16 h CPU on 4 threads for train (≈ 2.5 h per seed on Modal).
-LGB := configs/ablations/EXP-025_per_airport_weather.yaml
-CAT := configs/cat_pa_wx.yaml
+LGB := configs/m030_lgb.yaml
+CAT := configs/m030_cat.yaml
 
-train:          ## final fits on all 2025 -> models/EXP-060..069 (ranking predictions)
-	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 42 --exp-id EXP-060
-	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 7 --exp-id EXP-061
-	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 99 --exp-id EXP-062
-	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 11 --exp-id EXP-063
-	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 23 --exp-id EXP-064
-	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 42 --exp-id EXP-065
-	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 7 --exp-id EXP-066
-	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 99 --exp-id EXP-067
-	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 11 --exp-id EXP-068
-	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 23 --exp-id EXP-069
+train:          ## final fits on all 2025 -> models/EXP-086..095 (ranking predictions)
+	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 42 --exp-id EXP-086
+	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 7 --exp-id EXP-087
+	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 99 --exp-id EXP-088
+	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 11 --exp-id EXP-089
+	$(PY) -m prc.models.gbm train --config $(LGB) --seeds 23 --exp-id EXP-090
+	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 42 --exp-id EXP-091
+	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 7 --exp-id EXP-092
+	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 99 --exp-id EXP-093
+	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 11 --exp-id EXP-094
+	$(PY) -m prc.models.gbm train --config $(CAT) --seeds 23 --exp-id EXP-095
 
-predict:        ## seed averages, blend (weights: EXP-077 report), hedge, ADS-B step (parameters: EXP-080 report), submission
-	$(PY) -m prc.models.blend --average EXP-060:1 EXP-061:1 EXP-062:1 EXP-063:1 EXP-064:1 --exp-id EXP-072
-	$(PY) -m prc.models.blend --average EXP-065:1 EXP-066:1 EXP-067:1 EXP-068:1 EXP-069:1 --exp-id EXP-073
-	$(PY) -m prc.models.blend --final --exp-id EXP-077
-	mkdir -p models/EXP-078 models/EXP-080
-	$(PY) -m prc.models.hedge final3 --pred models/EXP-077/pred_rank.parquet --out models/EXP-078/pred_rank.parquet
-	$(PY) -m prc.models.adsb_stack final --base EXP-078 --pred models/EXP-078/pred_rank.parquet --out models/EXP-080/pred_rank.parquet --sources still,moving,near --from-report EXP-080
-	$(PY) -m prc.submit build models/EXP-080/pred_rank.parquet
+predict:        ## seed averages, blend (weights: EXP-098 report), hedge, ADS-B step (parameters: EXP-100 report), submission
+	$(PY) -m prc.models.blend --average EXP-086:1 EXP-087:1 EXP-088:1 EXP-089:1 EXP-090:1 --exp-id EXP-096
+	$(PY) -m prc.models.blend --average EXP-091:1 EXP-092:1 EXP-093:1 EXP-094:1 EXP-095:1 --exp-id EXP-097
+	$(PY) -m prc.models.blend --final --exp-id EXP-098
+	mkdir -p models/EXP-099 models/EXP-100
+	$(PY) -m prc.models.hedge final3 --pred models/EXP-098/pred_rank.parquet --out models/EXP-099/pred_rank.parquet
+	$(PY) -m prc.models.adsb_stack final --base EXP-099 --pred models/EXP-099/pred_rank.parquet --out models/EXP-100/pred_rank.parquet --sources still,moving,near --from-report EXP-100
+	$(PY) -m prc.submit build models/EXP-100/pred_rank.parquet
 
 validate:       ## hold-out validation of the final recipe (Jan/Jul 2025) ≈ 30 h CPU on 4 threads
-	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 42 --exp-id EXP-060
-	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 7 --exp-id EXP-061
-	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 99 --exp-id EXP-062
-	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 11 --exp-id EXP-063
-	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 23 --exp-id EXP-064
-	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 42 --exp-id EXP-065
-	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 7 --exp-id EXP-066
-	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 99 --exp-id EXP-067
-	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 11 --exp-id EXP-068
-	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 23 --exp-id EXP-069
-	$(PY) -m prc.models.blend --average EXP-060:1 EXP-061:1 EXP-062:1 EXP-063:1 EXP-064:1 --exp-id EXP-072
-	$(PY) -m prc.models.blend --average EXP-065:1 EXP-066:1 EXP-067:1 EXP-068:1 EXP-069:1 --exp-id EXP-073
-	$(PY) -m prc.models.blend --members EXP-072 EXP-073 --exp-id EXP-077
-	$(PY) -m prc.models.hedge eval3 --base EXP-077 --exp-id EXP-078
-	$(PY) -m prc.models.adsb_stack eval --base EXP-078 --exp-id EXP-080 --sources still,moving,near
+	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 42 --exp-id EXP-086
+	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 7 --exp-id EXP-087
+	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 99 --exp-id EXP-088
+	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 11 --exp-id EXP-089
+	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 23 --exp-id EXP-090
+	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 42 --exp-id EXP-091
+	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 7 --exp-id EXP-092
+	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 99 --exp-id EXP-093
+	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 11 --exp-id EXP-094
+	$(PY) -m prc.models.gbm validate --config $(CAT) --seeds 23 --exp-id EXP-095
+	$(PY) -m prc.models.blend --average EXP-086:1 EXP-087:1 EXP-088:1 EXP-089:1 EXP-090:1 --exp-id EXP-096
+	$(PY) -m prc.models.blend --average EXP-091:1 EXP-092:1 EXP-093:1 EXP-094:1 EXP-095:1 --exp-id EXP-097
+	$(PY) -m prc.models.blend --members EXP-096 EXP-097 --exp-id EXP-098
+	$(PY) -m prc.models.hedge eval3 --base EXP-098 --exp-id EXP-099
+	$(PY) -m prc.models.adsb_stack eval --base EXP-099 --exp-id EXP-100 --sources still,moving,near
 
 submit-check:
 	$(PY) -m prc.submit check
