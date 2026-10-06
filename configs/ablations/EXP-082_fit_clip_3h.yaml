@@ -1,0 +1,6 @@
+# M-030: per-airport LightGBM + weather (EXP-025 / EXP-060 config) fitted with labels winsorized at 3 h.
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-082
+title: per-airport LightGBM + weather, training labels winsorized at 3 h
+fit_y_max: 10800
+fit_y_mode: clip

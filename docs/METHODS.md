@@ -298,3 +298,15 @@ a target airport-month's level = EC + gap; normal predictions are shifted toward
 - (e) 2025 gap analysis (this session, query in the EXP-052 code): gap grows with snow at EDDF, EDDM, LFPG, LSZH, LTFM
   (corr 0.88–0.98: EC excludes de-icing there), flat at EGLL, EHAM, LEBL, LEMD, LIRF. EXP-052: no gain on the
   hold-outs (+0.16 / −0.05), unstable shrink → rejected. Code kept (`prc.models.level_calib`) for the record.
+
+## M-030 Robust training labels: fit without (or with capped) labels > 3 h (tested in EXP-081 / EXP-082)
+The GBM fit (not the target encodings, not the scoring) uses labels ≤ 3 h only (`fit_y_mode: drop`) or labels
+winsorized at 3 h (`clip`); config keys `fit_y_max`, `fit_y_mode` in `prc.models.gbm`. Defect rows are still predicted;
+their hedge stays with M-026. Labels are never edited in the database (M-002).
+- (b) Huber, "Robust Estimation of a Location Parameter", *Annals of Mathematical Statistics* 35(1), 73–101, 1964
+  (bounding the influence of gross errors on a squared-loss fit).
+- (e) `reports/checks/m030_label_tail.md`: 202 of 2,085,047 training departures have y > 3 h (188 at LIRF) and carry
+  42% of the squared deviation from the per-airport median — a single such label shifts a 1,000-row leaf by ~80 s.
+- Result (EXP-081–085): at LIRF the raw labels must stay — the GBM's implicit hedge of the echo/day-shift tail is
+  worth more than the gain on normal LIRF rows, even with M-026 on top. Elsewhere (14 labels > 3 h) clipping helped on
+  a single LightGBM seed: Jan −0.27, Jul −1.72 overall (`reports/checks/m030_paired_*.md`).

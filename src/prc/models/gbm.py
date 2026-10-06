@@ -161,7 +161,13 @@ def fit_predict(df, X, fit_mask, pred_mask, cfg, seed):
         if not (pred_mask & am).any():
             continue
         fm, pm = fit_mask & am, pred_mask & am
-        b = fit(X[fm], y[fm] - off[fm], cfg, seed)
+        yf = y
+        if cfg.get("fit_y_max"):   # M-030: robust training labels (fit only; target encodings and scoring unchanged)
+            if cfg.get("fit_y_mode", "drop") == "drop":
+                fm = fm & (y <= cfg["fit_y_max"])
+            else:
+                yf = np.minimum(y, cfg["fit_y_max"])
+        b = fit(X[fm], yf[fm] - off[fm], cfg, seed)
         out[pm] = b.predict(X[pm]) + off[pm]
     return out[pred_mask], b
 

@@ -1,0 +1,7 @@
+# M-030: per-airport LightGBM + weather (EXP-025 / EXP-060 config) fitted without labels > 3 h (0.01% of 2025
+# departures, 42% of squared deviation from the airport median: reports/checks/m030_label_tail.md).
+base: configs/ablations/EXP-025_per_airport_weather.yaml
+exp_id: EXP-081
+title: per-airport LightGBM + weather, training labels > 3 h dropped from the fit
+fit_y_max: 10800
+fit_y_mode: drop
