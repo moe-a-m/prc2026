@@ -11,7 +11,7 @@ counts from both arrivals and departures, stand occupancy, month-grouped target 
 and METAR weather. Two post-processing steps follow: a calibrated three-regime hedge for very late flights whose
 airport block time may echo the schedule, and — where adsb.lol surface tracks show the aircraft leaving its own stand
 — a gated, cross-fitted shrinkage toward that observed off-block. Validation is month hold-out (Jan-2025, Jul-2025),
-mirroring the Jan/Jul-2026 ranking months; current submission v8 scores 335.5 / 326.3 locally and 278.54 on the board.
+mirroring the Jan/Jul-2026 ranking months; current submission v9 scores 335.4 / 325.4 locally and 276.75 on the board.
 
 Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
 rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources and licences `docs/DATA_SOURCES.md`;
