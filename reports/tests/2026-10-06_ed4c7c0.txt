@@ -1,0 +1,52 @@
+[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m                                      [100%][0m
+==================================== PASSES ====================================
+[32m[1m________________________ test_nn_fit_predict_end_to_end ________________________[0m
+----------------------------- Captured stdout call -----------------------------
+    epoch 1/1 train_rmse=1429.5 (0s)
+[32m[1m_____________________________ test_build_and_check _____________________________[0m
+----------------------------- Captured stdout call -----------------------------
+# motivated-engine_v999.parquet
+
+- predictions: /tmp/pytest-of-m/pytest-6/test_build_and_check0/pred.parquet
+- rows: 344841
+- clipped to (0, 172800): 1 below, 0 above
+- rounded to integer seconds (template dtype)
+- mean 900.4, median 900.4, max 900
+- check: OK
+[36m[1m=========================== short test summary info ============================[0m
+[32mPASSED[0m tests/test_adsb_stack.py::[1mtest_fit_recovers_offsets_and_weights_in_unit_interval[0m
+[32mPASSED[0m tests/test_adsb_stack.py::[1mtest_apply_gate_and_missing_estimate[0m
+[32mPASSED[0m tests/test_adsb_stack.py::[1mtest_unknown_airport_uses_pooled_offset[0m
+[32mPASSED[0m tests/test_adsb_stack.py::[1mtest_sources_have_separate_models_and_unmatched_rows_untouched[0m
+[32mPASSED[0m tests/test_adsb_stack.py::[1mtest_fit_sources_one_model_per_source[0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_sql_check_returns_no_rows[01_rank_dep_count][0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_sql_check_returns_no_rows[02_submitting_ids][0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_sql_check_returns_no_rows[03_mvt_id_unique][0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_sql_check_returns_no_rows[04_target_identity][0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_sql_check_returns_no_rows[05_rank_dep_blank][0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_sql_check_returns_no_rows[06_dep_airport][0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_sql_check_returns_no_rows[07_metar_unique][0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_ranking_and_submitting_counts[0m
+[32mPASSED[0m tests/test_contracts.py::[1mtest_no_stale_raw_files[0m
+[32mPASSED[0m tests/test_leakage.py::[1mtest_slice_not_empty[0m
+[32mPASSED[0m tests/test_leakage.py::[1mtest_features_identical_without_dep_labels[0m
+[32mPASSED[0m tests/test_leakage.py::[1mtest_model_config_has_no_label_columns[0m
+[32mPASSED[0m tests/test_leakage.py::[1mtest_blanking_took_effect[0m
+[32mPASSED[0m tests/test_leakage.py::[1mtest_adsb_sql_reads_no_departure_labels[0m
+[32mPASSED[0m tests/test_level_calib.py::[1mtest_fit_gap_recovers_snow_slope_and_intercept_only[0m
+[32mPASSED[0m tests/test_level_calib.py::[1mtest_deltas_shift_to_level_and_skip_long_rows[0m
+[32mPASSED[0m tests/test_offset.py::[1mtest_offset_extrapolates_and_is_added_back[0m
+[32mPASSED[0m tests/test_offset.py::[1mtest_no_offset_is_zero[0m
+[32mPASSED[0m tests/test_offset.py::[1mtest_split_unmatched_groups[0m
+[32mPASSED[0m tests/test_reproduce_smoke.py::[1mtest_slice_has_train_and_rank[0m
+[32mPASSED[0m tests/test_reproduce_smoke.py::[1mtest_fit_predict_end_to_end[0m
+[32mPASSED[0m tests/test_reproduce_smoke.py::[1mtest_nn_fit_predict_end_to_end[0m
+[32mPASSED[0m tests/test_reproduce_smoke.py::[1mtest_config_inheritance_no_duplicates[0m
+[32mPASSED[0m tests/test_sql_determinism.py::[1mtest_row_number_orders_end_with_a_unique_key[0m
+[32mPASSED[0m tests/test_sql_determinism.py::[1mtest_cumulative_event_counts_include_ties[0m
+[32mPASSED[0m tests/test_sql_determinism.py::[1mtest_runway_sequence_window_has_tie_breaker[0m
+[32mPASSED[0m tests/test_sql_determinism.py::[1mtest_count_window_includes_ties[0m
+[32mPASSED[0m tests/test_submit.py::[1mtest_build_and_check[0m
+[32mPASSED[0m tests/test_submit.py::[1mtest_check_detects_missing_rows[0m
+[32mPASSED[0m tests/test_target_encode.py::[1mtest_leave_one_month_out_and_holdout[0m
+[32m[32m[1m35 passed[0m[32m in 10.39s[0m[0m
