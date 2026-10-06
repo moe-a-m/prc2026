@@ -35,6 +35,13 @@ image = (modal.Image.from_registry("python:3.14.7-slim-bookworm")
 app = modal.App("prc2026", image=image)
 
 
+@app.function(volumes={"/vol": VOL}, timeout=86400, cpu=2.0, memory=16384, nonpreemptible=True)
+def run_np(cmd: str, run_id: str, write_db: bool = False) -> int:
+    """Same as run(), never preempted (3x CPU/memory price; https://modal.com/docs/guide/preemption). For long jobs
+    that were preempted repeatedly (det3-cat-s11, 2026-10-06)."""
+    return run.local(cmd, run_id, write_db)
+
+
 @app.function(volumes={"/vol": VOL}, timeout=86400, cpu=2.0, memory=16384)
 def run(cmd: str, run_id: str, write_db: bool = False) -> int:
     import os
@@ -77,14 +84,15 @@ def run(cmd: str, run_id: str, write_db: bool = False) -> int:
 
 @app.local_entrypoint()
 def main(cmd: str, run_id: str = "", cpu: float = 2.0, memory_gib: int = 16, timeout_h: float = 6.0,
-         write_db: bool = False, spawn: bool = False):
+         write_db: bool = False, spawn: bool = False, nonpreemptible: bool = False):
     """--spawn (use with `modal run --detach`): submit and return at once, so a local network drop cannot cancel the
     job (2026-10-05: four detached jobs were cancelled when the blocking client hit a DNS failure). Results are read
     from the volume (runs/<run_id>/exit_code) with sync.py."""
     run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
     timeout_s = int(timeout_h * 3600)
-    budget.authorize(run_id, cpu, memory_gib, timeout_s, cmd)  # raises SystemExit when over the cap
-    f = run.with_options(cpu=cpu, memory=memory_gib * 1024, timeout=timeout_s)
+    budget.authorize(run_id, cpu, memory_gib, timeout_s, cmd,  # raises SystemExit when over the cap
+                     price_multiplier=3.0 if nonpreemptible else 1.0)
+    f = (run_np if nonpreemptible else run).with_options(cpu=cpu, memory=memory_gib * 1024, timeout=timeout_s)
     print(f"run {run_id}: {shlex.quote(cmd)} (cpu {cpu}, {memory_gib} GiB, timeout {timeout_h} h)")
     if spawn:
         call = f.spawn(cmd, run_id, write_db)

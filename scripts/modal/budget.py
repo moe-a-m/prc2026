@@ -55,8 +55,9 @@ def billed_usd(now: datetime | None = None) -> float:
     return total
 
 
-def worst_case_usd(cpu: float, memory_gib: float, timeout_s: int) -> float:
-    return timeout_s * (cpu * CPU_RATE + memory_gib * MEM_RATE) + LAUNCH_OVERHEAD_USD
+def worst_case_usd(cpu: float, memory_gib: float, timeout_s: int, price_multiplier: float = 1.0) -> float:
+    """price_multiplier: 3.0 for non-preemptible functions (Modal pricing, read 2026-10-06)."""
+    return timeout_s * (cpu * CPU_RATE + memory_gib * MEM_RATE) * price_multiplier + LAUNCH_OVERHEAD_USD
 
 
 def _ledger() -> list[dict]:
@@ -76,10 +77,11 @@ def committed_usd() -> tuple[float, float]:
     return billed_usd(), pending_usd()
 
 
-def authorize(run_id: str, cpu: float, memory_gib: float, timeout_s: int, cmd: str) -> float:
+def authorize(run_id: str, cpu: float, memory_gib: float, timeout_s: int, cmd: str,
+              price_multiplier: float = 1.0) -> float:
     """Record the launch in the ledger if it fits under CAP_USD; raise SystemExit otherwise."""
     assert CAP_USD < HARD_LIMIT_USD
-    wc = worst_case_usd(cpu, memory_gib, timeout_s)
+    wc = worst_case_usd(cpu, memory_gib, timeout_s, price_multiplier)
     try:
         billed, pending = committed_usd()
     except Exception as e:  # cannot verify spending → never launch
