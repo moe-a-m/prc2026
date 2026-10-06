@@ -326,7 +326,7 @@ their hedge stays with M-026. Labels are never edited in the database (M-002).
   worth more than the gain on normal LIRF rows, even with M-026 on top. Elsewhere (14 labels > 3 h) clipping helped on
   a single LightGBM seed: Jan −0.27, Jul −1.72 overall (`reports/checks/m030_paired_*.md`).
 
-## M-031 Feasible-interval projection: off-block within ±3,606 s of the NM LOBT (proposed; EXP-101)
+## M-031 Feasible-interval projection: off-block within ±3,606 s of the NM LOBT (EXP-101, kept)
 For a departure with an NM last known off-block time (LOBT), the airport off-block lies within ±3,606 s of it, so the
 taxi-out lies in [d_lobt − 3,606, d_lobt + 3,606] (d_lobt = take-off − LOBT). The final prediction is projected onto
 this interval (and floored at 0). Rows without LOBT (1.5% of the ranking set) are unchanged.
@@ -353,3 +353,6 @@ this interval (and floored at 0). Rows without LOBT (1.5% of the ranking set) ar
 - Disclosure: a projection to this window also appears in a competitor's public repository (EnioAguiar/
   prc-taxiout-2026, GPL-3.0, commit 30e23de, `docs/research/2026-09-27-janela-lobt.md`), which prompted us to test it.
   No code or constants were taken from it; the bound, its mechanism and its evaluation above are our own.
+- Result (EXP-101, `prc.models.lobt_window`): hold-out Jan 335.43 → 334.48, Jul 325.40 → 300.98; 53 / 170 rows
+  changed, each airport-month's changed rows improve. Data contract `sql/90_checks/08_lobt_window.sql` enforces the bound
+  on every rebuild; `tests/test_lobt_window.py` checks the never-farther property.
