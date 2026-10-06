@@ -18,8 +18,17 @@ rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources
 dependencies `docs/DEPENDENCIES.md`; open questions `docs/OPEN_QUESTIONS.md`; paper outline `docs/PAPER_OUTLINE.md`.
 
 ## Getting the challenge data
-Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them with
-the MinIO client (`mc`) using their OpenSky credentials, then place them as:
+Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them from the
+organizers' MinIO bucket with their team keys:
+
+```
+cp .env.example .env          # then fill in ACCESS_KEY and SECRET_KEY (never commit .env)
+make data                     # = uv run python scripts/fetch/challenge.py
+```
+
+`scripts/fetch/challenge.py` needs the MinIO client `mc`. It reads the object paths from the committed
+`data/raw/MANIFEST.csv`, downloads each missing file to a temporary name, checks size and SHA256 against the manifest and
+only then moves it into place:
 
 ```
 data/raw/training/training_2025-MM-01_….parquet   (12 files)
@@ -27,8 +36,9 @@ data/raw/ranking/ranking.parquet                  (reissued 2026-09-04)
 data/raw/submitting/submitting.parquet
 ```
 
-`make verify-raw` checks every file against `data/raw/MANIFEST.csv` (bytes + SHA256) and refuses stale
-pre-reissue copies.
+A changed or stale (pre-reissue) upstream file stops the run; nothing is overwritten. `--check` lists what is missing
+without downloading. Keys are passed to `mc` as a temporary alias (`MC_HOST_<alias>`), so no `mc` config file is written.
+`make verify-raw` re-checks every file against the manifest at any time.
 
 ## External data
 All sources are fetched by scripts that store unmodified raw bytes under `data/external/<source>/raw/` and record

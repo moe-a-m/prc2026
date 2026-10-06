@@ -32,4 +32,5 @@ installed package metadata (`importlib.metadata`) on 2026-10-02. All are GPLv3-c
 ### Optional (not in `uv.lock`, not needed for `make reproduce`)
 | Tool | Version | Licence | Why |
 |---|---|---|---|
+| mc (MinIO client, AIStor Client) | RELEASE.2025-08-13 | AGPL-3.0-or-later (Homebrew formula `minio-mc` metadata, read 2026-10-06; run as an external program, not linked) | `make data`: downloads the challenge files from the organizers' bucket (`scripts/fetch/challenge.py`) |
 | modal (client) | 1.5.3 | Apache-2.0 (package metadata) | optional cloud runs of the same commands (`scripts/modal/`); installed outside the project venv (Python 3.13). The container image is built from this repo's `uv.lock` (Python 3.14.7, uv 0.12.20) + Debian `libgomp1`, so library versions match the local run |
