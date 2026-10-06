@@ -93,7 +93,7 @@ per-airport LightGBM ≈ 38 min validation (both folds) + 22 min final fit, per-
 database rebuild from raw ≈ 15 min. The thread count (4) is fixed in the configs, so the same commands run locally.
 
 ## Expected validation scores
-Final recipe (submission v7 = EXP-079): Jan-2025 hold-out RMSE 335.9 s, Jul-2025 326.7 s; public board 279.40
+Final recipe (submission v8 = EXP-080, v7 + a 150 m "near stand" ADS-B source): Jan-2025 hold-out RMSE 335.5 s, Jul-2025 326.3 s (v7 = EXP-079: 335.9 / 326.7, public board 279.40)
 (v6 279.83, v5 283.18, v4 287.50; `docs/SUBMISSIONS.md`).
 
 Determinism: feature SQL is order-independent (tie-inclusive counts, unique tie-breaks; `tests/test_sql_determinism.py`),
