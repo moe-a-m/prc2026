@@ -66,6 +66,6 @@ submit-check:
 
 test:           ## run tests and save the summary (CLAUDE.md §1.5)
 	@mkdir -p reports/tests
-	uv run --frozen pytest -q -rA 2>&1 | tee reports/tests/$$(date -u +%F)_$$(git rev-parse --short HEAD).txt
+	uv run --frozen pytest -q -rA --color=no 2>&1 | tee reports/tests/$$(date -u +%F)_$$(git rev-parse --short HEAD).txt
 
 reproduce: env fetch ingest clean features train predict submit-check
