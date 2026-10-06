@@ -1,33 +1,37 @@
-"""Challenge-data download helper: .env parsing, key-name matching, manifest → bucket object mapping (no network)."""
+"""Challenge-data download (scripts/fetch/challenge.py): .env parsing, key names, bucket → repo layout (no network)."""
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "fetch"))
 import challenge as C  # noqa: E402
+from prc.paths import RAW  # noqa: E402
 
 
 def test_read_env_parses_and_environment_wins(tmp_path, monkeypatch):
     p = tmp_path / ".env"
-    p.write_text("# team keys\nACCESS_kEY=abc123\nexport SECRET_KEY='s3cr3t-value'\n\nS3_ENDPOINT=\"https://example.org\"\n")
-    monkeypatch.setenv("S3_ENDPOINT", "https://override.org")
+    p.write_text("# team keys\nACCESS_KEY=abc123\nexport SECRET_KEY='s3cr3t-value'\n\nS3_ENDPOINT=\"example.org:443\"\n")
+    monkeypatch.setenv("S3_ENDPOINT", "override.org:443")
     v = C.read_env(p)
-    assert v["ACCESS_kEY"] == "abc123" and v["SECRET_KEY"] == "s3cr3t-value"
-    assert v["S3_ENDPOINT"] == "https://override.org"
+    assert v["ACCESS_KEY"] == "abc123" and v["SECRET_KEY"] == "s3cr3t-value"
+    assert v["S3_ENDPOINT"] == "override.org:443"
 
 
-def test_credential_names_are_case_insensitive_with_prefixes():
-    assert C.credential({"ACCESS_kEY": "a"}, "ACCESS_KEY") == "a"
-    assert C.credential({"MINIO_SECRET_KEY": "b"}, "SECRET_KEY") == "b"
-    assert C.credential({"OTHER": "x"}, "ACCESS_KEY") is None
+def test_setting_names_are_case_insensitive_with_prefixes():
+    assert C.setting({"ACCESS_kEY": "a"}, "ACCESS_KEY") == "a"
+    assert C.setting({"MINIO_SECRET_KEY": "b"}, "SECRET_KEY") == "b"
+    assert C.setting({"OTHER": "x"}, "ACCESS_KEY") is None
 
 
-def test_plan_maps_bucket_paths_and_marks_present_files():
-    rows = C.plan()
+def test_bucket_objects_map_to_the_repo_layout():
+    assert C.target_for("training_2025-01-01_2025-02-01.parquet") == RAW / "training" / "training_2025-01-01_2025-02-01.parquet"
+    assert C.target_for("ranking.parquet") == RAW / "ranking" / "ranking.parquet"
+    assert C.target_for("submitting.parquet") == RAW / "submitting" / "submitting.parquet"
+    assert C.target_for("README.txt") == RAW / "other" / "README.txt"
+
+
+def test_every_manifest_file_has_a_bucket_name_that_maps_back_to_it():
+    rows = C.manifest_rows()
     assert len(rows) == 14
-    r = next(r for r in rows if r["file"].endswith("ranking.parquet"))
-    assert r["object"] == "prc-2026-datasets/ranking.parquet"
-
-
-def test_mc_env_uses_temporary_alias_for_url_safe_keys():
-    env, cfg = C.mc_env("ACCESS123", "secret+key-1", "https://s3.example.org")
-    assert cfg is None and env["MC_HOST_prcdl"] == "https://ACCESS123:secret+key-1@s3.example.org"
+    for rel, r in rows.items():
+        obj = r["bucket_path"].split("/", 1)[-1]          # dc26:prc-2026-datasets/<object>
+        assert str(C.target_for(obj).relative_to(C.ROOT)) == rel
