@@ -367,3 +367,19 @@ blended with the model by a cross-fitted least-squares weight (`prc.models.echo_
   where the base predicts above d_sched. Not used. Off-block before schedule is common (16% of matched 2025
   departures, 681 by > 1 h), so no feasible-set cap applies here (unlike M-031).
 
+
+## M-033 Recent departures' NM taxi-out proxy (tested in EXP-103 / EXP-104)
+Per departure, over the departures at the same airport (and runway) that took off strictly earlier: mean of their
+take-off − NM actual off-block (d_aobt3, 0–3 h) in the previous 30 min and over the last 5 departures, plus counts
+(`sql/30_features/10_feat_dep_recent.sql`, table feat_dep_recent). Label-free — the ranking set's departure labels are
+blank, so the NM proxy stands in for the recent taxi-out times the literature uses; coverage 99.6% in 2025 and 2026,
+median 951 vs 976 s.
+- (b) Recent taxi times of other flights as a predictor: "average taxi time of the previous half hour" (Balakrishna,
+  Ganesan, Sherry & Levy, "Estimating taxi-out times with a reinforcement learning algorithm", 27th DASC, 2008) and
+  "of the previous quarter" (Srivastava, "Improving departure taxi time predictions using ASDE-X surveillance data",
+  30th DASC, 2011, doi:10.1109/DASC.2011.6096185), both as tabulated by Wang, Brownlee, Woodward, Weiszer, Mahfouf &
+  Chen, "Aircraft taxi time prediction: Feature importance and their implications", *Transp. Res. C* 124, 102892,
+  2021 (full text read 2026-10-07, Table 1), whose own features include the average speed of the last 5 / 10
+  departures (AvgSpdLast5Dep, AvgSpdLast10Dep, §3.3) — hence our 30-min and last-5 windows.
+- Disclosure: a competitor's repository (EnioAguiar/prc-taxiout-2026 @30e23de) reports a gain from neighbouring
+  departures' MVT − AOBT_3; our features were defined from the literature above and our own parity constraint.

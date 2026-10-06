@@ -1,0 +1,6 @@
+# M-033: v10 cat config (M-030) + recent departures' NM taxi-out proxy (sql/30_features/10_feat_dep_recent.sql).
+base: configs/m030_cat.yaml
+exp_id: EXP-104
+title: M-030 cat + recent departures' MVT − AOBT_3 (30 min / last 5, airport and runway)
+extra_tables: [feat_dep_recent]
+add_numeric: [rec_px_ap_30p, rec_n_ap_30p, rec_px_ap_last5, rec_px_rw_30p, rec_n_rw_30p]
