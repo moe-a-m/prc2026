@@ -15,7 +15,10 @@ cd "$CLEAN"
 export PYTHONPATH="$CLEAN/src"
 python -c "import prc.paths as P; assert str(P.ROOT) == '$CLEAN', P.ROOT; print('ROOT', P.ROOT)"
 echo "commit $(git rev-parse --short HEAD), status: $(git status --porcelain | wc -l) changed files"
-mkdir -p data && ln -s /vol/raw data/raw && ln -s /vol/external data/external
+# data/raw and data/external exist in the clone (their MANIFEST.csv are committed): link the data folders inside them
+for d in /vol/raw/*/; do ln -s "${d%/}" "data/raw/$(basename "$d")"; done
+for d in /vol/external/*/; do ln -s "${d%/}" "data/external/$(basename "$d")"; done
+ls -la data/raw data/external
 python -c "import duckdb; duckdb.sql('INSTALL spatial')"
 start=$(date +%s)
 make PY=python verify-raw ingest clean features train predict submit-check 2>&1 | tee logs_make.txt
