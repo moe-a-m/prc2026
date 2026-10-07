@@ -368,7 +368,7 @@ blended with the model by a cross-fitted least-squares weight (`prc.models.echo_
   departures, 681 by > 1 h), so no feasible-set cap applies here (unlike M-031).
 
 
-## M-033 Recent departures' NM taxi-out proxy (tested in EXP-103 / EXP-104)
+## M-033 Recent departures' NM taxi-out proxy (EXP-103–118, kept)
 Per departure, over the departures at the same airport (and runway) that took off strictly earlier: mean of their
 take-off − NM actual off-block (d_aobt3, 0–3 h) in the previous 30 min and over the last 5 departures, plus counts
 (`sql/30_features/10_feat_dep_recent.sql`, table feat_dep_recent). Label-free — the ranking set's departure labels are
@@ -383,3 +383,5 @@ median 951 vs 976 s.
   departures (AvgSpdLast5Dep, AvgSpdLast10Dep, §3.3) — hence our 30-min and last-5 windows.
 - Disclosure: a competitor's repository (EnioAguiar/prc-taxiout-2026 @30e23de) reports a gain from neighbouring
   departures' MVT − AOBT_3; our features were defined from the literature above and our own parity constraint.
+- Result: single seed (EXP-103/104) non-LIRF y≤3h better in both families; full recipe EXP-118 vs v10 (EXP-101)
+  Jan 334.48 → 334.18, Jul 300.98 → 300.76, non-LIRF y≤3h 189.67 → 188.94 / 222.31 → 220.79.
