@@ -7,10 +7,12 @@ author and date, item numbers refer to that export), (e) experiment in this repo
 Literature citations marked *(verify)* were written from memory and must be checked against the paper before
 the JOAS write-up. Verified bibliography with URLs: `docs/references/literature_review_2026-10-02.md`.
 
-## Final model at a glance (submission v7 = EXP-079, board 279.40)
+## Final model at a glance (submission v11 = EXP-118, board 268.25)
 Task framing: at ranking time the take-off is known, so predicting taxi-out = estimating the airport-recorded
 off-block (AOBT). Errors are dominated by label defects (schedule echoes, day-shifted dates) on a small share of
-rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dropped (M-002).
+rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dropped (M-002). Three layers: (1) a
+per-airport GBM ensemble, (2) defect-aware hedging, (3) post-processing with independent evidence on the off-block
+(ADS-B surface tracks, and the NM-association bound to LOBT).
 
 | Stage | Method | What it does | Hold-out RMSE Jan / Jul 2025 after the stage |
 |---|---|---|---|
@@ -23,17 +25,31 @@ rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dro
 | 6 | M-026 | three-regime hedge for NM-unmatched flights ≥ 6 h late at echo-prone airports (26 ranking rows) | 339.3 / 330.2 (EXP-045) |
 | 7 | M-018, M-021, M-028 | adsb.lol surface tracks: where the aircraft is seen leaving its own stand, shrink toward that off-block estimate (gated, per-airport offset, cross-fitted) | 337.2 / 328.2 (EXP-050) |
 | 7b | M-028 second source | same for aircraft seen at the stand only while moving (first sighting there) | 335.8 / 327.0 (EXP-051) |
-| 8 | determinism fix + 5 seeds | tie-inclusive queue counts (identical features on every rebuild), 5 seeds per family (EXP-060–069), same stages 5–7b → final model | 335.9 / 326.7 (EXP-079) |
+| 8 | determinism fix + 5 seeds | tie-inclusive queue counts (identical features on every rebuild), 5 seeds per family (EXP-060–069) | 335.9 / 326.7 (EXP-079) |
+| 9 | M-028 third source | aircraft within 150 m of its stand but never within 60 m | 335.5 / 326.3 (EXP-080) |
+| 10 | M-030 | training labels > 3 h winsorized at all airports except LIRF (robust fit; LIRF keeps its implicit tail hedge) | 335.4 / 325.4 (EXP-100) |
+| 11 | M-031 | projection of each prediction onto take-off − LOBT ± 3,606 s (the NM-association bound; 0 of 2,062,577 matched 2025 departures outside) | 334.5 / 301.0 (EXP-101) |
+| 12 | M-033 | recent departures' NM taxi-out proxy (previous 30 min / last 5, airport and runway) as inputs → final model | 334.2 / 300.8 (EXP-118) |
 
 Board history (`docs/SUBMISSIONS.md`): v1 347.2 (stage 2) → v2 319.9 (4) → v3 299.1 (5, 1-seed CatBoost) →
-v4 287.5 (6) → v5 283.2 (7) → v6 279.8 (7b) → v7 279.4 (same recipe, 5 seeds per family, deterministic features). The board moved in the direction of the local hold-outs every time; no choice was made
-on board scores.
+v4 287.5 (6) → v5 283.2 (7) → v6 279.8 (7b) → v7 279.4 (8) → v8 278.5 (9) → v9 276.8 (10) → v10 269.2 (11) →
+v11 268.3 (12). The board moved in the direction of the local hold-outs every time; no choice was made on board
+scores.
+
+Robustness (§ M-026, M-028, M-031): hedge exposure is one-sided (≈ +12.8 board RMSE if 2026 echo shares sat at the
+lower 95% bound, `reports/checks/m026_stability.md`); the ADS-B step varies smoothly with radius and gate and its
+gap distributions transfer 2025 → 2026 (`reports/checks/m028_sensitivity.md`); the LOBT bound holds on every 2025
+row and is enforced as a data contract (`sql/90_checks/08_lobt_window.sql`). Reproducibility: clean-clone rebuilds
+of v7 (byte-identical) and v10 (344,840 / 344,841 identical, one row ±1 s), README § Reproducibility.
 
 Tried and rejected (each with its experiment row in `docs/EXPERIMENTS.md`): `MVT − AOBT_3` as the answer (EXP-009),
 MLP with entity embeddings alone or blended (EXP-019, EXP-027), residual corrector (EXP-026), same-runway queue +
 P10 unimpeded reference (EXP-023), EUROCONTROL airport aggregates as inputs (EXP-024), NM default-taxi features
 (EXP-020), linear-leaf trees (EXP-033), NM-proxy offset (EXP-034), stand remoteness (EXP-035), record-precision
-markers (EXP-038), split LIRF models (EXP-040), CatBoost lr 0.05 (gain vanished in the blend, EXP-047).
+markers (EXP-038), split LIRF models (EXP-040), CatBoost lr 0.05 (gain vanished in the blend, EXP-047), EUROCONTROL
+monthly level calibration (EXP-052), robust labels at LIRF (EXP-081–085), LIRF-unmatched echo classifier hedge
+(M-032, EXP-102), ADS-B off-block estimates as model inputs (M-034, EXP-119–134: better base models, but the same
+information as the M-028 post-step).
 Data sources and licences: `docs/DATA_SOURCES.md`.
 
 ## M-001 Month hold-out validation (Jan-2025, Jul-2025)
