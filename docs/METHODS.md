@@ -385,3 +385,36 @@ median 951 vs 976 s.
   departures' MVT − AOBT_3; our features were defined from the literature above and our own parity constraint.
 - Result: single seed (EXP-103/104) non-LIRF y≤3h better in both families; full recipe EXP-118 vs v10 (EXP-101)
   Jan 334.48 → 334.18, Jul 300.98 → 300.76, non-LIRF y≤3h 189.67 → 188.94 / 222.31 → 220.79.
+
+## M-034 ADS-B off-block observations as model inputs (proposed)
+Give the GBMs the ADS-B off-block estimates directly (first movement when seen parked, `adsb_first_move_s`; first
+movement / first sighting at the own stand, `adsb_stand_move_s`, `adsb_stand_first_s`; near-stand estimate,
+`adsb_near_s`) plus their difference to the NM proxy (estimate − d_aobt3), so the model learns when to trust ADS-B over
+NM instead of the hand-set 600 s gate of M-028. Reception-dependent features (first ground observation, number of
+points, largest gap, taxi distance) are excluded. Missing ADS-B stays missing (native missing-value handling).
+- (e) `reports/checks/m034_adsb_vs_nm.md` (Modal run m034-evidence): on 2025 matched departures with a ground
+  segment, where NM's AOBT_3 is > 15 min from the airport off-block (the band carrying 19% of v11 hold-out squared
+  error) the NM proxy's median error is 1,259 s, the ADS-B first-movement estimate's 45 s (closer in 90% of rows) and
+  the stand estimate's 32 s (closer in 95%); 5–15 min band: 416 s vs 39 s / 31 s. The M-028 gate (600 s) excludes most
+  of these rows by design.
+- (e) Drift, `reports/checks/m034_adsb_feature_drift.md`: movement estimates are stable 2025 → 2026 where 2025 coverage
+  is substantial (median first movement when parked: EDDF 615 / 608 s, EDDM 715 / 744, EHAM 779 / 835, LEBL 773 / 829);
+  reception features shift (points per track EDDF 30 → 11, LIRF 36 → 14) and are therefore excluded — consistent with
+  the forum observation that "how it moved" transfers and "where it was heard" does not (a participant, 27/09/2026).
+  Caveat: the adsb.lol archive covers only Jan/Jul days, so ADS-B inputs exist on ~1/6 of 2025 training rows; a
+  hold-out month's model learns them from the other extracted month only (pessimistic validation).
+- (b) Surveillance-derived inputs for taxi-time prediction: Srivastava, 30th DASC 2011, doi:10.1109/DASC.2011.6096185
+  (ASDE-X); Wang et al., *Transp. Res. C* 124, 102892, 2021 (surveillance-derived speed features); Hänggi, Waltert &
+  Wilde, "Prediction of Arrival Runway Occupancy Time and Exit Taxiway Using ADS-B Trajectories", *J. Open Aviation
+  Science* 4(2), 2026, doi:10.59490/joas.2026.8465 (OpenSky ADS-B trajectories as ML inputs, Zurich). Open ADS-B for
+  surface operations: Olive, Waltert & Schultz, "Assessing airport surface traffic performance from open sources of
+  aviation data", ATRD Symposium 2025; push-back detection from a parking position and the start of movement: Olive,
+  "traffic, a toolbox for processing and analysing air traffic data", *JOSS* 4(39), 1518, 2019,
+  doi:10.21105/joss.01518 (as M-021).
+- (b) Missing values in tree models: Josse, Chen, Prost, Scornet & Varoquaux, "On the consistency of supervised
+  learning with missing values", *Statistical Papers* 65, 2024 (arXiv:1902.06931) — missing-incorporated-in-attributes
+  handles informative missingness, which is what LightGBM / CatBoost do natively.
+- (b) Drift check before keeping it: adversarial validation (Pan, Pham, Dorairaj, Chen & Lee, AdKDD 2020,
+  arXiv:2004.03045).
+- Disclosure: a competitor (EnioAguiar/prc-taxiout-2026 @30e23de) reports a gain from own-flight ADS-B events as model
+  inputs; our features, their selection and the evidence above are our own.

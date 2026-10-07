@@ -1,0 +1,6 @@
+nm_gap,n,medae_nm,n_parked,medae_adsb_first_move_parked,share_adsb_closer_parked,n_stand,medae_adsb_stand,share_adsb_closer_stand
+a ≤1 min,34199,30.0,4554,30.0,0.418,13903,22.0,0.517
+b 1–5 min,85416,147.0,11828,32.0,0.796,32939,23.0,0.885
+c 5–15 min,25490,416.0,3797,39.0,0.901,8911,31.0,0.948
+d >15 min,4339,1259.0,697,45.0,0.9,1695,32.0,0.953
+,149444,139.0,20876,33.0,0.736,57448,24.0,0.808
