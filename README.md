@@ -101,7 +101,10 @@ LightGBM runs with `deterministic=true, force_row_wise=true` and 4 threads, CatB
 threads. **Verified 2026-10-06:** a clean `git clone` of commit 96108a9 on a fresh Modal container ran
 `make verify-raw ingest clean features train predict submit-check` from the raw files (3.5 h) and produced a submission
 byte-identical to the uploaded v7 (SHA256 e40eedd0…b474; `scripts/modal/reproduce.sh`, run repro-v7-3, log in
-`logs/modal/runs/repro-v7-3/`). Other CPU types or thread counts may change GBM results in the last digits.
+`logs/modal/runs/repro-v7-3/`). **Verified 2026-10-07 for v10:** clean clone of commit 059447b (run repro-v10-1,
+3.6 h): 344,840 of 344,841 predictions identical to the uploaded v10, one LEMD prediction differs by 1 s (a value at
+the integer-rounding boundary; RMS difference 0.0017 s). This is the documented tolerance: identical up to ±1 s on
+isolated rows. Other CPU types or thread counts may change GBM results in the last digits.
 
 ## Attributions
 Challenge data: EUROCONTROL PRC / OpenSky Network (movements from APDF, `_flt` columns from EUROCONTROL NM).
