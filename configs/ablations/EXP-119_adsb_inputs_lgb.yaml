@@ -1,0 +1,6 @@
+# M-034: v11 lgb config (M-030 + M-033) + ADS-B off-block observations as inputs (sql/40_adsb/06_feat_dep_adsb_inputs.sql).
+base: configs/ablations/EXP-103_recent_lgb.yaml
+exp_id: EXP-119
+title: v11 lgb + ADS-B off-block estimates (stand still / moving / near / parked, best, best − NM)
+extra_tables: [feat_dep_adsb_inputs]
+add_numeric: [ax_stand_still, ax_stand_moving, ax_near, ax_parked, ax_best, ax_best_minus_nm]

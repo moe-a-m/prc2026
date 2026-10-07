@@ -1,0 +1,6 @@
+# M-034: v11 cat config (M-030 + M-033) + ADS-B off-block observations as inputs (sql/40_adsb/06_feat_dep_adsb_inputs.sql).
+base: configs/ablations/EXP-104_recent_cat.yaml
+exp_id: EXP-120
+title: v11 cat + ADS-B off-block estimates (stand still / moving / near / parked, best, best − NM)
+extra_tables: [feat_dep_adsb_inputs]
+add_numeric: [ax_stand_still, ax_stand_moving, ax_near, ax_parked, ax_best, ax_best_minus_nm]
