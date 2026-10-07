@@ -386,7 +386,7 @@ median 951 vs 976 s.
 - Result: single seed (EXP-103/104) non-LIRF y≤3h better in both families; full recipe EXP-118 vs v10 (EXP-101)
   Jan 334.48 → 334.18, Jul 300.98 → 300.76, non-LIRF y≤3h 189.67 → 188.94 / 222.31 → 220.79.
 
-## M-034 ADS-B off-block observations as model inputs (proposed)
+## M-034 ADS-B off-block observations as model inputs (tested, not adopted: EXP-119–134)
 Give the GBMs the ADS-B off-block estimates directly (first movement when seen parked, `adsb_first_move_s`; first
 movement / first sighting at the own stand, `adsb_stand_move_s`, `adsb_stand_first_s`; near-stand estimate,
 `adsb_near_s`) plus their difference to the NM proxy (estimate − d_aobt3), so the model learns when to trust ADS-B over
@@ -418,3 +418,8 @@ points, largest gap, taxi distance) are excluded. Missing ADS-B stays missing (n
   arXiv:2004.03045).
 - Disclosure: a competitor (EnioAguiar/prc-taxiout-2026 @30e23de) reports a gain from own-flight ADS-B events as model
   inputs; our features, their selection and the evidence above are our own.
+- Result: the inputs improve every base model (LightGBM seeds −2.4…−3.1 Jan / −1.4…−2.6 Jul; non-LIRF y≤3h −4.6 / −3.9
+  at seed 42; EHAM −17 / −18) and the blend before the ADS-B post-step (EXP-132 vs v11's EXP-116: −2.55 / −1.92), but
+  they capture the same information as the M-028 post-step, whose gain falls from −3.87 / −3.68 to −1.78 / −1.36. Final
+  recipe EXP-134 vs v11: −0.40 / +0.56 — not adopted (both-months rule); blending both pipelines −0.14 / −0.02. The
+  M-028 post-step is thus an efficient way to use the ADS-B off-block evidence (no retraining, cross-fitted gate).
