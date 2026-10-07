@@ -11,7 +11,7 @@ counts from both arrivals and departures, stand occupancy, month-grouped target 
 and METAR weather. Two post-processing steps follow: a calibrated three-regime hedge for very late flights whose
 airport block time may echo the schedule, and — where adsb.lol surface tracks show the aircraft leaving its own stand
 — a gated, cross-fitted shrinkage toward that observed off-block. Validation is month hold-out (Jan-2025, Jul-2025),
-mirroring the Jan/Jul-2026 ranking months; current submission v10 scores 334.5 / 301.0 locally and 269.25 on the board.
+mirroring the Jan/Jul-2026 ranking months; current submission v11 scores 334.2 / 300.8 locally and 268.25 on the board.
 
 Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
 rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources and licences `docs/DATA_SOURCES.md`;
@@ -93,8 +93,17 @@ per-airport LightGBM ≈ 38 min validation (both folds) + 22 min final fit, per-
 database rebuild from raw ≈ 15 min. The thread count (4) is fixed in the configs, so the same commands run locally.
 
 ## Expected validation scores
-Final recipe (submission v8 = EXP-080, v7 + a 150 m "near stand" ADS-B source): Jan-2025 hold-out RMSE 335.5 s, Jul-2025 326.3 s ; public board 278.54 (v7 = EXP-079: 335.9 / 326.7, board 279.40)
-(v6 279.83, v5 283.18, v4 287.50; `docs/SUBMISSIONS.md`).
+Final recipe (submission v11 = EXP-118): Jan-2025 hold-out RMSE 334.2 s, Jul-2025 300.8 s; public board 268.25.
+
+| version | change (method) | hold-out Jan / Jul | board |
+|---|---|---|---|
+| v7 (EXP-079) | 5 seeds per family, deterministic features | 335.9 / 326.7 | 279.40 |
+| v8 (EXP-080) | ADS-B "near stand" source, 150 m (M-028) | 335.5 / 326.3 | 278.54 |
+| v9 (EXP-100) | training labels > 3 h winsorized except LIRF (M-030) | 335.4 / 325.4 | 276.75 |
+| v10 (EXP-101) | projection onto take-off − LOBT ± 3,606 s (M-031) | 334.5 / 301.0 | 269.25 |
+| v11 (EXP-118) | recent departures' NM taxi-out proxy features (M-033) | 334.2 / 300.8 | 268.25 |
+
+Earlier: v6 279.83, v5 283.18, v4 287.50 (`docs/SUBMISSIONS.md`).
 
 Determinism: feature SQL is order-independent (tie-inclusive counts, unique tie-breaks; `tests/test_sql_determinism.py`),
 LightGBM runs with `deterministic=true, force_row_wise=true` and 4 threads, CatBoost with a fixed `random_seed` and 4
