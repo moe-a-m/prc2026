@@ -1,0 +1,25 @@
+fold,exp,group,n,rmse,sse_share_of_all
+jan,EXP-103,all,153706,348.04,1.0
+jan,EXP-103,non-LIRF y≤3h,142386,206.14,0.325
+jan,EXP-103,LIRF matched y≤3h,11257,313.82,0.06
+jan,EXP-103,LIRF unmatched y≤3h,53,2416.7,0.017
+jan,EXP-103,LIRF y>3h,7,10389.24,0.041
+jan,EXP-103,non-LIRF y>3h,3,58862.73,0.558
+jan,EXP-119,all,153706,344.99,1.0
+jan,EXP-119,non-LIRF y≤3h,142386,201.58,0.316
+jan,EXP-119,LIRF matched y≤3h,11257,311.43,0.06
+jan,EXP-119,LIRF unmatched y≤3h,53,2364.88,0.016
+jan,EXP-119,LIRF y>3h,7,10177.01,0.04
+jan,EXP-119,non-LIRF y>3h,3,58863.81,0.568
+jul,EXP-103,all,190713,377.08,1.0
+jul,EXP-103,non-LIRF y≤3h,175499,232.67,0.35
+jul,EXP-103,LIRF matched y≤3h,14872,614.91,0.207
+jul,EXP-103,LIRF unmatched y≤3h,292,3905.31,0.164
+jul,EXP-103,LIRF y>3h,47,12478.13,0.27
+jul,EXP-103,non-LIRF y>3h,3,8591.88,0.008
+jul,EXP-119,all,190713,374.91,1.0
+jul,EXP-119,non-LIRF y≤3h,175499,228.79,0.343
+jul,EXP-119,LIRF matched y≤3h,14872,614.91,0.21
+jul,EXP-119,LIRF unmatched y≤3h,292,3905.31,0.166
+jul,EXP-119,LIRF y>3h,47,12478.13,0.273
+jul,EXP-119,non-LIRF y>3h,3,8667.15,0.008
