@@ -82,6 +82,97 @@ def run(cmd: str, run_id: str, write_db: bool = False) -> int:
     return rc
 
 
+ADSB_TIMEOUT_S = 1800  # one day took ~5 min on Modal (2026-02-01 test: 2.8 GB in ~30 s + ~4 min extraction)
+
+
+@app.function(volumes={"/vol": VOL}, timeout=ADSB_TIMEOUT_S, cpu=1.0, memory=4096,
+              max_containers=20, retries=1)
+def adsblol_day(day_iso: str) -> str:
+    """adsb.lol for one day (scripts/fetch/adsblol.py, same code paths): download the preferred release parts to the
+    container's disk, check each against the GitHub SHA256 digest, extract airport-surface points to the volume's
+    external/adsblol/extract/<day>.parquet, write the day's manifest rows to external/adsblol/manifest_parts/<day>.csv
+    (merged into data/external/MANIFEST.csv locally by `adsblol.py merge`), delete the raw parts."""
+    import csv
+    import shutil
+    from datetime import date
+
+    repo, vol = Path("/repo"), Path("/vol")
+    (repo / "data").mkdir(exist_ok=True)
+    if not (repo / "data" / "external").exists():
+        (repo / "data" / "external").symlink_to(vol / "external")
+    sys.path.insert(0, str(repo / "scripts" / "fetch"))
+    import adsblol as A
+    from prc import fetchutil as F
+
+    day = date.fromisoformat(day_iso)
+    out = A.EXTRACT / f"{day}.parquet"
+    parts_dir = vol / "external" / "adsblol" / "manifest_parts"
+    rows_path = parts_dir / f"{day}.csv"
+    if out.exists() and rows_path.exists():
+        return f"{day}: already done"
+    for year in (day.year, day.year + 1):  # 2025-12-31 is listed in the 2026 repository
+        prefs = A.preferred(year)
+        if day in prefs:
+            urls = prefs[day]
+            break
+    else:
+        raise RuntimeError(f"{day}: no preferred release")
+    tag = urls[0].split("/")[-2]
+    info = A.assets(year, tag)
+    tmp = Path("/tmp/adsblol") / tag
+    rows, parts = [], []
+    now = lambda: datetime.now(timezone.utc).isoformat(timespec="seconds")  # noqa: E731
+    for u in urls:
+        name = u.split("/")[-1]
+        size, digest = info[name]
+        dest = tmp / name
+        F.download(u, dest, n_conn=8, expected_size=size, log=print)
+        sha = F.sha256_file(dest)
+        if digest and sha != digest:
+            raise RuntimeError(f"{name}: SHA256 {sha} != GitHub digest {digest}")
+        rows.append({"path": f"data/external/adsblol/raw_tmp/{tag}/{name}", "bytes": size, "sha256": sha,
+                     "retrieved_at": now(), "source_id": "adsblol"})
+        parts.append(dest)
+    tbl, n_files, n_bad = A.process_parts(sorted(parts), A.boxes())
+    part_out = out.with_name(f".{out.name}.part")
+    A.pq.write_table(tbl, part_out, compression="zstd")
+    part_out.rename(out)
+    rows.append({"path": f"data/external/adsblol/extract/{day}.parquet", "bytes": out.stat().st_size,
+                 "sha256": F.sha256_file(out), "retrieved_at": now(), "source_id": "adsblol_extract"})
+    parts_dir.mkdir(parents=True, exist_ok=True)
+    with open(rows_path, "w", newline="") as f:
+        w = csv.DictWriter(f, F.FIELDS)
+        w.writeheader()
+        w.writerows(rows)
+    shutil.rmtree(tmp)
+    VOL.commit()
+    msg = f"{day}: {n_files} trace files ({n_bad} unreadable), {tbl.num_rows} points kept"
+    print(msg)
+    return msg
+
+
+@app.local_entrypoint()
+def fetch_adsblol(run_id: str = "", limit: int = 0):
+    """Spawn adsblol_day for every days_more() day without an extract on the volume (use with `modal run --detach`):
+    PYENV_VERSION=3.13.15 modal run --detach scripts/modal/app.py::fetch_adsblol --run-id adsb-more-1"""
+    import subprocess  # the local modal client's Python lacks the project dependencies: ask the project env
+    listing = subprocess.run(["uv", "run", "--frozen", "python", "-c", "import sys; sys.path.insert(0, 'scripts/fetch'); "
+                              "import adsblol as A; print(' '.join(map(str, A.days_more())))"],
+                             cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+    done = {e.path.rsplit("/", 1)[-1] for e in VOL.listdir("external/adsblol/manifest_parts")} \
+        if any(e.path.endswith("manifest_parts") for e in VOL.listdir("external/adsblol")) else set()
+    days = [d for d in listing if f"{d}.csv" not in done]
+    days = days[:limit] if limit else days
+    if not days:
+        print("nothing to fetch")
+        return
+    run_id = run_id or datetime.now(timezone.utc).strftime("adsb-%Y%m%dT%H%M%S")
+    # worst case: every day runs to its timeout; 5 GiB = 4 GiB memory + disk margin
+    budget.authorize(run_id, 1.0, 5, ADSB_TIMEOUT_S * len(days), f"adsblol_day x {len(days)}: {days[0]} .. {days[-1]}")
+    adsblol_day.spawn_map(days)
+    print(f"run {run_id}: spawned adsblol_day for {len(days)} days ({days[0]} .. {days[-1]})")
+
+
 @app.local_entrypoint()
 def main(cmd: str, run_id: str = "", cpu: float = 2.0, memory_gib: int = 16, timeout_h: float = 6.0,
          write_db: bool = False, spawn: bool = False, nonpreemptible: bool = False):

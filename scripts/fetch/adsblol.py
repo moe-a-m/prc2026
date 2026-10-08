@@ -4,6 +4,8 @@ Two loops, run as separate processes (download is network-bound, extract is CPU-
 
   uv run python scripts/fetch/adsblol.py download   # parts -> data/external/adsblol/raw_tmp/<tag>/ (≤ BUFFER days)
   uv run python scripts/fetch/adsblol.py extract    # -> data/external/adsblol/extract/<YYYY-MM-DD>.parquet
+  GITHUB_TOKEN=$(gh auth token) uv run python scripts/fetch/adsblol.py assets   # asset lists for days_more()
+  (days_more() — Feb/Jun 2026 + the rest of 2025 — are fetched on Modal: scripts/modal/app.py::fetch_adsblol)
 
 Which release per day: the upstream PREFERRED_RELEASES.txt (largest release per day), snapshotted and checksummed.
 Every raw part is verified against the SHA256 digest GitHub publishes for the release asset, recorded in
@@ -58,6 +60,18 @@ def days():
     return first + rest
 
 
+def days_more():
+    """Days added for the final phase (organizer e-mail 2026-10-08: Jan, Feb, Jun, Jul 2026 scored) and the full-year
+    hold-out check: Feb and Jun 2026 first (needed for the final submission), then every 2025 day outside Jan/Jul."""
+    def month(y, m):
+        d = date(y, m, 1)
+        while d.month == m:
+            yield d
+            d += timedelta(days=1)
+    out = [d for m in (2, 6) for d in month(2026, m)]
+    return out + [d for m in (2, 3, 4, 5, 6, 8, 9, 10, 11, 12) for d in month(2025, m)]
+
+
 def log_setup(name):
     LOGDIR.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s",
@@ -91,8 +105,10 @@ def assets(year: int, tag: str) -> dict:
         r = None
         for attempt in range(10):
             try:
+                # optional GITHUB_TOKEN: 5,000 instead of 60 requests/hour; the response is the same public JSON
+                auth = {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}"} if os.environ.get("GITHUB_TOKEN") else {}
                 r = requests.get(f"https://api.github.com/repos/adsblol/globe_history_{year}/releases/tags/{tag}",
-                                 headers={**F.UA, "Accept": "application/vnd.github+json"}, timeout=60)
+                                 headers={**F.UA, "Accept": "application/vnd.github+json", **auth}, timeout=60)
             except requests.RequestException:  # network outage: wait and retry like the downloads
                 r = None
             if r is not None and r.status_code == 200:
@@ -281,5 +297,55 @@ def cmd_extract():
         shutil.rmtree(tag_dir)  # raw parts deleted; their SHA256 stays in the manifest
 
 
+def cmd_assets():
+    """Cache the release-asset JSON (sizes + SHA256 digests) of every days_more() day, for the Modal fetch
+    (scripts/modal/app.py::fetch_adsblol), whose containers read META from the volume."""
+    log = log_setup("assets")
+    prefs = {y: preferred(y) for y in (2025, 2026)}
+    n = 0
+    for day in days_more():
+        urls = prefs[day.year].get(day)
+        if not urls:
+            log.warning("%s: no preferred release", day)
+            continue
+        assets(day.year, urls[0].split("/")[-2])
+        n += 1
+    log.info("asset lists cached for %d days", n)
+    return 0
+
+
+def cmd_merge():
+    """Merge the per-day manifest rows written by the Modal fetch (data/external/adsblol/manifest_parts/*.csv, copied
+    from the volume) into data/external/MANIFEST.csv, after checking every listed extract present locally."""
+    import csv
+    log = log_setup("merge")
+    new = {}
+    for p in sorted((BASE / "manifest_parts").glob("*.csv")):
+        with open(p) as f:
+            for r in csv.DictReader(f):
+                new[r["path"]] = r
+    bad = 0
+    for path, r in new.items():
+        if r["source_id"] == "adsblol_extract":
+            local = ROOT / path
+            if not local.exists() or F.sha256_file(local) != r["sha256"]:
+                log.error("%s: missing locally or SHA256 differs from the Modal record", path)
+                bad += 1
+    if bad:
+        return 1
+    rows = {r["path"]: r for r in F.manifest_rows()}
+    for path, r in new.items():
+        if path in rows and rows[path]["sha256"] != r["sha256"]:
+            log.error("%s: already listed with another SHA256 — not overwritten", path)
+            return 1
+    rows.update(new)
+    with open(F.MANIFEST, "w", newline="") as f:
+        w = csv.DictWriter(f, F.FIELDS)
+        w.writeheader()
+        w.writerows(sorted(rows.values(), key=lambda r: r["path"]))
+    log.info("merged %d rows from %d day files", len(new), len(list((BASE / "manifest_parts").glob("*.csv"))))
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit({"download": cmd_download, "extract": cmd_extract}[sys.argv[1]]())
+    sys.exit({"download": cmd_download, "extract": cmd_extract, "assets": cmd_assets, "merge": cmd_merge}[sys.argv[1]]())
