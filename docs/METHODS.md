@@ -58,6 +58,14 @@ Train on the other 11 months of 2025, predict the held-out month; report both an
   random/day folds misled. a participant's own variant is train-Jan→test-Jul and vice versa; we use the CLAUDE.md §9
   protocol (11 training months) as primary.
 - (d) a participant, 28/09/2026 (item 63): a few rows can carry ~30% of squared error — always look at top rows.
+- **Full-year variant (2026-10-08).** The final phase scores Jan, Feb, Jun and Jul 2026 and ranks Jan/Jul, Feb/Jun
+  and all four months separately, to judge how well a model generalises beyond two months (a: organizer e-mail
+  2026-10-08, docs/references/organizer_email_2026-10-08_final_phase.md). `PRC_HOLDOUTS=all` (src/prc/validate.py)
+  holds out each of the 12 months of 2025 in turn with the same rule (train on the other 11). Post-steps fitted on
+  hold-out predictions (M-019 blend, M-028 ADS-B step) are cross-fitted leave-one-month-out (`V.others`: fit on the
+  other hold-out months); with the default Jan + Jul this is exactly the original "fit on the other month" rule.
+  Results are reported per month, for Jan/Jul, Feb/Jun and all twelve; they are a check of the frozen recipe, not
+  a tuning target.
 
 ## M-002 Flag, don't drop
 Suspicious rows get boolean flags in `clean_dep`; no training row is removed.

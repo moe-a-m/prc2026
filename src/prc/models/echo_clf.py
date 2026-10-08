@@ -102,6 +102,7 @@ def evaluate(base: str, exp_id: str):
         pop["p_echo"], pop["hedge"] = fit_predict(tr[tr.month != pd.Timestamp(m)], pop)
         parts[fold], folds[fold] = pop, va
     names = list(parts)
+    assert len(names) == 2, "rejected method, cross-fit written for two hold-outs only (PRC_HOLDOUTS=jan,jul)"
     results, rows, ws = {}, [], {}
     for i, fold in enumerate(names):
         other = parts[names[1 - i]]

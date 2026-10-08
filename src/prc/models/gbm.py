@@ -202,8 +202,9 @@ def validate(cfg, seeds=None):
             "per_seed_rmse": {k: [round(v, 2) for v in vs] for k, vs in per_seed.items()},
             "params": json.dumps(cfg["params"]), "num_boost_round": cfg["num_boost_round"]}
     text = V.report_md(cfg["exp_id"], cfg["title"], results, meta)
-    imp = importance["jul"]
-    text += "\n## Feature importance (gain, Jul fold, last seed)\n\n" + (imp / imp.sum()).round(4).to_frame("gain_share").to_markdown() + "\n"
+    imp_fold = "jul" if "jul" in importance else list(importance)[-1]
+    imp = importance[imp_fold]
+    text += f"\n## Feature importance (gain, {imp_fold.capitalize()} fold, last seed)\n\n" + (imp / imp.sum()).round(4).to_frame("gain_share").to_markdown() + "\n"
     V.write_report(cfg["exp_id"], text)
     oof_dir = MODELS / "oof"  # row-level predictions stay out of git (models/ is ignored)
     oof_dir.mkdir(parents=True, exist_ok=True)

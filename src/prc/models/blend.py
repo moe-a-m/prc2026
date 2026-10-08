@@ -1,7 +1,8 @@
 """Blend hold-out predictions of several experiments (M-019): non-negative least squares without intercept.
 
-Cross-fitted to avoid tuning on the scored validation month: weights fit on Jan-2025 are evaluated on Jul-2025 and
-vice versa. Final weights (for the ranking set) are fit on both folds together.
+Cross-fitted to avoid tuning on the scored validation month: weights fit on the other hold-out months are evaluated on
+each month (Jan-2025 ↔ Jul-2025 by default; PRC_HOLDOUTS=all: leave-one-month-out over 2025). Final weights (for the
+ranking set) are fit on all hold-out folds together.
 
   python -m prc.models.blend --members EXP-018 EXP-019 --exp-id EXP-025 [--hedge]
   python -m prc.models.blend --average EXP-025:1 EXP-029:2 --exp-id EXP-030      # ranking preds, weighted mean
@@ -41,9 +42,8 @@ def main(members, exp_id, use_hedge=False):
     folds = load(members)
     names = list(folds)
     res, used = {}, {}
-    for i, fold in enumerate(names):
-        other = names[1 - i]
-        w = weights(folds[other], members)
+    for fold in names:
+        w = weights(V.others(folds, fold), members)
         used[fold] = dict(zip(members, np.round(w, 4)))
         va = folds[fold].copy()
         va["pred"] = va[members].to_numpy(float) @ w

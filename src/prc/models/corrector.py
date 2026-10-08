@@ -50,6 +50,7 @@ def main(base, exp_id):
     ctx = context()
     folds = {k: pd.read_parquet(MODELS / "oof" / f"{base}_{k}.parquet") for k in V.HOLDOUTS}
     names = list(folds)
+    assert len(names) == 2, "rejected method, cross-fit written for two hold-outs only (PRC_HOLDOUTS=jan,jul)"
     res = {}
     for i, fold in enumerate(names):
         tr = folds[names[1 - i]]

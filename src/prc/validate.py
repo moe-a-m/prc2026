@@ -1,5 +1,6 @@
 """Validation protocol (CLAUDE.md §9): month hold-outs, RMSE breakdowns, experiment reports."""
 import hashlib
+import os
 import subprocess
 from datetime import date
 
@@ -8,7 +9,29 @@ import pandas as pd
 
 from prc.paths import RAW_MANIFEST, REPORTS, ROOT, SQL
 
-HOLDOUTS = {"jan": date(2025, 1, 1), "jul": date(2025, 7, 1)}
+MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+
+def holdouts(spec: str | None = None) -> dict:
+    """Hold-out months of 2025. Default Jan + Jul (mirror of the public-phase ranking months, CLAUDE.md §9).
+    PRC_HOLDOUTS=all gives all twelve months (full-year check for the final phase, which also scores Feb and Jun 2026,
+    organizer e-mail 2026-10-08); a comma list (e.g. "feb,jun") picks months."""
+    spec = (spec if spec is not None else os.environ.get("PRC_HOLDOUTS", "jan,jul")).strip().lower()
+    names = MONTHS if spec == "all" else [m.strip() for m in spec.split(",") if m.strip()]
+    bad = [m for m in names if m not in MONTHS]
+    if bad:
+        raise ValueError(f"PRC_HOLDOUTS: unknown months {bad}")
+    return {m: date(2025, MONTHS.index(m) + 1, 1) for m in names}
+
+
+HOLDOUTS = holdouts()
+
+
+def others(frames: dict, fold: str) -> pd.DataFrame:
+    """Cross-fit training data for `fold`: the hold-out frames of every other month (with two hold-outs, the other
+    one — the original M-019 rule)."""
+    rest = [d for k, d in frames.items() if k != fold]
+    return rest[0] if len(rest) == 1 else pd.concat(rest, ignore_index=True)
 FLAG_COLS = ["f_no_nm_match", "f_block_eq_sched", "f_block_eq_planned", "f_round_minute_block",
              "f_negative_taxi", "f_taxi_gt_3h"]
 
@@ -41,7 +64,7 @@ def rmse(y, p) -> float:
 
 
 def folds(month: pd.Series):
-    """Yield (name, train_mask, valid_mask) for the Jan-2025 and Jul-2025 hold-outs."""
+    """Yield (name, train_mask, valid_mask) for each hold-out month (HOLDOUTS)."""
     m = pd.to_datetime(month).dt.date
     for name, d in HOLDOUTS.items():
         yield name, (m != d).to_numpy(), (m == d).to_numpy()

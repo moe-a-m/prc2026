@@ -3,7 +3,7 @@
 Sources (--sources, priority order): `still` = take-off − first movement at the own OSM stand
 (adsb_stand_move_s, M-021), rows seen stationary there; `moving` = take-off − first observation within 60 m of the
 stand (adsb_stand_first_s), rows seen at the stand only while moving; `near` (EXP-080) = the same with a 150 m radius (feat_dep_adsb_near), rows not
-covered by the first two. Each source gets its own offsets and weights. Fitted on hold-out predictions of the other month (cross-fit, as M-019):
+covered by the first two. Each source gets its own offsets and weights. Fitted on hold-out predictions of the other month(s) (cross-fit, as M-019; V.others):
     est'  = est + b_airport           b = median(y − est) per airport (pooled median when n < N_MIN)
     gap   = |est' − pred|             rows with gap > GATE_S are left unchanged (estimate likely from another stop)
     pred' = pred + w_bin · (est' − pred),   w_bin = least-squares slope of (y − pred) on (est' − pred), clipped to [0, 1]
@@ -101,9 +101,8 @@ def evaluate(base: str, exp_id: str, sources=("still",)):
     est = _est(sources)
     frames = {fold: _fold_frame(base, fold, est) for fold in V.HOLDOUTS}
     results, models = {}, {}
-    names = list(frames)
-    for i, fold in enumerate(names):
-        model = fit_sources(frames[names[1 - i]])
+    for fold in frames:
+        model = fit_sources(V.others(frames, fold))
         models[fold] = model
         va = frames[fold].copy()
         before = va.pred.to_numpy().copy()
@@ -114,7 +113,7 @@ def evaluate(base: str, exp_id: str, sources=("still",)):
             "rule": f"M-028: sources {list(sources)}, per-(source, airport) median offset (n≥{N_MIN}), bins {BINS}, "
                     f"gate {GATE_S}s, cross-fit",
             "models": json.dumps({k: _round(m) for k, m in models.items()}),
-            # exact parameters fit on both months — what `final --from-report` applies (no hold-out files needed)
+            # exact parameters fit on all hold-out months — what `final --from-report` applies (no hold-out files needed)
             "final_model": json.dumps(fit_sources(pd.concat(frames.values())))}
     text = V.report_md(exp_id, f"ADS-B stand off-block shrinkage (M-028) on {base} hold-out predictions", results, meta)
     rows = []

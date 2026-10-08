@@ -91,6 +91,7 @@ def evaluate(base: str, exp_id: str):
         frames[fold] = _fold(base, fold, f)
         dl[fold] = deltas(frames[fold], mm[mm.month == hold], gaps[fold])
     names = list(frames)
+    assert len(names) == 2, "rejected method, cross-fit written for two hold-outs only (PRC_HOLDOUTS=jan,jul)"
     results, ws, per = {}, {}, []
     for i, fold in enumerate(names):
         other = names[1 - i]
