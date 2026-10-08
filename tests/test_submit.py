@@ -22,7 +22,7 @@ def test_build_and_check(tmp_subdir, tmp_path):
     path, problems = submit.build(pp, version=999)
     assert problems == []
     out = pd.read_parquet(path)
-    assert len(out) == 344_841 and out.TAXITIME_SEC_mvt.min() == 0 and out.TAXITIME_SEC_mvt.max() == 900
+    assert len(out) == 670_790 and out.TAXITIME_SEC_mvt.min() == 0 and out.TAXITIME_SEC_mvt.max() == 900
 
 
 def test_check_detects_missing_rows(tmp_subdir, tmp_path):

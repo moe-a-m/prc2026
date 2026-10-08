@@ -15,7 +15,7 @@ def test_sql_check_returns_no_rows(con, path):
 def test_ranking_and_submitting_counts(con):
     n_rank = con.sql("SELECT count(*) FROM raw_ranking WHERE PHASE_mvt='DEP'").fetchone()[0]
     n_sub = con.sql("SELECT count(*) FROM raw_submitting").fetchone()[0]
-    assert n_rank == n_sub == 344_841
+    assert n_rank == n_sub == 670_790  # final phase (public phase: 344,841)
 
 
 def test_no_stale_raw_files():

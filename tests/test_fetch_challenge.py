@@ -33,7 +33,7 @@ def test_bucket_objects_map_to_the_repo_layout():
 
 def test_every_manifest_file_has_a_bucket_name_that_maps_back_to_it():
     rows = C.manifest_rows()
-    assert len(rows) == 14
+    assert len(rows) == 16  # 12 training + public-phase ranking/submitting + final-phase final_ranking/final_submitting
     for rel, r in rows.items():
         obj = r["bucket_path"].split("/", 1)[-1]          # dc26:prc-2026-datasets/<object>
         assert str(C.target_for(obj).relative_to(C.ROOT)) == rel
