@@ -18,7 +18,7 @@ installed package metadata (`importlib.metadata`) on 2026-10-02. All are GPLv3-c
 | torch | 2.14.1+cpu | Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND MIT (all GPLv3-compatible) | neural tabular model (M-013); CPU wheel from the explicit `pytorch-cpu` uv index |
 | orjson | 3.12.0 | MPL-2.0 AND (Apache-2.0 OR MIT) | fast JSON parsing of adsb.lol traces (8 vs 3 MB/s) |
 | pytest | 9.1.1 | MIT | tests |
-| scipy | 1.18.1 | BSD-3-Clause | pre-existing (exploration) |
+| scipy | 1.18.1 | BSD-3-Clause | NNLS blend weights (`prc.models.blend`), Wilson intervals (`scripts/checks/m026_stability.py`) |
 | matplotlib | 3.11.2 | PSF-based | pre-existing (exploration plots) |
 | traffic | 2.13.post75 (git) | MIT | pre-existing; reserved for ADS-B work (P4) |
 | geopandas / shapely | 1.2.0 / 2.1.2 | BSD-3-Clause | pre-existing; reserved for stand geometry (P4) |

@@ -7,10 +7,12 @@ Licence: GNU GPLv3 (`LICENSE`).
 ## Approach in one paragraph
 At ranking time the take-off is known, so the task is to estimate the airport-recorded off-block. Per-airport
 LightGBM and CatBoost models (5 seeds each, cross-fitted blend) use NM time deltas, congestion and runway-sequence
-counts from both arrivals and departures, stand occupancy, month-grouped target encodings, label-defect indicators
-and METAR weather. Two post-processing steps follow: a calibrated three-regime hedge for very late flights whose
-airport block time may echo the schedule, and — where adsb.lol surface tracks show the aircraft leaving its own stand
-— a gated, cross-fitted shrinkage toward that observed off-block. Validation is month hold-out (Jan-2025, Jul-2025),
+counts from both arrivals and departures, the recent departures' NM taxi-out proxy, stand occupancy, month-grouped
+target encodings, label-defect indicators and METAR weather; training labels above 3 h are winsorized except at LIRF.
+Three post-processing steps follow: a calibrated three-regime hedge for very late flights whose airport block time may
+echo the schedule; where adsb.lol surface tracks show the aircraft leaving (or near) its own stand, a gated,
+cross-fitted shrinkage toward that observed off-block; and a projection of every prediction onto take-off − LOBT
+± 3,606 s, the bound that holds for every NM-matched 2025 departure. Validation is month hold-out (Jan-2025, Jul-2025),
 mirroring the Jan/Jul-2026 ranking months; current submission v11 scores 334.2 / 300.8 locally and 268.25 on the board.
 
 Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
@@ -88,7 +90,7 @@ PYENV_VERSION=3.13.15 MODAL_IMAGE_BUILDER_VERSION=2025.06 modal run scripts/moda
 Compute: Modal containers (2 physical cores = 4 threads, 16 GiB, no GPU).
 Feature build ≈ 8 min. One validation fold: global LightGBM ≈ 12–13 min, per-airport ≈ 25 min (4 threads);
 final fit on all 2025 ≈ 14 min (global). Measured times are in `logs/EXP-*.log`.
-The v7 models were trained on Modal containers (2 physical cores = 4 threads, 16 GiB; `scripts/modal/`): per seed,
+The v7–v11 models were trained on Modal containers (2 physical cores = 4 threads, 16 GiB; `scripts/modal/`): per seed,
 per-airport LightGBM ≈ 38 min validation (both folds) + 22 min final fit, per-airport CatBoost ≈ 75–90 min + 43 min;
 database rebuild from raw ≈ 15 min. The thread count (4) is fixed in the configs, so the same commands run locally.
 
