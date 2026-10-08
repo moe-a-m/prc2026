@@ -61,7 +61,7 @@ predict:        ## seed averages, blend (weights: EXP-115 report), hedge, ADS-B 
 	$(PY) -m prc.models.hedge final3 --pred models/EXP-115/pred_rank.parquet --out models/EXP-116/pred_rank.parquet
 	$(PY) -m prc.models.adsb_stack final --base EXP-116 --pred models/EXP-116/pred_rank.parquet --out models/EXP-117/pred_rank.parquet --sources still,moving,near --from-report EXP-117
 	$(PY) -m prc.models.lobt_window final --pred models/EXP-117/pred_rank.parquet --out models/EXP-118/pred_rank.parquet
-	$(PY) -m prc.submit build models/EXP-118/pred_rank.parquet
+	$(PY) -m prc.submit final models/EXP-118/pred_rank.parquet  # final phase: one file, motivated-engine_final.parquet
 
 validate:       ## hold-out validation of the final recipe (Jan/Jul 2025) ≈ 30 h CPU on 4 threads
 	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 42 --exp-id EXP-103

@@ -1,6 +1,8 @@
 """Submission file builder and checker (CLAUDE.md §12). Never uploads.
 
   python -m prc.submit build <pred_rank.parquet>   -> submissions/motivated-engine_v<N>.parquet (+ .check.md)
+  python -m prc.submit final <pred_rank.parquet>   -> submissions/motivated-engine_final.parquet (single final-phase
+                                                      file, name from the organizer, forum 2026-10-08 17:03)
   python -m prc.submit check [<file>]              -> validate a submission against the template
 """
 import re
@@ -56,12 +58,12 @@ def check(path) -> list[str]:
         problems.append("null/inf predictions")
     if (v < 0).any():
         problems.append("negative predictions")
-    if not re.fullmatch(rf"{TEAM}_v\d+\.parquet", path.name):
-        problems.append(f"file name {path.name} does not match {TEAM}_v<N>.parquet")
+    if not re.fullmatch(rf"{TEAM}_(v\d+|final)\.parquet", path.name):
+        problems.append(f"file name {path.name} does not match {TEAM}_v<N>.parquet or {TEAM}_final.parquet")
     return problems
 
 
-def build(pred_path, version: int | None = None):
+def build(pred_path, version: int | str | None = None):
     tpl = template()
     pred = pd.read_parquet(pred_path)
     m = tpl[["MVT_ID_mvt"]].merge(pred.rename(columns={"mvt_id": "key"}).assign(
@@ -75,7 +77,7 @@ def build(pred_path, version: int | None = None):
     out["TAXITIME_SEC_mvt"] = np.rint(clipped).astype("int32")
     version = version or next_version()
     SUBMISSIONS.mkdir(exist_ok=True)
-    path = SUBMISSIONS / f"{TEAM}_v{version}.parquet"
+    path = SUBMISSIONS / (f"{TEAM}_final.parquet" if version == "final" else f"{TEAM}_v{version}.parquet")
     # write with the template's exact Arrow schema (MVT_ID double, TAXITIME int32)
     pq.write_table(pa.Table.from_pandas(out, schema=pq.read_schema(RAW_SUBMITTING), preserve_index=False), path)
     problems = check(path)
@@ -92,8 +94,10 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "check"
     if cmd == "build":
         build(sys.argv[2])
+    elif cmd == "final":
+        build(sys.argv[2], version="final")
     else:
-        files = [p for p in [*(map(lambda a: ROOT / a, sys.argv[2:]))]] or sorted(SUBMISSIONS.glob(f"{TEAM}_v*.parquet"))
+        files = [p for p in [*(map(lambda a: ROOT / a, sys.argv[2:]))]] or sorted([*SUBMISSIONS.glob(f"{TEAM}_v*.parquet"), *SUBMISSIONS.glob(f"{TEAM}_final.parquet")])
         bad = 0
         for f in files:
             pr = check(f)

@@ -30,3 +30,11 @@ def test_check_detects_missing_rows(tmp_subdir, tmp_path):
     p = tmp_path / "motivated-engine_v998.parquet"
     tpl.to_parquet(p)
     assert any("rows" in x for x in submit.check(p))
+
+
+def test_final_name(tmp_subdir, tmp_path):
+    tpl = pd.read_parquet(paths.RAW_SUBMITTING)
+    pp = tmp_path / "pred.parquet"
+    pd.DataFrame({"mvt_id": tpl.MVT_ID_mvt.astype("int64"), "pred": 600.0}).to_parquet(pp)
+    path, problems = submit.build(pp, version="final")
+    assert path.name == "motivated-engine_final.parquet" and problems == []
