@@ -97,7 +97,8 @@ if __name__ == "__main__":
     elif cmd == "final":
         build(sys.argv[2], version="final")
     else:
-        files = [p for p in [*(map(lambda a: ROOT / a, sys.argv[2:]))]] or sorted([*SUBMISSIONS.glob(f"{TEAM}_v*.parquet"), *SUBMISSIONS.glob(f"{TEAM}_final.parquet")])
+        files = [p for p in [*(map(lambda a: ROOT / a, sys.argv[2:]))]] or sorted(SUBMISSIONS.glob(f"{TEAM}_final.parquet"))
+        # default: the final-phase file only; v1–v11 were built for the public-phase template (344,841 rows)
         bad = 0
         for f in files:
             pr = check(f)
