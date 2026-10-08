@@ -31,7 +31,9 @@
 ## Lineage / Quality / Value
 - `raw_osm_aeroway` (`sql/00_ingest/07_raw_osm_aeroway.sql`) → `stg_stand_geo` (`sql/10_stage/05_stg_stand_geo.sql`,
   96.0% of departures matched, `reports/checks/p4_stand_geo_match.md`) → `feat_dep_adsb_stand`
-  (`sql/40_adsb/04_feat_dep_adsb_stand.sql`, M-021). Value: to be measured in the ADS-B experiment.
+  (`sql/40_adsb/04_feat_dep_adsb_stand.sql`, M-021; 150 m variant `05_feat_dep_adsb_near.sql`). Value: the stand
+  positions make the M-028 ADS-B step possible (EXP-050/051/080, see the adsb.lol card); 5.3% of departures with an
+  ADS-B ground segment have no OSM stand position (`reports/checks/p4_adsblol_stand_gap.md`).
 
 ## Re-fetch policy
 - listed files never overwritten; checksum mismatch stops the script.

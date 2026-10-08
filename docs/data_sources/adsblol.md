@@ -65,7 +65,9 @@
 ## Lineage
 - extract parquet → `stg_adsb` (`sql/40_adsb/01_stg_adsb.sql`) → `adsb_seg`, `adsb_takeoff` (`02_adsb_takeoffs.sql`)
   → `feat_dep_adsb` (`03_feat_dep_adsb.sql`, M-018) and, with OSM stand positions `stg_stand_geo`,
-  `feat_dep_adsb_stand` (`04_feat_dep_adsb_stand.sql`, M-021) → `prc.models.adsb_stack` (M-028)
+  `feat_dep_adsb_stand` (`04_feat_dep_adsb_stand.sql`, M-021) → `prc.models.adsb_stack` (M-028); 150 m variant
+  `feat_dep_adsb_near` (`05_feat_dep_adsb_near.sql`, M-028 source `near`); `feat_dep_adsb_inputs`
+  (`06_feat_dep_adsb_inputs.sql`, M-034, tested as model inputs, not in the final recipe)
 - copies: the extracts are also stored on the team's private Modal volume for cloud runs (internal use, not a
   publication under ODbL 4.4)
 
@@ -78,6 +80,12 @@
 - EXP-042 (10 days) and EXP-050 (all days): kept — gated shrinkage toward the stand off-block estimate, −2.0 on both
   2025 hold-out months; v5 board 283.18 (v4 287.50). Rejected: "last stationary point" variant
   (`p4_adsblol_stand_last_vs_v4.md`), "seen parked" second source (`p4_adsblol_vs_EXP-045_holdout.md`).
+- EXP-051 (second source, seen at the stand only while moving): −1.4 / −1.3, v6 board 279.83. EXP-080 (third source,
+  within 150 m): −0.44 / −0.44, v8 board 278.54. Final v11 (EXP-118) uses the three sources; the step changes 106,843
+  ranking rows. Robustness: `m028_sensitivity.md` (radius / gate scan, 2025 → 2026 gap transfer).
+- EXP-119–134 (M-034, estimates as model inputs): every base model better, but the same information as the
+  post-step; final −0.40 / +0.56 → not adopted. Evidence that ADS-B resolves NM/airport disagreements:
+  `m034_adsb_vs_nm.md` (median error 32–45 s vs NM 1,259 s where NM is > 15 min off).
 
 ## Re-fetch policy
 - a part already listed with a matching digest is not downloaded again; a mismatch stops the run.
