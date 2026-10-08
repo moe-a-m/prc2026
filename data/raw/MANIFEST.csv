@@ -1,5 +1,7 @@
 file,bytes,sha256,bucket_path,downloaded_at
+data/raw/ranking/final_ranking.parquet,85853399,4b0692a792846079516a2749e034b0abda55df72c213eabdcda52a4d1f6bc69f,dc26:prc-2026-datasets/final_ranking.parquet,2026-10-08T12:11:16+00:00
 data/raw/ranking/ranking.parquet,43564605,9db75e3a56fa09b87aab72e191a53da3fe763d9887ad2b23aea9cde6a6325f86,dc26:prc-2026-datasets/ranking.parquet,2026-09-21T12:30:19+00:00
+data/raw/submitting/final_submitting.parquet,3003722,b3445d80e29bf599a5583ca9675f63ddf57b51fdf1ca3f498facb38ea84f3924,dc26:prc-2026-datasets/final_submitting.parquet,2026-10-08T12:11:26+00:00
 data/raw/submitting/submitting.parquet,1677097,0d383408ed5ac27bfcfd12d6b961cee77c8a6364b10dad9fe3ec81115c79652b,dc26:prc-2026-datasets/submitting.parquet,2026-09-21T12:27:28+00:00
 data/raw/training/training_2025-01-01_2025-02-01.parquet,21218481,a4dc8f152c082c650cd7eb745fe9c641089f34f74df127e6944a188990a0ed94,dc26:prc-2026-datasets/training_2025-01-01_2025-02-01.parquet,2026-09-21T12:29:18+00:00
 data/raw/training/training_2025-02-01_2025-03-01.parquet,19824510,b6f9ff2cdb1cfe07c5442f4e1f11bbcdbeafe52852dcb0b8175f62ab84c6a066,dc26:prc-2026-datasets/training_2025-02-01_2025-03-01.parquet,2026-09-21T12:29:03+00:00

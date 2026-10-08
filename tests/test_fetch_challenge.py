@@ -26,6 +26,8 @@ def test_bucket_objects_map_to_the_repo_layout():
     assert C.target_for("training_2025-01-01_2025-02-01.parquet") == RAW / "training" / "training_2025-01-01_2025-02-01.parquet"
     assert C.target_for("ranking.parquet") == RAW / "ranking" / "ranking.parquet"
     assert C.target_for("submitting.parquet") == RAW / "submitting" / "submitting.parquet"
+    assert C.target_for("final_ranking.parquet") == RAW / "ranking" / "final_ranking.parquet"
+    assert C.target_for("final_submitting.parquet") == RAW / "submitting" / "final_submitting.parquet"
     assert C.target_for("README.txt") == RAW / "other" / "README.txt"
 
 

@@ -8,8 +8,8 @@ Same approach as the PRC 2024 data page (pyopensky's S3Client = a `minio.Minio` 
 `mc cp --recursive <alias>/prc-2026-datasets data` — with credentials from `.env` instead of the pyopensky config file,
 and every object sorted into the repo layout:
     training_*.parquet   -> data/raw/training/
-    ranking*.parquet     -> data/raw/ranking/
-    submitting*.parquet  -> data/raw/submitting/
+    [final_]ranking*.parquet     -> data/raw/ranking/      (final_* = final-phase files, organizer e-mail 2026-10-08)
+    [final_]submitting*.parquet  -> data/raw/submitting/
     anything else        -> data/raw/other/        (reported; not part of the pipeline)
 
 Credentials (never committed): environment variables or `.env` in the repo root (see `.env.example`):
@@ -64,11 +64,12 @@ def setting(vals: dict, name: str) -> str | None:
 def target_for(object_name: str) -> Path:
     """Repo location for a bucket object (layout of data/raw/, see the module docstring)."""
     name = Path(object_name).name
+    kind = name.removeprefix("final_")
     if name.startswith("training_") and name.endswith(".parquet"):
         return RAW / "training" / name
-    if name.startswith("ranking") and name.endswith(".parquet"):
+    if kind.startswith("ranking") and name.endswith(".parquet"):
         return RAW / "ranking" / name
-    if name.startswith("submitting") and name.endswith(".parquet"):
+    if kind.startswith("submitting") and name.endswith(".parquet"):
         return RAW / "submitting" / name
     return RAW / "other" / object_name
 
