@@ -39,6 +39,11 @@
   | LSZH | 80 / 77 / 86 / 89 | 26 / 21 / 30 / 9 |
   | LTFM | 0 / 0 / 0 / 0 | 0 / 0 / 0 / 0 |
 
+- **added 2026-10-08 (final phase):** Feb + Jun 2026 (scored in the final phase, organizer e-mail 2026-10-08) and every
+  remaining 2025 day (Feb–Jun, Aug–Dec; full-year hold-out check) — 361 days, `adsblol.days_more()`; 485 days in all.
+  2025-12-31 is listed in the globe_history_2026 PREFERRED_RELEASES file, not the 2025 one. Measured coverage for the
+  added months: see the final-phase coverage check (to be added when the full-year chain has run).
+
   Strong 2025→2026 drift at EDDM, EGLL, LEMD, LIRF → the tracks are used only through the agreement-gated M-028 step
   (it acts only where the aircraft is seen; elsewhere predictions are unchanged), never as raw model inputs.
 
@@ -48,6 +53,14 @@
 - retrieved 2026-10-02 … 2026-10-05: 384 parts, 388.5 GB, all SHA256 equal to the GitHub digests. Interruptions: a local
   DNS outage (2026-10-04 05:35–11:54, resumed automatically), a reboot (2026-10-04 15:42, relaunched, partial file
   resumed) and a GitHub API timeout that stopped the process (fixed in 98b3b94: the API lookup now retries)
+- **2026-10-08, 361 added days on Modal** (`modal run --detach scripts/modal/app.py::fetch_adsblol --run-id adsb-more-1`):
+  one container per day (1 CPU, 4 GiB, ≤ 20 at a time) runs the same `adsblol.py` functions — download to the
+  container disk with 8 range requests, SHA256 vs GitHub digest, extraction, raw parts deleted. ~5 min per day;
+  retrieved 2026-10-08 12:22–16:07 UTC: 724 parts, 1,136.4 GB, all digests equal; 361 extracts, 3.8 GB. Each container
+  writes its manifest rows to `external/adsblol/manifest_parts/<day>.csv` on the volume; locally
+  `modal volume get … extract|manifest_parts` then `adsblol.py merge` (checks every extract's SHA256 against its row,
+  refuses to change an existing row). The 124 earlier days on the volume were byte-identical to the local copies.
+  Asset lists for the added days: `GITHUB_TOKEN=$(gh auth token) adsblol.py assets` (authenticated: 5,000 req/h).
 - GitHub API (unauthenticated, ~1 call/day) for asset sizes and SHA256 digests, cached in `data/external/adsblol/meta/`
 - logs: `logs/fetch/adsblol_download.log`, `logs/fetch/adsblol_extract.log`
 
