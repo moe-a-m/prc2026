@@ -8,6 +8,7 @@ RAW_TRAINING = RAW / "training"
 # final phase (organizer e-mail 2026-10-08): Jan, Feb, Jun, Jul 2026; supersets of the public-phase ranking/submitting files
 RAW_RANKING = RAW / "ranking" / "final_ranking.parquet"
 RAW_SUBMITTING = RAW / "submitting" / "final_submitting.parquet"
+RAW_SUBMITTING_PUBLIC = RAW / "submitting" / "submitting.parquet"   # public-phase board template (344,841)
 RAW_MANIFEST = RAW / "MANIFEST.csv"
 DB = DATA / "prc.duckdb"
 SQL = ROOT / "sql"

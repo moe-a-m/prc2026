@@ -3,6 +3,10 @@
   python -m prc.submit build <pred_rank.parquet>   -> submissions/motivated-engine_v<N>.parquet (+ .check.md)
   python -m prc.submit final <pred_rank.parquet>   -> submissions/motivated-engine_final.parquet (single final-phase
                                                       file, name from the organizer, forum 2026-10-08 17:03)
+  python -m prc.submit public <pred_rank.parquet>  -> submissions/motivated-engine_v<N>.parquet on the public-phase
+                                                      template (the board stays open until the deadline): the final
+                                                      predictions of the 344,841 public-phase departures, as an
+                                                      end-to-end check of the final pipeline
   python -m prc.submit check [<file>]              -> validate a submission against the template
 """
 import re
@@ -14,7 +18,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from prc import manifest
-from prc.paths import RAW_SUBMITTING, ROOT, SUBMISSIONS
+from prc.paths import RAW_SUBMITTING, RAW_SUBMITTING_PUBLIC, ROOT, SUBMISSIONS
 
 TEAM = "motivated-engine"           # organizer acceptance e-mail (docs/SUBMISSIONS.md)
 CLIP = (0, 2 * 86400)               # seconds; lower: taxi-out cannot be negative in the submission;
@@ -27,23 +31,23 @@ def next_version() -> int:
     return max(used, default=0) + 1
 
 
-def template() -> pd.DataFrame:
+def template(tpl_path=RAW_SUBMITTING) -> pd.DataFrame:
     import csv
     with open(manifest.RAW_MANIFEST) as f:
         want = {r["file"]: r["sha256"] for r in csv.DictReader(f)}
-    rel = str(RAW_SUBMITTING.relative_to(ROOT))
-    if manifest.sha256(RAW_SUBMITTING) != want[rel]:
+    rel = str(tpl_path.relative_to(ROOT))
+    if manifest.sha256(tpl_path) != want[rel]:
         raise SystemExit(f"{rel} does not match its manifest checksum")
-    return pd.read_parquet(RAW_SUBMITTING)
+    return pd.read_parquet(tpl_path)
 
 
-def check(path) -> list[str]:
-    tpl = template()
+def check(path, tpl_path=RAW_SUBMITTING) -> list[str]:
+    tpl = template(tpl_path)
     sub = pd.read_parquet(path)
     problems = []
     if list(sub.columns) != list(tpl.columns):
         problems.append(f"columns {list(sub.columns)} != {list(tpl.columns)}")
-    tsch, ssch = pq.read_schema(RAW_SUBMITTING), pq.read_schema(path)
+    tsch, ssch = pq.read_schema(tpl_path), pq.read_schema(path)
     for name in tpl.columns:
         if name in ssch.names and ssch.field(name).type != tsch.field(name).type:
             problems.append(f"dtype {name}: {ssch.field(name).type} != {tsch.field(name).type}")
@@ -63,8 +67,8 @@ def check(path) -> list[str]:
     return problems
 
 
-def build(pred_path, version: int | str | None = None):
-    tpl = template()
+def build(pred_path, version: int | str | None = None, tpl_path=RAW_SUBMITTING):
+    tpl = template(tpl_path)
     pred = pd.read_parquet(pred_path)
     m = tpl[["MVT_ID_mvt"]].merge(pred.rename(columns={"mvt_id": "key"}).assign(
         MVT_ID_mvt=lambda d: d.key.astype(tpl.MVT_ID_mvt.dtype)), on="MVT_ID_mvt", how="left")
@@ -79,9 +83,10 @@ def build(pred_path, version: int | str | None = None):
     SUBMISSIONS.mkdir(exist_ok=True)
     path = SUBMISSIONS / (f"{TEAM}_final.parquet" if version == "final" else f"{TEAM}_v{version}.parquet")
     # write with the template's exact Arrow schema (MVT_ID double, TAXITIME int32)
-    pq.write_table(pa.Table.from_pandas(out, schema=pq.read_schema(RAW_SUBMITTING), preserve_index=False), path)
-    problems = check(path)
-    rep = [f"# {path.name}", "", f"- predictions: {pred_path}", f"- rows: {len(out)}",
+    pq.write_table(pa.Table.from_pandas(out, schema=pq.read_schema(tpl_path), preserve_index=False), path)
+    problems = check(path, tpl_path)
+    rep = [f"# {path.name}", "", f"- predictions: {pred_path}", f"- template: {tpl_path.relative_to(ROOT)}",
+           f"- rows: {len(out)}",
            f"- clipped to {CLIP}: {n_lo} below, {n_hi} above", f"- rounded to integer seconds (template dtype)",
            f"- mean {clipped.mean():.1f}, median {np.median(clipped):.1f}, max {clipped.max():.0f}",
            f"- check: {'OK' if not problems else problems}"]
@@ -96,6 +101,8 @@ if __name__ == "__main__":
         build(sys.argv[2])
     elif cmd == "final":
         build(sys.argv[2], version="final")
+    elif cmd == "public":
+        build(sys.argv[2], tpl_path=RAW_SUBMITTING_PUBLIC)
     else:
         files = [p for p in [*(map(lambda a: ROOT / a, sys.argv[2:]))]] or sorted(SUBMISSIONS.glob(f"{TEAM}_final.parquet"))
         # default: the final-phase file only; v1–v11 were built for the public-phase template (344,841 rows)

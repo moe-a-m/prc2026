@@ -38,3 +38,14 @@ def test_final_name(tmp_subdir, tmp_path):
     pd.DataFrame({"mvt_id": tpl.MVT_ID_mvt.astype("int64"), "pred": 600.0}).to_parquet(pp)
     path, problems = submit.build(pp, version="final")
     assert path.name == "motivated-engine_final.parquet" and problems == []
+
+
+def test_public_template_subset(tmp_subdir, tmp_path):
+    """Final predictions (670,790 IDs) restricted to the public-phase template (344,841 IDs)."""
+    if not paths.RAW_SUBMITTING_PUBLIC.exists():
+        pytest.skip("public submitting.parquet not present")
+    tpl = pd.read_parquet(paths.RAW_SUBMITTING)
+    pp = tmp_path / "pred.parquet"
+    pd.DataFrame({"mvt_id": tpl.MVT_ID_mvt.astype("int64"), "pred": 700.0}).to_parquet(pp)
+    path, problems = submit.build(pp, version=997, tpl_path=paths.RAW_SUBMITTING_PUBLIC)
+    assert problems == [] and len(pd.read_parquet(path)) == 344_841
