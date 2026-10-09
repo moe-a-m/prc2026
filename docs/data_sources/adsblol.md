@@ -41,8 +41,14 @@
 
 - **added 2026-10-08 (final phase):** Feb + Jun 2026 (scored in the final phase, organizer e-mail 2026-10-08) and every
   remaining 2025 day (Feb–Jun, Aug–Dec; full-year hold-out check) — 361 days, `adsblol.days_more()`; 485 days in all.
-  2025-12-31 is listed in the globe_history_2026 PREFERRED_RELEASES file, not the 2025 one. Measured coverage for the
-  added months: see the final-phase coverage check (to be added when the full-year chain has run).
+  2025-12-31 is listed in the globe_history_2026 PREFERRED_RELEASES file, not the 2025 one. Measured coverage per
+  airport-month for all 485 days: `reports/checks/final_phase_adsb_coverage.md` (Modal run final-drift-1, 2026-10-09).
+  Share of departures seen stationary at their own OSM stand (M-028 "still" source), Feb-25 / Feb-26 / Jun-25 / Jun-26:
+  EDDF 8.5 / 0.4 / 7.3 / 2.5, EDDM 35.5 / 39.5 / 20.5 / 26.5, EGLL 4.2 / 9.8 / 0.3 / 39.9, EHAM 34.1 / 42.7 / 44.9 / 44.3,
+  LEBL 10.0 / 14.1 / 22.6 / 18.3, LEMD 0.0 / 11.9 / 11.3 / 10.8, LFPG 0 / 0 / 0 / 0.1, LIRF 0.0 / 4.2 / 3.5 / 0.0,
+  LSZH 25.4 / 30.9 / 20.9 / 8.2, LTFM 0 throughout. The receiver-network drift seen for Jan/Jul repeats (EGLL and
+  LEMD much better covered in 2026, LIRF none in Jun-26, EDDF ground segments for only 12 % of Feb-26 departures);
+  M-028 acts only where the aircraft is seen, so the drift changes how many rows it touches, not how it acts.
 
   Strong 2025→2026 drift at EDDM, EGLL, LEMD, LIRF → the tracks are used only through the agreement-gated M-028 step
   (it acts only where the aircraft is seen; elsewhere predictions are unchanged), never as raw model inputs.

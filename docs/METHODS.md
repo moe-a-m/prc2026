@@ -44,8 +44,11 @@ extended to Feb/Jun 2026 and the rest of 2025 (485 days). Generalisation check w
 Jan + Jul only (as in the final file), Feb/Jun-2025 RMSE 289.8 s, the other eight months 221.6 s, all twelve 250.1 s;
 a leave-one-month-out refit improves the ten months not used for fitting by ≤ 0.3 s (below the ±1.6 s seed spread), so
 the parameters were kept. Every post-processing stage lowers RMSE in every month (hedge up to −44 s in Feb, ADS-B
-−0.4…−10 s, LOBT window up to −36 s in Jul). Input drift Feb/Jun 2026 vs 2025: `reports/checks/final_phase_input_drift.md`,
-adsb.lol coverage `reports/checks/final_phase_adsb_coverage.md`.
+−0.4…−10 s, LOBT window up to −36 s in Jul). Input drift Feb/Jun 2026 vs 2025 (`reports/checks/final_phase_input_drift.md`): AOBT_3 / LOBT
+coverage 95–99.8 % in every airport-month of both years, NM-unmatched share 0.1–5 %; median take-off − AOBT_3 stable
+except LTFM, where it is ≈ 1,434 s in Jan–Feb 2025, ≈ 1,200 s from Mar 2025, 1,444 s in Jan 2026 and 1,206 s in
+Feb 2026 (an NM default-taxi regime switch; both regimes are in the training months and the M-033 proxy tracks the
+current level). adsb.lol coverage drifts as in Jan/Jul (`reports/checks/final_phase_adsb_coverage.md`).
 
 Robustness (§ M-026, M-028, M-031): hedge exposure is one-sided (≈ +12.8 board RMSE if 2026 echo shares sat at the
 lower 95% bound, `reports/checks/m026_stability.md`); the ADS-B step varies smoothly with radius and gate and its
