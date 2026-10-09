@@ -62,9 +62,23 @@ def run(cmd: str, run_id: str, write_db: bool = False) -> int:
     out.mkdir(parents=True, exist_ok=True)
     import time
     start = time.time() - 1
+    # volume writes become visible outside this container only on commit(); commit every 10 min while the command runs
+    # so finished work (per-fold hold-out files, stdout.log) survives a timeout or preemption (fy-cat-*, 2026-10-08)
+    import threading
+    stop = threading.Event()
+
+    def _commit_loop():
+        while not stop.wait(600):
+            try:
+                VOL.commit()
+            except Exception as e:  # noqa: BLE001 — a failed periodic commit must not kill the run
+                print(f"periodic volume commit failed: {e}")
+
+    threading.Thread(target=_commit_loop, daemon=True).start()
     with open(out / "stdout.log", "w") as log:
         rc = subprocess.run(["bash", "-o", "pipefail", "-c", cmd], cwd=repo, stdout=log, stderr=subprocess.STDOUT,
                             env={**os.environ}).returncode
+    stop.set()
     # copy back only files the command wrote (an unchanged image copy of docs/ once overwrote newer local docs)
     changed = []
     for d in ("reports", "logs", "docs"):
