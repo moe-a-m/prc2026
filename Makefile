@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -c
 PY := uv run --frozen python
-.PHONY: env download verify-raw fetch ingest clean features train predict validate submit-check reproduce test baselines
+.PHONY: env download verify-raw fetch ingest clean features train predict validate validate-fullyear fullyear-chain submit-check reproduce test baselines
 
 env:            ## rebuild the pinned environment from uv.lock
 	uv sync --frozen
@@ -80,6 +80,30 @@ validate:       ## hold-out validation of the final recipe (Jan/Jul 2025) ≈ 30
 	$(PY) -m prc.models.hedge eval3 --base EXP-115 --exp-id EXP-116
 	$(PY) -m prc.models.adsb_stack eval --base EXP-116 --exp-id EXP-117 --sources still,moving,near
 	$(PY) -m prc.models.lobt_window eval --base EXP-117 --exp-id EXP-118
+
+# Full-year check (final phase, organizer e-mail 2026-10-08): the same recipe with every 2025 month held out in turn;
+# own experiment IDs so the Jan/Jul reports that `predict` reads (EXP-115, EXP-117) are never overwritten.
+validate-fullyear:  ## 12-month hold-out check of the final recipe -> reports/checks/fullyear_v11_recipe.md, ≈ 6× validate
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 42 --exp-id EXP-135
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 7 --exp-id EXP-136
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 99 --exp-id EXP-137
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 11 --exp-id EXP-138
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 23 --exp-id EXP-139
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(CAT) --seeds 42 --exp-id EXP-140
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(CAT) --seeds 7 --exp-id EXP-141
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(CAT) --seeds 99 --exp-id EXP-142
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(CAT) --seeds 11 --exp-id EXP-143
+	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(CAT) --seeds 23 --exp-id EXP-144
+	$(MAKE) fullyear-chain
+
+fullyear-chain:     ## post-steps of the full-year check on the EXP-135..144 hold-out predictions
+	PRC_HOLDOUTS=all $(PY) -m prc.models.blend --average EXP-135:1 EXP-136:1 EXP-137:1 EXP-138:1 EXP-139:1 --exp-id EXP-145
+	PRC_HOLDOUTS=all $(PY) -m prc.models.blend --average EXP-140:1 EXP-141:1 EXP-142:1 EXP-143:1 EXP-144:1 --exp-id EXP-146
+	PRC_HOLDOUTS=all $(PY) -m prc.models.blend --members EXP-145 EXP-146 --exp-id EXP-147
+	PRC_HOLDOUTS=all $(PY) -m prc.models.hedge eval3 --base EXP-147 --exp-id EXP-148
+	PRC_HOLDOUTS=all $(PY) -m prc.models.adsb_stack eval --base EXP-148 --exp-id EXP-149 --sources still,moving,near
+	PRC_HOLDOUTS=all $(PY) -m prc.models.lobt_window eval --base EXP-149 --exp-id EXP-150
+	PRC_HOLDOUTS=all $(PY) scripts/checks/fullyear_summary.py
 
 submit-check:
 	$(PY) -m prc.submit check

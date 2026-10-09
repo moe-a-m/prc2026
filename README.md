@@ -34,9 +34,15 @@ make download                 # = uv run python scripts/fetch/challenge.py   (--
 
 ```
 data/raw/training/training_2025-MM-01_….parquet   (12 files)
-data/raw/ranking/ranking.parquet                  (reissued 2026-09-04)
+data/raw/ranking/ranking.parquet                  (public phase, Jan + Jul 2026; reissued 2026-09-04)
 data/raw/submitting/submitting.parquet
+data/raw/ranking/final_ranking.parquet            (final phase, Jan + Feb + Jun + Jul 2026; uploaded 2026-10-08 11:04 UTC)
+data/raw/submitting/final_submitting.parquet      (670,790 departures)
 ```
+
+The pipeline predicts the **final-phase** set (`src/prc/paths.py`, `sql/00_ingest/`): one final submission
+`submissions/motivated-engine_final.parquet` (organizer e-mail and forum rulings of 2026-10-08,
+`docs/OPEN_QUESTIONS.md`). The public-phase files stay in the manifest for the record.
 
 Each file is downloaded to a temporary name and checked against the committed `data/raw/MANIFEST.csv` (bytes + SHA256)
 before it is moved into place; files already present and verified are skipped. A changed or stale (pre-reissue) upstream
@@ -53,7 +59,7 @@ path, bytes and SHA256 in `data/external/MANIFEST.csv` (committed). No account i
 | OurAirports runways/airports | public domain | `uv run python scripts/fetch/ourairports.py` | 17 MB |
 | OpenStreetMap aeroway (Overpass, date-pinned) | ODbL | `uv run python scripts/fetch/osm_aeroway.py` | ~1 MB |
 | EUROCONTROL AIU airport files | EUROCONTROL terms (organizer-approved; see card) | `uv run python scripts/fetch/eurocontrol_apt.py` | 45 MB |
-| adsb.lol globe_history (Jan+Jul 2025/2026) | ODbL | `uv run python scripts/fetch/adsblol.py download` and, in parallel, `... extract` | ~388 GB streamed, ~3.5 days at ~1.7 MB/s; only ~1.3 GB of airport-surface extracts kept |
+| adsb.lol globe_history (all 2025; Jan, Feb, Jun, Jul 2026) | ODbL | Jan+Jul: `uv run python scripts/fetch/adsblol.py download` and, in parallel, `... extract`; other days: `modal run --detach scripts/modal/app.py::fetch_adsblol` then `adsblol.py merge` (or the local loops) | ~1.5 TB streamed in all (388 GB locally over ~3.5 days; 1.1 TB on Modal in ~4 h); ~5.1 GB of airport-surface extracts kept |
 
 Cards with licence text, coverage and lineage: `docs/data_sources/`. The DuckDB `spatial` extension is needed for the
 ADS-B features (`INSTALL spatial` once; downloaded from extensions.duckdb.org).
@@ -69,8 +75,9 @@ make fetch        # all external sources (see table above)
 make features     # feature tables (all SQL, DuckDB); ADS-B stage runs when extracts exist
 make baselines    # P2 reference baselines
 make train        # final fits on all 2025: per-airport LightGBM + per-airport CatBoost, 5 seeds each, ≈ 16 h on 4 threads
-make predict      # blend (weights from reports/experiments/EXP-044.md) + hedge + ADS-B step → submissions/
+make predict      # blend (weights: EXP-115 report) + hedge + ADS-B step (EXP-117) + LOBT window → submissions/motivated-engine_final.parquet
 make validate     # hold-out validation of the final recipe (Jan-2025, Jul-2025), ≈ 20 h
+make validate-fullyear  # the same with every 2025 month held out (EXP-135..150), ≈ 6× longer
 make test         # pytest: data contracts, leakage, parity
 make reproduce    # end-to-end
 ```
