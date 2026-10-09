@@ -7,6 +7,7 @@
 import argparse
 import hashlib
 import json
+import os
 import time
 
 import lightgbm as lgb
@@ -182,8 +183,23 @@ def validate(cfg, seeds=None):
         tr_all = tr_all & df.airport.isin(cfg["only_airports"]).to_numpy()
     seeds = seeds or [cfg["seed"]]
     results, per_seed, importance = {}, {}, {}
+    oof_dir = MODELS / "oof"  # row-level predictions stay out of git (models/ is ignored)
+    oof_dir.mkdir(parents=True, exist_ok=True)
+    # each fold is saved as soon as it is done, with a sidecar of what produced it; PRC_RESUME=1 reuses a saved fold
+    # only when data version, config hash and seeds all match (a 12-fold CatBoost run outlasted a 7 h container
+    # timeout on 2026-10-08 and lost every fold)
+    stamp = {"data": V.data_version(), "config": cfg["config_hash"], "seeds": list(seeds)}
+    resume = os.environ.get("PRC_RESUME") == "1"
     for fold, trm, vam in V.folds(df.month.where(tr_all)):
         trm, vam = trm & tr_all, vam & tr_all
+        f_pq, f_js = oof_dir / f"{cfg['exp_id']}_{fold}.parquet", oof_dir / f"{cfg['exp_id']}_{fold}.json"
+        if resume and f_pq.exists() and f_js.exists():
+            saved = json.loads(f_js.read_text())
+            if {k: saved.get(k) for k in stamp} == stamp:
+                results[fold] = pd.read_parquet(f_pq)
+                per_seed[fold] = saved["per_seed_rmse"]
+                print(f"  {fold} resumed from {f_pq.name}", flush=True)
+                continue
         t0 = time.time()
         X = design(df, cfg, trm)
         print(f"  {fold} design ({time.time() - t0:.0f}s)", flush=True)
@@ -198,18 +214,17 @@ def validate(cfg, seeds=None):
         va["pred"] = np.mean(preds, axis=0)
         results[fold] = va
         importance[fold] = pd.Series(b.feature_importance("gain"), index=X.columns).sort_values(ascending=False)
+        va.to_parquet(f_pq)
+        f_js.write_text(json.dumps({**stamp, "per_seed_rmse": per_seed[fold]}))
     meta = {"data": V.data_version(), "git": V.git_sha(), "config": cfg["config_hash"], "seeds": seeds,
             "per_seed_rmse": {k: [round(v, 2) for v in vs] for k, vs in per_seed.items()},
             "params": json.dumps(cfg["params"]), "num_boost_round": cfg["num_boost_round"]}
     text = V.report_md(cfg["exp_id"], cfg["title"], results, meta)
-    imp_fold = "jul" if "jul" in importance else list(importance)[-1]
-    imp = importance[imp_fold]
-    text += f"\n## Feature importance (gain, {imp_fold.capitalize()} fold, last seed)\n\n" + (imp / imp.sum()).round(4).to_frame("gain_share").to_markdown() + "\n"
+    if importance:  # folds resumed from disk carry no model, hence no importance
+        imp_fold = "jul" if "jul" in importance else list(importance)[-1]
+        imp = importance[imp_fold]
+        text += f"\n## Feature importance (gain, {imp_fold.capitalize()} fold, last seed)\n\n" + (imp / imp.sum()).round(4).to_frame("gain_share").to_markdown() + "\n"
     V.write_report(cfg["exp_id"], text)
-    oof_dir = MODELS / "oof"  # row-level predictions stay out of git (models/ is ignored)
-    oof_dir.mkdir(parents=True, exist_ok=True)
-    for name, va in results.items():
-        va.to_parquet(oof_dir / f"{cfg['exp_id']}_{name}.parquet")
     r = {k: V.rmse(v.y, v.pred) for k, v in results.items()}
     r["combined"] = V.rmse(pd.concat(results.values()).y, pd.concat(results.values()).pred)
     print(cfg["exp_id"], {k: round(v, 2) for k, v in r.items()})
