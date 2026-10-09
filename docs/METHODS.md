@@ -7,7 +7,7 @@ author and date, item numbers refer to that export), (e) experiment in this repo
 Literature citations marked *(verify)* were written from memory and must be checked against the paper before
 the JOAS write-up. Verified bibliography with URLs: `docs/references/literature_review_2026-10-02.md`.
 
-## Final model at a glance (submission v11 = EXP-118, board 268.25)
+## Final model at a glance (submission v11 = EXP-118, board 268.25; final-phase file = same recipe)
 Task framing: at ranking time the take-off is known, so predicting taxi-out = estimating the airport-recorded
 off-block (AOBT). Errors are dominated by label defects (schedule echoes, day-shifted dates) on a small share of
 rows; RMSE rewards the conditional mean, so ambiguous rows are hedged, never dropped (M-002). Three layers: (1) a
@@ -35,6 +35,17 @@ Board history (`docs/SUBMISSIONS.md`): v1 347.2 (stage 2) → v2 319.9 (4) → v
 v4 287.5 (6) → v5 283.2 (7) → v6 279.8 (7b) → v7 279.4 (8) → v8 278.5 (9) → v9 276.8 (10) → v10 269.2 (11) →
 v11 268.3 (12). The board moved in the direction of the local hold-outs every time; no choice was made on board
 scores.
+
+**Final phase (organizer e-mail 2026-10-08: one submission for Jan, Feb, Jun, Jul 2026).** The design was frozen at
+v11; only data and plumbing changed: the final ranking file replaces the public one (a superset, take-off times
+re-perturbed by ±12 s, `reports/checks/final_phase_files.md`), the final fits were re-run on it, and adsb.lol was
+extended to Feb/Jun 2026 and the rest of 2025 (485 days). Generalisation check with every 2025 month held out
+(M-001 full-year variant, EXP-135–150, `reports/checks/fullyear_v11_recipe.md`): with the post-step parameters fit on
+Jan + Jul only (as in the final file), Feb/Jun-2025 RMSE 289.8 s, the other eight months 221.6 s, all twelve 250.1 s;
+a leave-one-month-out refit improves the ten months not used for fitting by ≤ 0.3 s (below the ±1.6 s seed spread), so
+the parameters were kept. Every post-processing stage lowers RMSE in every month (hedge up to −44 s in Feb, ADS-B
+−0.4…−10 s, LOBT window up to −36 s in Jul). Input drift Feb/Jun 2026 vs 2025: `reports/checks/final_phase_input_drift.md`,
+adsb.lol coverage `reports/checks/final_phase_adsb_coverage.md`.
 
 Robustness (§ M-026, M-028, M-031): hedge exposure is one-sided (≈ +12.8 board RMSE if 2026 echo shares sat at the
 lower 95% bound, `reports/checks/m026_stability.md`); the ADS-B step varies smoothly with radius and gate and its
@@ -66,6 +77,8 @@ Train on the other 11 months of 2025, predict the held-out month; report both an
   other hold-out months); with the default Jan + Jul this is exactly the original "fit on the other month" rule.
   Results are reported per month, for Jan/Jul, Feb/Jun and all twelve; they are a check of the frozen recipe, not
   a tuning target.
+  Result (EXP-135–150): per-month hold-out RMSE 183.9 (Mar) … 334.4 (Jan); Feb/Jun 289.8, all twelve 250.1 with the
+  Jan/Jul-fitted parameters; refit on all months ≤ 0.3 s better on the unseen months → parameters kept.
 
 ## M-002 Flag, don't drop
 Suspicious rows get boolean flags in `clean_dep`; no training row is removed.

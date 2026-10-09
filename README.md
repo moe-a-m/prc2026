@@ -13,7 +13,11 @@ Three post-processing steps follow: a calibrated three-regime hedge for very lat
 echo the schedule; where adsb.lol surface tracks show the aircraft leaving (or near) its own stand, a gated,
 cross-fitted shrinkage toward that observed off-block; and a projection of every prediction onto take-off − LOBT
 ± 3,606 s, the bound that holds for every NM-matched 2025 departure. Validation is month hold-out (Jan-2025, Jul-2025),
-mirroring the Jan/Jul-2026 ranking months; current submission v11 scores 334.2 / 300.8 locally and 268.25 on the board.
+mirroring the Jan/Jul-2026 ranking months; submission v11 scores 334.2 / 300.8 locally and 268.25 on the board.
+**Final phase** (Jan, Feb, Jun, Jul 2026; single submission `motivated-engine_final.parquet`): the v11 design is
+unchanged and checked on every month of 2025 held out in turn — 289.8 s on Feb/Jun-2025 and 250.1 s over all twelve
+months with the parameters fitted on Jan + Jul; refitting them on all months changes the 10 unseen months by ≤ 0.3 s
+(`reports/checks/fullyear_v11_recipe.md`).
 
 Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
 rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources and licences `docs/DATA_SOURCES.md`;
@@ -113,6 +117,20 @@ Final recipe (submission v11 = EXP-118): Jan-2025 hold-out RMSE 334.2 s, Jul-202
 | v11 (EXP-118) | recent departures' NM taxi-out proxy features (M-033) | 334.2 / 300.8 | 268.25 |
 
 Earlier: v6 279.83, v5 283.18, v4 287.50 (`docs/SUBMISSIONS.md`).
+
+**Final phase — full-year check of the final recipe** (EXP-135–150, `make validate-fullyear`; every 2025 month held out
+in turn, models trained on the other eleven; RMSE in seconds):
+
+| months | v11 parameters (as in the final file) | post-step parameters refit leave-one-month-out |
+|---|---|---|
+| Jan / Jul | 311.85 (parameters fit on these months) | 310.82 |
+| Feb / Jun | 289.77 | 289.54 |
+| other eight months | 221.61 | 221.50 |
+| all twelve | 250.06 | 249.73 |
+
+The final file uses the v11 parameters (blend weights EXP-115, ADS-B step EXP-117), which transfer to the ten months
+they were not fitted on. Per month: Jan 334.4, Feb 279.5, Mar 183.9, Apr 193.1, May 284.4, Jun 297.6, Jul 292.5,
+Aug 249.1, Sep 236.5, Oct 207.7, Nov 190.8, Dec 194.9.
 
 Determinism: feature SQL is order-independent (tie-inclusive counts, unique tie-breaks; `tests/test_sql_determinism.py`),
 LightGBM runs with `deterministic=true, force_row_wise=true` and 4 threads, CatBoost with a fixed `random_seed` and 4
