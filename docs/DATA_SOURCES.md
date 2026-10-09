@@ -4,7 +4,7 @@
 |---|---|---|---|
 | challenge | PRC Data Challenge 2026 training / ranking / submitting parquet files | (this page, below) | in use |
 | iem_metar | METAR, IEM ASOS archive (public domain) | [iem_metar.md](data_sources/iem_metar.md) | fetched 2026-10-02; kept (EXP-018) |
-| adsblol | adsb.lol globe_history, ODbL-1.0 | [adsblol.md](data_sources/adsblol.md) | complete 2026-10-05 (124 days, 388.5 GB streamed, 1.2 GB extracts); kept via M-028 (EXP-050) |
+| adsblol | adsb.lol globe_history, ODbL-1.0 | [adsblol.md](data_sources/adsblol.md) | complete 2026-10-05 (124 days, 388.5 GB streamed, 1.2 GB extracts); extended 2026-10-08 on Modal to all of 2025 + Feb/Jun 2026 (485 days, +1,136 GB streamed, 5.1 GB extracts); kept via M-028 (EXP-050) |
 | ourairports | OurAirports runways/airports (public domain) | [ourairports.md](data_sources/ourairports.md) | fetched 2026-10-02 |
 | osm_aeroway | OpenStreetMap aeroway features (ODbL), date-pinned Overpass | [osm_aeroway.md](data_sources/osm_aeroway.md) | fetched 2026-10-02; stand coordinates for ADS-B off-block (M-021) |
 | eurocontrol_apt | EUROCONTROL AIU airport datasets (custom terms: attribution, non-commercial, no modification; organizer-approved) | [eurocontrol_apt.md](data_sources/eurocontrol_apt.md) | fetched 2026-10-02; rejected as inputs (EXP-024) |
@@ -24,6 +24,9 @@ Candidates not yet used: see the CLAUDE.md §4 ledger.
 - Bucket paths: recorded per file in `data/raw/MANIFEST.csv` (`dc26:prc-2026-datasets/…`).
 
 ## Change log
+- 2026-10-08: final phase — `final_ranking.parquet` / `final_submitting.parquet` added (bucket upload 11:04 UTC;
+  manifest 16 files; `reports/checks/final_phase_files.md`); the pipeline reads them; the public-phase files stay
+  listed. adsb.lol extended by 361 days (Modal, `scripts/modal/app.py::fetch_adsblol`).
 - 2026-10-05: adsb.lol archive complete; challenge + external files copied to the private Modal volume.
 - 2026-10-02: training files moved from `data/raw/` to `data/raw/training/` (no content change; hashes in manifest).
 
