@@ -163,6 +163,12 @@ Hypotheses (each to be measured by ablation, CLAUDE.md §6):
 - (d) a participant, 24/09/2026 (item 34) uses weather (rank 3); a participant, 28/09/2026 (item 63): METAR barely moved
   results at airports without ADS-B coverage.
 - Data card: `docs/data_sources/iem_metar.md`.
+- Known limitation (checks, not experiments; `reports/checks/winter_snow_days.md`, `winter_snow_exposure.md`): on the
+  Nov–Mar 2025 hold-outs the final recipe under-predicts departures with snow/freezing in the 3 h before take-off,
+  most at LTFM (12–13 snow days in Feb 2025; rows without AOBT_3 bias ≈ −43 min, with AOBT_3 ≈ −5 min). In Feb 2025
+  these ~8k rows carry about half of the month's squared error. Jan/Feb 2026 have fewer LTFM snow departures
+  (2,542 / 1,490 vs 4,827 in Feb 2025) but more elsewhere in January (EHAM, LSZH, EDDF). A snow correction was not
+  built: the bias estimate rests on one LTFM snow episode, and the projected gain is ~1 s per scored month group.
 
 ## M-013 Neural tabular model: MLP with categorical entity embeddings
 Same design matrix as the GBM (numeric + OOF target encodings + categoricals). Numeric inputs quantile-normalised
