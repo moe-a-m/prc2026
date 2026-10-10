@@ -15,6 +15,10 @@ cd "$CLEAN"
 export PYTHONPATH="$CLEAN/src"
 python -c "import prc.paths as P; assert str(P.ROOT) == '$CLEAN', P.ROOT; print('ROOT', P.ROOT)"
 echo "commit $(git rev-parse --short HEAD), status: $(git status --porcelain | wc -l) changed files"
+# CPU features (the model name is hidden in the sandbox; SIMD width can change GBM float sums): repro-final-1 differed
+# from the final file on EHAM only, while every member refits identically elsewhere (reports/checks/refit_determinism.md)
+echo "cpu: $(nproc) threads; $(grep -m1 -oE 'avx512[a-z]*|avx2' /proc/cpuinfo | sort -u | tr '\n' ' ')"
+grep -m1 '^flags' /proc/cpuinfo | tr ' ' '\n' | grep -E '^(avx|fma|sse4)' | sort | tr '\n' ' ' || true; echo
 # data/raw and data/external exist in the clone (their MANIFEST.csv are committed): link the data folders inside them
 for d in /vol/raw/*/; do ln -s "${d%/}" "data/raw/$(basename "$d")"; done
 for d in /vol/external/*/; do ln -s "${d%/}" "data/external/$(basename "$d")"; done
@@ -28,3 +32,5 @@ OUT=/vol/runs/$RUN_ID/clean
 mkdir -p "$OUT"
 cp -r submissions reports logs_make.txt "$OUT"/
 [ -d logs ] && cp -r logs "$OUT"/ || true
+mkdir -p "$OUT/models"   # every member and stage, to compare with /vol/models member by member
+for e in $(seq 103 118); do cp -r "models/EXP-$e" "$OUT/models/"; done
