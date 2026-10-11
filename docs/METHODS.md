@@ -54,7 +54,8 @@ Robustness (§ M-026, M-028, M-031): hedge exposure is one-sided (≈ +12.8 boar
 lower 95% bound, `reports/checks/m026_stability.md`); the ADS-B step varies smoothly with radius and gate and its
 gap distributions transfer 2025 → 2026 (`reports/checks/m028_sensitivity.md`); the LOBT bound holds on every 2025
 row and is enforced as a data contract (`sql/90_checks/08_lobt_window.sql`). Reproducibility: clean-clone rebuilds
-of v7 (byte-identical) and v10 (344,840 / 344,841 identical, one row ±1 s), README § Reproducibility.
+of v7 (byte-identical), v10 (344,840 / 344,841 identical, one row ±1 s), v11 and the final file (byte-identical,
+`reports/checks/final_reproduction.md`; one earlier final run differed on EHAM by RMS 3.5 s), README § Reproducibility.
 
 Tried and rejected (each with its experiment row in `docs/EXPERIMENTS.md`): `MVT − AOBT_3` as the answer (EXP-009),
 MLP with entity embeddings alone or blended (EXP-019, EXP-027), residual corrector (EXP-026), same-runway queue +
