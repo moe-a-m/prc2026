@@ -2,7 +2,7 @@
 
   python -m prc.submit build <pred_rank.parquet>   -> submissions/motivated-engine_v<N>.parquet (+ .check.md)
   python -m prc.submit final <pred_rank.parquet>   -> submissions/motivated-engine_final.parquet (single final-phase
-                                                      file, name from the organizer, forum 2026-10-08 17:03)
+                                                      file, name from the organizer, 2026-10-08 17:03)
   python -m prc.submit public <pred_rank.parquet>  -> submissions/motivated-engine_v<N>.parquet on the public-phase
                                                       template (the board stays open until the deadline): the final
                                                       predictions of the 344,841 public-phase departures, as an

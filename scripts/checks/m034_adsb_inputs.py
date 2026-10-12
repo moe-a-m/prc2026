@@ -53,4 +53,4 @@ FROM d GROUP BY ALL ORDER BY airport, yr
 db.save_check(con, "m034_adsb_feature_drift", DRIFT,
               "Movement features (seen parked, first movement, taxi distance, holds) vs reception features (first ground "
               "observation, points, largest gap) on departures with an ADS-B ground segment, 2025 vs 2026 ranking. "
-              "Reception features are expected to drift with the receiver network (forum, a participant 27/09).")
+              "Reception features are expected to drift with the receiver network (forum, 27/09).")

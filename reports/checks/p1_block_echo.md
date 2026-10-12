@@ -5,7 +5,7 @@ Run at 2026-10-02T10:12:16+00:00 (UTC), duckdb 1.5.6.
 Uniform-random seconds would give pct_block_sec0 ≈ 1.67%; 5-minute marks ≈ 0.33%.
 
 ```sql
--- How often does BLOCK equal a planned time? (label-defect hypothesis, forum a participant / a participant)
+-- How often does BLOCK equal a planned time? (label-defect hypothesis raised on the forum)
 SELECT ADEP_mvt ap, count(*) n,
  round(100.0*avg((BLOCK_TIME_UTC_mvt = SCHED_TIME_UTC_mvt)::INT),2) pct_eq_sched,
  round(100.0*avg((BLOCK_TIME_UTC_mvt = LOBT_flt)::INT),2) pct_eq_lobt,

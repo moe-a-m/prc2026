@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 from prc.paths import RAW, RAW_MANIFEST, ROOT
 
-# Pre-reissue (stale) files, hashes posted on forum by a participant on 2026-09-22.
+# Pre-reissue (stale) files, hashes posted on the forum by a participant on 2026-09-22.
 STALE = {
     "25556E61C5F71020287CA130377CE079DC22D2FA7F7F1EAF4A2F22ACAFAB463D": "ranking.parquet (pre 2026-09-04 reissue)",
     "241724D8C234D2C34C96519EF1B6891646E694B142BFF2C3504E83A394EE8F73": "submitting.parquet (pre 2026-09-04 reissue)",

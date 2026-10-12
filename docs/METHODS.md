@@ -245,7 +245,7 @@ cross-fitted between the Jan and Jul hold-outs.
 - (d) a participant, 28/09/2026 (item 63) and a participant, 27/09/2026 (item 59 point 4): corrector on OOF base predictions.
 - (b) Wolpert, "Stacked generalization", *Neural Networks* 5(2), 1992; Breiman 1996 (literature review §3).
 - (e) EXP-026: worse on both months (+8.9 Jan / +5.1 Jul) — residual patterns do not transfer between Jan and Jul.
-  A 12-month OOF corrector (as described on forum) was not run (≈5 h CPU for per-airport base models).
+  A 12-month OOF corrector (as described on the forum) was not run (≈5 h CPU for per-airport base models).
 
 ## M-021 Off-block from the aircraft leaving its own stand (ADS-B + OSM stand position)
 The departure's APDF stand code is matched to an OSM `parking_position` (normalised codes; sub-stand fallback), and

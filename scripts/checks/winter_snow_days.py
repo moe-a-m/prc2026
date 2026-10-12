@@ -1,7 +1,7 @@
 """Snow / freezing days in the full-year hold-outs: how the final recipe (variant A of fullyear_summary.py = frozen
 v11 parameters, as submitted) does on departures at snow or freezing conditions, split by NM off-block status.
 
-Prompted by a participant question on forum (a participant, 10/10/2026 07:05: "February brings de-icing and snow
+Prompted by a forum question (10/10/2026 07:05: "February brings de-icing and snow
 days. For flights without an NM off-block time on those days, did anything beat the base model?"). Descriptive check
 only, no model change. Weather flags from stg_metar (M-012: wx_snow = SN|SG|PL, wx_freezing = FZ in IEM wxcodes):
 

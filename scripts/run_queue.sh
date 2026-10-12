@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sequential job queue (one job at a time on a 4-thread machine). Waits for any running model job.
+# Sequential job queue (one job at a time on a 4-thread Modal container). Waits for any running model job.
 # Never list the job that is currently running — it would be run twice.
 set -u
 cd "$(dirname "$0")/.."

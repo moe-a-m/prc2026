@@ -135,7 +135,7 @@ Takeaway: every deep, sequence or graph model that beat GBDT relied on **surface
 
 ### 2.3 Practical CPU training-time expectations (my estimate, not measured)
 
-These are back-of-envelope figures: FLOPs per sample × 2.1M rows, assuming PyTorch fp32 on 4 threads sustains about 50–150 GFLOP/s for batch-1024 matrix multiplies. **Measure on a 200k-row subsample before committing.**
+These are back-of-envelope figures: FLOPs per sample × 2.1M rows, assuming PyTorch fp32 on 4 threads (Modal) sustains about 50–150 GFLOP/s for batch-1024 matrix multiplies. **Measure on a 200k-row subsample before committing.**
 
 | Model (about 60 numeric + about 10 categorical features) | Approx. train FLOPs/sample | Est. time per epoch (2.1M rows) | Typical epochs | Est. total |
 |---|---|---|---|---|
@@ -168,7 +168,7 @@ Memory: 2.1M × 70 float32 ≈ 0.6 GB, which fits easily. Determinism: set `torc
 **2024 (take-off weight)**
 - **Winner: team_likable_jelly**, R. Alligier and D. Gianazza (ENAC). Repos: https://github.com/richardalligier/prc (GPL-3.0) and https://github.com/PRC-Data-Challenge-2024/team_likable_jelly. Read from the README:
   - **average of several LightGBM models trained with different seeds**, same data and hyperparameters;
-  - about 65 min per model on their machine;
+  - about 65 min per model on their hardware;
   - ADS-B features (spline-smoothed, altitude-sliced energy rate, OpenAP mass) plus METAR thunderstorm/fog features;
   - METARs archived because upstream changed;
   - `deterministic=True` only guaranteed identical results on the same system.

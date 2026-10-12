@@ -35,7 +35,7 @@ SELECT ap, count(*) n, count(x) n_aobt3,
 FROM d GROUP BY ROLLUP(ap) ORDER BY ap NULLS LAST""", "Naive estimate taxi = MVT − AOBT_3_flt on rows where AOBT_3 exists.")
 
 C("p1_block_echo", """
--- How often does BLOCK equal a planned time? (label-defect hypothesis, forum a participant / a participant)
+-- How often does BLOCK equal a planned time? (label-defect hypothesis raised on the forum)
 SELECT ADEP_mvt ap, count(*) n,
  round(100.0*avg((BLOCK_TIME_UTC_mvt = SCHED_TIME_UTC_mvt)::INT),2) pct_eq_sched,
  round(100.0*avg((BLOCK_TIME_UTC_mvt = LOBT_flt)::INT),2) pct_eq_lobt,

@@ -206,7 +206,7 @@ chosen in hindsight, and the gains are concentrated in a few rows. In Jul the to
    - Expected gain: about −20 s RMSE on the 2025 hold-outs; on 2026 it depends on 26 rows.
    - Validate: new EXP with the band edges fixed now, regime probabilities refit per fold. Also test on Jan/Jul
      the edges 12 h and 16 h as a sensitivity check (not tuning).
-   - Provenance: M-014 (a participant forum, calibrated hedge), RMSE → conditional mean (CLAUDE.md §3); the regimes come
+   - Provenance: M-014 (forum, calibrated hedge), RMSE → conditional mean (CLAUDE.md §3); the regimes come
      from this check.
 2. **R3: keep matched late flights near a trustworthy NM proxy.** Rule: if AOBT_3 is present, |AOBT_3 − EOBT_1|
    ≤ 1 h, AOBT_3 ≤ MVT and d_sched > 3 h, clip the prediction to MVT − AOBT_3 ± 30 min. Training-side alternative:
