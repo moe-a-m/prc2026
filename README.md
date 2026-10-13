@@ -38,7 +38,6 @@ months, with the parameters fitted on Jan + Jul. Refitting them on all months ch
 - `docs/DATA_SOURCES.md` and `docs/data_sources/`: data sources, licences and attributions.
 - `docs/DEPENDENCIES.md`: libraries and their licences.
 - `docs/OPEN_QUESTIONS.md`: open questions.
-- `docs/PAPER_OUTLINE.md`: paper outline.
 
 ## Getting the challenge data
 Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them from the
@@ -222,11 +221,11 @@ Clean-clone checks: a fresh `git clone` of the commit, run with `scripts/modal/r
 
 | date | target | commit | run | time | result |
 |---|---|---|---|---|---|
-| 2026-10-11 | final file | 2d93222 | repro-final-2 | 5.6 h | byte-identical (SHA256 2bb107fc…d7fa); every stage EXP-103–118 identical on all 670,790 rows (`reports/checks/final_reproduction.md`) |
-| 2026-10-09 | final file | 9fa2ca8 | repro-final-1 | | 48,731 EHAM rows differ (RMS 3.5 s); see below |
-| 2026-10-08 | v11 | b9a9d8b | repro-v11-1 | 5.1 h | byte-identical (SHA256 ccbece7e…5e77) |
-| 2026-10-07 | v10 | 7369983 | repro-v10-1 | 3.6 h | 344,840 of 344,841 identical; one LEMD row differs by 1 s (integer-rounding boundary) |
-| 2026-10-06 | v7 | e925575 | repro-v7-3 | 3.5 h | byte-identical (SHA256 e40eedd0…b474) |
+| 2026-10-11 | final file | 44193d4 | repro-final-2 | 5.6 h | byte-identical (SHA256 2bb107fc…d7fa); every stage EXP-103–118 identical on all 670,790 rows (`reports/checks/final_reproduction.md`) |
+| 2026-10-09 | final file | 94916b2 | repro-final-1 | | 48,731 EHAM rows differ (RMS 3.5 s); see below |
+| 2026-10-08 | v11 | 733b066 | repro-v11-1 | 5.1 h | byte-identical (SHA256 ccbece7e…5e77) |
+| 2026-10-07 | v10 | 7e6ae79 | repro-v10-1 | 3.6 h | 344,840 of 344,841 identical; one LEMD row differs by 1 s (integer-rounding boundary) |
+| 2026-10-06 | v7 | b71e91f | repro-v7-3 | 3.5 h | byte-identical (SHA256 e40eedd0…b474) |
 
 repro-final-1: its input tables (`scripts/checks/db_determinism.py`; output not saved to the repository, summarized in
 `reports/checks/refit_determinism.md`), a refit of every member (`reports/checks/refit_determinism.md`) and the
