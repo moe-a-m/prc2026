@@ -237,10 +237,16 @@ not proven (`docs/OPEN_QUESTIONS.md`).
 Documented tolerance: identical, or up to ±1 s on isolated rows; other CPU types or thread counts may change GBM
 results in the last digits.
 
-What the checks did **not** cover: they used our archived external files, not a fresh download. A fresh
-`make fetch fetch-adsblol` gets the same bytes only while upstream files are unchanged; the checksum check stops the
-run if one changed (the METAR periods are in the past but IEM may still add late reports; OSM is pinned to a date; adsb.lol release files are fixed and checked
-against GitHub's SHA256 digests).
+What the clean-clone checks did **not** cover: they used our archived external files, not a fresh download.
+We tested fresh downloads separately (2026-10-13, into an empty folder):
+- METAR: all 20 files byte-identical to the manifest.
+- OurAirports: the download is pinned to the upstream git commit holding the archived bytes; both files identical.
+- OSM: every response differs in its header timestamp, so the script compares the `elements` (all the pipeline reads)
+  with hashes of the archived responses; all 10 airports matched.
+- adsb.lol: release files are fixed and checked against GitHub's SHA256 digests.
+
+A fetch stops when a re-downloaded file differs from the committed manifest, instead of replacing it. To continue
+with changed upstream data anyway, set `PRC_ACCEPT_UPSTREAM_CHANGES=1`. Results may then differ from ours.
 
 ## Attributions
 Challenge data: EUROCONTROL PRC / OpenSky Network (movements from APDF, `_flt` columns from EUROCONTROL NM).

@@ -17,11 +17,11 @@
   published under ODbL (not GPL). The GPL code that builds them satisfies 4.6(b). Internal use is not public use.
 
 ## Challenge eligibility
-- organizer, 17/09/2026 (forum, item 3): "if their license applies as open data, ok"; 19/09/2026 (item 18):
+- organizer, forum 17/09/2026: "if their license applies as open data, ok"; organizer, forum 19/09/2026:
   "if you can find open trajectory data with good ground coverage and extract off-block times, we are ok".
 
 ## Coverage
-- requested: all days of Jan + Jul 2025 and Jan + Jul 2026 (124 days), no margin days (a departure pushing back before
+- requested first: all days of Jan + Jul 2025 and Jan + Jul 2026 (124 days; the `janjul` set), no margin days (a departure pushing back before
   00:00 UTC on the 1st is only partially covered — documented limitation)
 - measured per airport-month (all 124 days, 31 per month): `reports/checks/p4_adsblol_coverage.md`, run 2026-10-05.
   Share of departures with a ground (taxi) segment, Jan-25 / Jul-25 / Jan-26 / Jul-26:
@@ -46,15 +46,51 @@
   Share of departures seen stationary at their own OSM stand (M-028 "still" source), Feb-25 / Feb-26 / Jun-25 / Jun-26:
   EDDF 8.5 / 0.4 / 7.3 / 2.5, EDDM 35.5 / 39.5 / 20.5 / 26.5, EGLL 4.2 / 9.8 / 0.3 / 39.9, EHAM 34.1 / 42.7 / 44.9 / 44.3,
   LEBL 10.0 / 14.1 / 22.6 / 18.3, LEMD 0.0 / 11.9 / 11.3 / 10.8, LFPG 0 / 0 / 0 / 0.1, LIRF 0.0 / 4.2 / 3.5 / 0.0,
-  LSZH 25.4 / 30.9 / 20.9 / 8.2, LTFM 0 throughout. The receiver-network drift seen for Jan/Jul repeats (EGLL and
+  LSZH 25.4 / 30.9 / 20.9 / 8.2, LTFM 0 throughout. The 2026 scored months, from the same report (ground % /
+  seen stationary at own OSM stand %, Feb-26 / Jun-26):
+
+  | airport | ground % Feb-26 / Jun-26 | stationary at own stand % Feb-26 / Jun-26 |
+  |---|---|---|
+  | EDDF | 11.6 / 62.6 | 0.4 / 2.5 |
+  | EDDM | 97.2 / 88.2 | 39.5 / 26.5 |
+  | EGLL | 57.7 / 89.1 | 9.8 / 39.9 |
+  | EHAM | 96.9 / 88.7 | 42.7 / 44.3 |
+  | LEBL | 91.4 / 83.1 | 14.1 / 18.3 |
+  | LEMD | 96.5 / 64.1 | 11.9 / 10.8 |
+  | LFPG | 4.1 / 12.5 | 0 / 0.1 |
+  | LIRF | 56.8 / 0 | 4.2 / 0 |
+  | LSZH | 89.1 / 80.2 | 30.9 / 8.2 |
+  | LTFM | 0 / 0 | 0 / 0 |
+
+  The receiver-network drift seen for Jan/Jul repeats (EGLL and
   LEMD much better covered in 2026, LIRF none in Jun-26, EDDF ground segments for only 12 % of Feb-26 departures);
   M-028 acts only where the aircraft is seen, so the drift changes how many rows it touches, not how it acts.
 
   Strong 2025→2026 drift at EDDM, EGLL, LEMD, LIRF → the tracks are used only through the agreement-gated M-028 step
   (it acts only where the aircraft is seen; elsewhere predictions are unchanged), never as raw model inputs.
 
+## Commands (reproduce)
+- `make fetch-adsblol ADSB_DAYS=<set>` runs `scripts/fetch/adsblol.py download <set>` and `scripts/fetch/adsblol.py
+  extract` in parallel (download is network-bound, extract CPU-bound); days already extracted are skipped.
+
+| set | days | needed by |
+|---|---|---|
+| `final` (Make default) | Jan, Feb, Jun, Jul 2026 — 120 days, the scored days of the final phase | `make predict` |
+| `janjul` | Jan + Jul 2025 and 2026 — 124 days (default of the script when called directly) | `make validate` |
+| `all` | every 2025 day + Jan, Feb, Jun, Jul 2026 — 485 days | `make validate-fullyear` |
+
+- `make reproduce` runs `fetch-adsblol` with the default `final` set (~0.4 TB streamed, per the Makefile comment).
+  Measured GitHub throughput was 0.07–5.7 MB/s (see Retrieval), so this takes many hours.
+- **Not verified:** every verified reproduction (repro-v7-3, repro-final-2) ran on a database with all fetched days
+  (124 resp. 485). That a database built from the `final` set alone gives byte-identical ADS-B features for the 2026
+  rows has not been tested.
+- Our own Feb/Jun 2026 and rest-of-2025 fetch ran on the Modal cloud service for bandwidth
+  (`scripts/modal/app.py::fetch_adsblol`; "Modal run" IDs below are labels of those runs, logs not in the repo).
+  The local loop downloads the same release assets and checks them against the same GitHub SHA256 digests.
+
 ## Retrieval
 - script: `scripts/fetch/adsblol.py download` and `... extract` (two background processes); helper `src/prc/fetchutil.py`
+- tool versions: see `uv.lock` / `reports/env.txt`
 - 4 parallel HTTP range requests of 64 MB; measured 0.07–5.7 MB/s (typically 2–5 MB/s) → 15–40 min per day
 - retrieved 2026-10-02 … 2026-10-05: 384 parts, 388.5 GB, all SHA256 equal to the GitHub digests. Interruptions: a local
   DNS outage (2026-10-04 05:35–11:54, resumed automatically), a reboot (2026-10-04 15:42, relaunched, partial file
@@ -92,7 +128,7 @@
 
 ## Quality
 - SHA256 of every part vs GitHub digest (mismatch → file removed, run stops); unreadable trace members counted per day
-  in the extract log; coverage per airport-month and 2025-vs-2026 drift checks (a participant 27/09: receiver network changed
+  in the extract log; coverage per airport-month and 2025-vs-2026 drift checks (a participant, forum 27/09/2026: receiver network changed
   between years — features about *where* an aircraft was heard may not transfer)
 
 ## Value
@@ -101,7 +137,8 @@
   (`p4_adsblol_stand_last_vs_v4.md`), "seen parked" second source (`p4_adsblol_vs_EXP-045_holdout.md`).
 - EXP-051 (second source, seen at the stand only while moving): −1.4 / −1.3, v6 board 279.83. EXP-080 (third source,
   within 150 m): −0.44 / −0.44, v8 board 278.54. Final v11 (EXP-118) uses the three sources; the step changes 106,843
-  ranking rows. Robustness: `m028_sensitivity.md` (radius / gate scan, 2025 → 2026 gap transfer).
+  rows of the public-phase ranking set (344,841 Jan/Jul 2026 departures, submission v11) and 203,997 rows of the
+  final-phase file (670,790 Jan/Feb/Jun/Jul 2026 departures, 485 adsb.lol days; `reports/checks/postchain_reproduction.md`). Robustness: `m028_sensitivity.md` (radius / gate scan, 2025 → 2026 gap transfer).
 - EXP-119–134 (M-034, estimates as model inputs): every base model better, but the same information as the
   post-step; final −0.40 / +0.56 → not adopted. Evidence that ADS-B resolves NM/airport disagreements:
   `m034_adsb_vs_nm.md` (median error 32–45 s vs NM 1,259 s where NM is > 15 min off).

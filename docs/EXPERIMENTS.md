@@ -1,10 +1,62 @@
 # Experiments
 
-Protocol (CLAUDE.md §9): train on 2025 minus the held-out month, predict Jan-2025 and Jul-2025 separately.
-`data` = hash of raw-file identities (path + SHA256) + all `sql/**/*.sql` (12 hex; `prc.validate.data_version`).
-Until commit after c985be1 the hash covered the whole manifest file; `64a9ec802eeb` (old definition) and
-`53dfd848e02d` (new definition) denote the same inputs; full per-run detail
-(per-airport RMSE, matched/unmatched, flagged/clean, top-20 rows) in `reports/experiments/EXP-###.md`.
+Every modelling or feature experiment, kept or rejected, in the order it was run (rows are not re-sorted, so IDs
+are not strictly increasing). Methods (M-###) are described in `docs/METHODS.md`.
+
+## How to read this log
+
+**Where to start**
+- Final model = **EXP-103–118** (v11 recipe; the final-phase file `motivated-engine_final.parquet`, see
+  `docs/SUBMISSIONS.md`): ten base models EXP-103–112, then averages, blend, hedge, ADS-B step, LOBT window
+  (EXP-113–118).
+- Full-year check of that recipe (every 2025 month held out) = **EXP-135–150** (`reports/checks/fullyear_v11_recipe.md`).
+- Determinism / reproducibility checks = **EXP-151–160** (`reports/checks/refit_determinism.md`,
+  `reports/checks/final_reproduction.md`).
+
+**Protocol.** Train on 2025 minus the held-out month, predict Jan-2025 and Jul-2025 separately (they mirror the
+scored Jan/Jul 2026 months; M-001). EXP-135–150 hold out every 2025 month in turn.
+
+**Columns**
+- `ID` — experiment ID; a range (EXP-060–064) or pair (EXP-103/104) groups runs that differ only in seed or in one
+  stated setting; the order inside the range is given in the row.
+- `hypothesis` — what the run tests.
+- `data` — data version: a 12-hex hash of the raw-file identities (path + SHA256) and of all `sql/**/*.sql`
+  (`prc.validate.data_version`). Up to the commit after c985be1 the hash covered the whole manifest file;
+  `64a9ec802eeb` (old definition) and `53dfd848e02d` (new definition) denote the same inputs. `(new SQL)` = the
+  run added SQL, so the hash changed; the hash it recorded is the `data:` line of its report. `—` = no new data (average-only
+  or abandoned runs).
+- `git` — commit the run started from. `-dirty` = the working tree had uncommitted changes at that time; `+` = a later
+  state than that commit (later commits and/or uncommitted changes). The commit each run recorded itself is the
+  `git:` line of its report (pre-rewrite SHA, see "Commit SHAs" below).
+- `features / params` — inputs and settings; `config <12 hex>` is the hash of the run config in `configs/`.
+- `seed` — random seed(s); `—` for deterministic post-processing.
+- `Jan-25`, `Jul-25` — hold-out RMSE in seconds on all Jan-2025 (153,706 departures) and Jul-2025 (190,713) rows.
+  `combined` — RMSE over both months pooled; `—` where it was not computed.
+- `verdict` — kept / rejected / reference / member (= input to a later average or blend) and why. Most decisions use
+  *paired* comparisons (same rows, same seed) and two numbers: the full RMSE and the RMSE on "normal rows"
+  (= non-LIRF rows with taxi-out ≤ 3 h, written "non-LIRF y≤3h"), because a few defective LIRF rows dominate the full
+  RMSE. Differences below the seed spread (EXP-012, EXP-041) are treated as noise.
+- `variant A / B` (EXP-145–150 only): A = the frozen v11 post-step parameters, fit on Jan + Jul 2025 (as in the
+  submission); B = every post-step parameter refit leave-one-month-out on the other 11 months.
+- "a-priori variant" (EXP-036, EXP-037) = a setting chosen before seeing any result, not tuned.
+
+**Reports.** Per-run detail (per-airport RMSE, NM-matched vs unmatched, flagged vs clean, top-20 rows) is in
+`reports/experiments/EXP-###.md`. No report exists for: EXP-013 (crashed, see the note below the table), EXP-030,
+EXP-043, EXP-070–073, EXP-096/097, EXP-113/114, EXP-129/130, EXP-145/146 (seed averages computed from member
+predictions without training; their scores are in the row where given and in the "Members alone" table of the blend report that uses them),
+EXP-036 (abandoned before the Jul fold finished), EXP-057–059 (IDs not used), and EXP-151–160 (refits compared
+member-by-member in `reports/checks/refit_determinism.md`; no hold-out scoring).
+
+**Commit SHAs.** The repository history was rewritten on 2026-10-12. SHAs in this file and the other docs refer to
+the published history. SHAs inside `reports/experiments/*.md` and `reports/checks/*.md`, and in the file names under
+`reports/tests/`, that were written before 2026-10-12 refer to the pre-rewrite history; map them with
+`docs/references/sha_map_2026-10-12.txt` (one `old new` pair per line).
+
+**Modal runs.** Names such as `chain-m033` or `repro-final-2` are labels of runs on the Modal cloud service (the
+same `make` / `python -m prc…` commands in a container built from `uv.lock`; `scripts/modal/`). Their logs are not in
+the repo; their outputs are the reports cited.
+
+## Log
 
 | ID      | date       | hypothesis                                                                | data         | git     | features / params                                                                                       | seed | Jan-25 | Jul-25 | combined | verdict                                                                                                           |
 | ------- | ---------- | ------------------------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------------- | ---- | ------ | ------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -18,7 +70,7 @@ Until commit after c985be1 the hash covered the whole manifest file; `64a9ec802e
 | EXP-008 | 2026-10-02 | as EXP-004, mean                                                          | 64a9ec802eeb | e781f62 | fallback ap×rwy, ap                                                                                    | —   | 553.9  | 683.6  | 629.0    | best group baseline                                                                                               |
 | EXP-009 | 2026-10-02 | MVT − AOBT_3 ≈ target (M-004)                                           | 64a9ec802eeb | e781f62 | fallback EXP-008                                                                                        | —   | 557.4  | 715.2  | 649.6    | rejected as estimator: worse than EXP-008; AOBT_3 often NM-derived                                                |
 | EXP-010 | 2026-10-02 | MVT − AOBT_3 + ap×rwy mean residual                                     | 64a9ec802eeb | e781f62 | fallback EXP-008                                                                                        | —   | 541.6  | 702.2  | 635.5    | reference; Jan best, Jul worse than EXP-008                                                                       |
-| EXP-011 | 2026-10-02 | GBM on challenge data with all P3 families (M-004…M-011) beats baselines | 64a9ec802eeb | c985be1 | configs/gbm.yaml 9d3708f71e72; LGBM L2, lr .05, 1500 rounds, 255 leaves; 41 numeric + 13 cat + 6 OOF TE | 42   | 372.78 | 397.32 | 386.56   | kept (−249 vs EXP-010). y≤3h rows: 224.2 / 320.7. Top-2 rows = 48% of Jan sq. err. Seed spread not yet measured |
+| EXP-011 | 2026-10-02 | GBM on challenge data with all challenge-data feature families (M-004…M-011) beats baselines | 64a9ec802eeb | c985be1 | configs/gbm.yaml 9d3708f71e72; LGBM L2, lr .05, 1500 rounds, 255 leaves; 41 numeric + 13 cat + 6 OOF TE | 42   | 372.78 | 397.32 | 386.56   | kept (−249 vs EXP-010). y≤3h rows: 224.2 / 320.7. Top-2 rows = 48% of Jan sq. err. Seed spread not yet measured |
 | EXP-012 | 2026-10-02 | seed spread of EXP-011 config | 53dfd848e02d | f4cd3c4 | configs/gbm.yaml 9d3708f71e72 | 7, 99 (avg) | 369.29 | 414.73 | 395.10 | noise estimate: single seeds Jan 366.0/372.8/374.8, Jul 397.3/414.9/417.8. Non-LIRF airports stable within ~2 s; spread is LIRF tail. Decide on non-LIRF + y≤3h RMSE, ≥3 seeds for full RMSE |
 | EXP-021 | 2026-10-02 | explicit calibrated echo hedge beats the GBM's implicit hedge (M-014) | 53dfd848e02d | 96702ab | post-processing of EXP-012 hold-out preds; rule p_echo≥0.2 → only LIRF-unmatched | (EXP-012) | 364.24 | 404.42 | — | kept: paired with EXP-012 (same base preds), −5.1 Jan / −10.3 Jul; y≤3h unchanged |
 | EXP-018 | 2026-10-02 | METAR weather (M-012) improves taxi-out, esp. snow airports | 53dfd848e02d | 6109582 | EXP-011 + 23 wx features, config f47c0c73b81d | 42 | 369.58 | 397.63 | 385.36 | kept: paired vs EXP-011 (seed 42) non-LIRF y≤3h −2.0 Jan / −2.2 Jul; EDDM −8.5/−5.5, LTFM −6.3/−3.7, EGLL +4.4/+1.8. Jan-2026 snowier than training → likely larger effect on the scored set |
@@ -50,7 +102,7 @@ Until commit after c985be1 the hash covered the whole manifest file; `64a9ec802e
 | EXP-041 | 2026-10-04 | CatBoost seed spread (seeds 7, 99) | 1f034ea54ffc | 71c9b22-dirty | configs/cat_pa_wx.yaml (= EXP-028), config 0779e69edb75 | 7, 99 | 356.44 | 368.18 | 362.99 | kept as seed members: per seed Jan 358.18 / 356.65, Jul 371.27 / 368.95 (EXP-028 seed 42: Jan 357.84) → seed spread ≈ 1.5 / 2.3 |
 | EXP-043 | 2026-10-04 | 3-seed CatBoost average | — | — | (EXP-028 + 2×EXP-041)/3, no training | 42, 7, 99 | 356.30 | 366.64 | — | kept as blend member |
 | EXP-044 | 2026-10-04 | cross-fitted NNLS blend EXP-030 + EXP-043 | 1f034ea54ffc | 71c9b22-dirty | members EXP-030 (3-seed LightGBM), EXP-043 (3-seed CatBoost) | — | 347.31 | 361.12 | 355.02 | kept: vs EXP-031 −0.41 / −0.60; y≤3h 211.37 / 305.63 (EXP-031: 212.25 / 306.84); final weights 0.478 / 0.521 |
-| EXP-045 | 2026-10-04 | EXP-044 + three-regime hedge (M-026) | 1f034ea54ffc | 71c9b22-dirty | post-processing as EXP-039 | — | 339.26 | 330.23 | 334.29 | kept — v5 base candidate: vs EXP-039 (v4) −0.56 / −0.23, y≤3h −0.88 / −1.21; a priori variance reduction (seed averaging); needs final fits of CatBoost seeds 7/99 (queue F) |
+| EXP-045 | 2026-10-04 | EXP-044 + three-regime hedge (M-026) | 1f034ea54ffc | 71c9b22-dirty | post-processing as EXP-039 | — | 339.26 | 330.23 | 334.29 | kept — v5 base candidate: vs EXP-039 (v4) −0.56 / −0.23, y≤3h −0.88 / −1.21; a priori variance reduction (seed averaging); needs final fits of CatBoost seeds 7/99 (queue F, `scripts/run_queue_f.sh`) |
 | EXP-037 | 2026-10-04 | CatBoost lr 0.05 × 3000 (a-priori capacity variant) | 1f034ea54ffc | d83669b | configs/ablations/EXP-037_cat_lr005.yaml | 42 | 355.69 | 363.07 | 359.79 | alone better than EXP-028 (−2.2 / −4.6) and than the 3-seed EXP-043; gain vanishes in the blend (EXP-047) → not adopted |
 | EXP-046 | 2026-10-04 | cross-fitted NNLS blend EXP-030 + EXP-037 | 1f034ea54ffc | d83669b | members EXP-030, EXP-037 | — | 347.47 | 359.59 | — | see EXP-047 |
 | EXP-047 | 2026-10-04 | EXP-046 + three-regime hedge (M-026) | 1f034ea54ffc | d83669b | as EXP-045 with EXP-037 for EXP-043 | — | 339.37 | 329.91 | 334.17 | rejected vs EXP-045: −0.12 combined, y≤3h −0.31 (noise); would need a new ≈3.4 h final fit |

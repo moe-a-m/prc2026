@@ -1,6 +1,10 @@
 # Data card: eurocontrol_apt
 
 ## Identity
+- **Not used by the final model.** Used only by rejected experiments (EXP-024 model inputs, M-017; EXP-052 level
+  calibration, M-029). Fetched with `make fetch-optional`, not by `make fetch` / `make reproduce`; the SQL that reads
+  these files is skipped when they are absent. Upstream rewrites the 2026 files monthly, so a re-fetch today returns different
+  bytes from those archived on 2026-10-02 (see Re-fetch policy) and could not reproduce EXP-024 / EXP-052 exactly.
 - id: `eurocontrol_apt`; EUROCONTROL Aviation Intelligence Unit, airport datasets (ansperformance.eu)
 - index: https://ansperformance.eu/csv/ ; URL pattern `https://www.eurocontrol.int/performance/data/download/csv/{name}_{YYYY}.csv`
 - files used: taxi_out_additional_time (monthly), all_pre_departure_delays (daily), atfm_slot_adherence (daily);
@@ -17,19 +21,20 @@
 - attribution: "Source: EUROCONTROL Aviation Intelligence Portal, https://ansperformance.eu/"
 
 ## Challenge eligibility (organizer = EUROCONTROL PRU)
-- organizer, 17/09/2026 (forum, item 3), on these daily airport files and their non-commercial clause:
+- organizer, forum 17/09/2026, on these daily airport files and their non-commercial clause:
   "can be considered open data for the challenge".
-- organizer, 27/09/2026 (item 60), on using the published Jan/Jul 2026 monthly taxi-out figures as model input:
+- organizer, forum 27/09/2026 18:14 (answering a participant's question of 15:49), on using the published Jan/Jul 2026 monthly taxi-out figures as model input:
   "I already answered above: yes".
-- Tension: organizer, 01/10/2026: "If no open license is present it is not open". User decision 2026-10-02: use,
-  unmodified, behind a config flag (`extra_tables: [feat_dep_ec]`); recommended: one written re-confirmation.
+- Tension: organizer, 01/10/2026: "If no open license is present it is not open". Team decision 2026-10-02: use,
+  unmodified, behind a config flag (`extra_tables: [feat_dep_ec]`). Moot for the final model, which does not use it.
 
 ## Coverage
 - all 10 airports; taxi-out monthly 2025-01..2026-07; daily files 2025-01-01..2026-08-31
   (`reports/checks/p4_ec_vs_target.md`: no departure without a daily match)
 
 ## Retrieval
-- `uv run python scripts/fetch/eurocontrol_apt.py`, retrieved 2026-10-02 (timestamps in the manifest)
+- `make fetch-optional` (= `uv run --frozen python scripts/fetch/eurocontrol_apt.py`), retrieved 2026-10-02
+  (timestamps in the manifest); tool versions: see `uv.lock` / `reports/env.txt`
 
 ## Schema (verified with DuckDB read_csv)
 - taxi_out_additional_time: YEAR, MONTH_NUM, APT_ICAO, TF, VALID_FL, NO_REF, TOTAL_REF_NB_FL, TOTAL_REF_TIME_MIN,
@@ -51,4 +56,8 @@
   2025 and 2026 a 2025-trained model cannot use). Kept only as a documentation/consistency check (`p4_ec_vs_target`).
 
 ## Re-fetch policy
-- listed files are never overwritten; checksum mismatch stops the script.
+- a file already present and listed is never overwritten; a checksum mismatch stops the script.
+- in a fresh clone (file absent) the script downloads the file again and compares it with the committed manifest
+  row (`prc.fetchutil.changed_upstream`): if the bytes differ, it stops without recording them. To continue with the
+  new upstream bytes, set `PRC_ACCEPT_UPSTREAM_CHANGES=1` (results may then differ from ours). Upstream rewrites the 2026 files monthly,
+  so expect this for them; the final model does not use this source.

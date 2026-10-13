@@ -16,7 +16,7 @@
   ASOS/METAR archive, https://mesonet.agron.iastate.edu/"
 
 ## Challenge eligibility
-- organizer, 17/09/2026 and 26/09/2026 (forum, items 3, 43): open-licensed data may be used if declared.
+- organizer, forum 17/09/2026 and 26/09/2026: open-licensed data may be used if declared.
   Public domain satisfies the prize rule "openly accessible, open-licensed and documented".
 
 ## Coverage
@@ -25,7 +25,7 @@
 - measured per airport-month: `reports/checks/p4_metar_coverage.md`
 
 ## Retrieval
-- script: `scripts/fetch/iem_metar.py` (`uv run python scripts/fetch/iem_metar.py`)
+- script: `scripts/fetch/iem_metar.py`; run by `make fetch` (with OurAirports and OSM aeroway)
 - one request per station × period, 5 s between requests (service throttles to 1 request/s per IP)
 - retrieved: 2026-10-02 (timestamps per file in the manifest); requests 2.34.2, Python 3.14.7 (log `logs/fetch/iem_metar.log`)
 
@@ -51,8 +51,16 @@
   2025 vs 2026 drift `reports/checks/p4_metar_drift.md`
 
 ## Value
-- features: `wx_*` and `wx3h_*` in `feat_dep_wx`; measured in EXP-018 (see `docs/EXPERIMENTS.md`)
+- features: `wx_*` and `wx3h_*` in `feat_dep_wx`. Introduced in EXP-018 (one global LightGBM: non-LIRF y≤3h −2.0 Jan /
+  −2.2 Jul); inside per-airport models in EXP-025 (−5.1 / −4.0 vs EXP-022), whose inputs are the base of every later
+  model, including the final base learners EXP-103–112 (`configs/ablations/EXP-025_per_airport_weather.yaml` →
+  `configs/m030_lgb.yaml` / `configs/cat_pa_wx.yaml` → `configs/ablations/EXP-103_recent_lgb.yaml` / `EXP-104_recent_cat.yaml`).
+  **Used by the final model.**
 
 ## Re-fetch policy
 - the script skips files whose SHA256 matches the manifest and stops on a mismatch; it never overwrites silently.
-- Redistribution: public domain, so the raw files may be archived publicly (e.g. Zenodo) — proposal pending with the user.
+- in a fresh clone (file absent) the script downloads the file again and compares it with the committed manifest
+  row (`prc.fetchutil.changed_upstream`): if the bytes differ, it stops without recording them. To continue with the
+  new upstream bytes, set `PRC_ACCEPT_UPSTREAM_CHANGES=1` (results may then differ from ours).
+- checked 2026-10-13: a fresh fetch of all 20 files into an empty folder gave bytes identical to the manifest.
+- Redistribution: public domain, so the raw files may be archived publicly (e.g. Zenodo); not done so far.
