@@ -3,7 +3,7 @@
 Pinned versions are in `uv.lock`; this table records licence and purpose. Licences were read from
 installed package metadata (`importlib.metadata`) on 2026-10-02. All are GPLv3-compatible.
 On 2026-10-13 every package not imported by the final pipeline was removed from `pyproject.toml` and `uv.lock`
-(194 → 42 locked packages; the versions of all remaining packages are unchanged, so the reported runs still apply).
+(194 → 55 locked packages after torch and scikit-learn were kept for the tests; the versions of all remaining packages are unchanged, so the reported runs still apply).
 See "Removed" below.
 
 | Package | Version | Licence | Why |
@@ -19,16 +19,15 @@ See "Removed" below.
 | tabulate | 0.10.0 | MIT | markdown tables in `reports/checks/` (pandas `to_markdown`) |
 | orjson | 3.12.0 | MPL-2.0 AND (Apache-2.0 OR MIT) | fast JSON parsing of adsb.lol traces (8 vs 3 MB/s) |
 | pytest | 9.1.1 | MIT | tests |
+| scikit-learn | 1.9.1 | BSD-3-Clause | `HistGradientBoostingClassifier` in the rejected echo classifier (M-032, `prc.models.echo_clf`) and exploration scripts; not used by the final pipeline; kept so the test suite and rejected experiments run |
+| torch | 2.14.1+cpu | Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND MIT (all GPLv3-compatible) | neural tabular model (M-013, rejected: EXP-019 / EXP-027; `prc.models.nn` only); not used by the final pipeline; kept for its smoke test; CPU wheel from the explicit `pytorch-cpu` uv index |
 | scipy | 1.18.1 | BSD-3-Clause | NNLS blend weights (`prc.models.blend`), Wilson intervals (`scripts/checks/m026_stability.py`) |
 | requests | 2.34.2 | Apache-2.0 | external-data fetch scripts (`scripts/fetch/`, `src/prc/fetchutil.py`) |
 | minio | 7.2.20 | Apache-2.0 (package metadata) | `make download`: challenge files from the organizers' S3 bucket (`scripts/fetch/challenge.py`); also used by pyopensky |
 
-### Removed on 2026-10-13 (not used by the final pipeline)
-scikit-learn, torch, matplotlib (still installed: a dependency of catboost), traffic, geopandas, shapely, openap, pitot,
-tqdm, jupyterlab, ipywidgets, pyrefly. Rejected-experiment code that needs one of them no longer runs as-is:
-`prc.models.nn` (M-013, torch 2.14.1+cpu), `prc.models.echo_clf` (M-032, scikit-learn 1.9.1) and
-`scripts/explore/p6/q16.py`, `q30.py`, `q31.py` (scikit-learn); install that package with `uv pip install` to rerun them.
-Their NN smoke test skips when torch is absent.
+### Removed on 2026-10-13 (not used by the final pipeline or the tests)
+matplotlib (still installed: a dependency of catboost), traffic, geopandas, shapely, openap, pitot, tqdm, jupyterlab,
+ipywidgets, pyrefly.
 
 ### Optional (not in `uv.lock`, not needed for `make reproduce`)
 | Tool | Version | Licence | Why |

@@ -1,0 +1,112 @@
+......................................................                   [100%]
+==================================== PASSES ====================================
+__________________ test_validate_saves_each_fold_and_resumes ___________________
+----------------------------- Captured stdout call -----------------------------
+  loaded 400 rows (0s)
+  jan design (0s)
+  jan seed=1 rmse=49.21 (0s)
+  jul design (0s)
+  jul seed=1 rmse=50.36 (0s)
+EXP-T {'jan': 49.21, 'jul': 50.36, 'combined': 49.79}
+  loaded 400 rows (0s)
+  jan resumed from EXP-T_jan.parquet
+  jul resumed from EXP-T_jul.parquet
+EXP-T {'jan': 49.21, 'jul': 50.36, 'combined': 49.79}
+  loaded 400 rows (0s)
+  jan design (0s)
+  jan seed=1 rmse=49.21 (0s)
+  jul design (0s)
+  jul seed=1 rmse=50.36 (0s)
+EXP-T {'jan': 49.21, 'jul': 50.36, 'combined': 49.79}
+________________________ test_nn_fit_predict_end_to_end ________________________
+----------------------------- Captured stdout call -----------------------------
+    epoch 1/1 train_rmse=1429.5 (0s)
+_____________________________ test_build_and_check _____________________________
+----------------------------- Captured stdout call -----------------------------
+# motivated-engine_v999.parquet
+
+- predictions: /tmp/pytest-of-m/pytest-27/test_build_and_check0/pred.parquet
+- template: data/raw/submitting/final_submitting.parquet
+- rows: 670790
+- clipped to (0, 172800): 1 below, 0 above
+- rounded to integer seconds (template dtype)
+- mean 900.4, median 900.4, max 900
+- check: OK
+_______________________________ test_final_name ________________________________
+----------------------------- Captured stdout call -----------------------------
+# motivated-engine_final.parquet
+
+- predictions: /tmp/pytest-of-m/pytest-27/test_final_name0/pred.parquet
+- template: data/raw/submitting/final_submitting.parquet
+- rows: 670790
+- clipped to (0, 172800): 0 below, 0 above
+- rounded to integer seconds (template dtype)
+- mean 600.0, median 600.0, max 600
+- check: OK
+_________________________ test_public_template_subset __________________________
+----------------------------- Captured stdout call -----------------------------
+# motivated-engine_v997.parquet
+
+- predictions: /tmp/pytest-of-m/pytest-27/test_public_template_subset0/pred.parquet
+- template: data/raw/submitting/submitting.parquet
+- rows: 344841
+- clipped to (0, 172800): 0 below, 0 above
+- rounded to integer seconds (template dtype)
+- mean 700.0, median 700.0, max 700
+- check: OK
+=========================== short test summary info ============================
+PASSED tests/test_adsb_stack.py::test_fit_recovers_offsets_and_weights_in_unit_interval
+PASSED tests/test_adsb_stack.py::test_apply_gate_and_missing_estimate
+PASSED tests/test_adsb_stack.py::test_unknown_airport_uses_pooled_offset
+PASSED tests/test_adsb_stack.py::test_sources_have_separate_models_and_unmatched_rows_untouched
+PASSED tests/test_adsb_stack.py::test_fit_sources_one_model_per_source
+PASSED tests/test_adsb_stack.py::test_final_model_round_trips_through_report
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[01_rank_dep_count]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[02_submitting_ids]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[03_mvt_id_unique]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[04_target_identity]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[05_rank_dep_blank]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[06_dep_airport]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[07_metar_unique]
+PASSED tests/test_contracts.py::test_sql_check_returns_no_rows[08_lobt_window]
+PASSED tests/test_contracts.py::test_ranking_and_submitting_counts
+PASSED tests/test_contracts.py::test_no_stale_raw_files
+PASSED tests/test_fetch_challenge.py::test_read_env_parses_and_environment_wins
+PASSED tests/test_fetch_challenge.py::test_setting_names_are_case_insensitive_with_prefixes
+PASSED tests/test_fetch_challenge.py::test_bucket_objects_map_to_the_repo_layout
+PASSED tests/test_fetch_challenge.py::test_every_manifest_file_has_a_bucket_name_that_maps_back_to_it
+PASSED tests/test_fetchutil.py::test_new_file_is_recorded
+PASSED tests/test_fetchutil.py::test_same_bytes_rerecorded
+PASSED tests/test_fetchutil.py::test_changed_upstream_stops_and_keeps_manifest
+PASSED tests/test_fetchutil.py::test_changed_upstream_accepted_by_env_or_flag
+PASSED tests/test_holdouts.py::test_default_is_jan_jul
+PASSED tests/test_holdouts.py::test_all_and_list
+PASSED tests/test_holdouts.py::test_others_two_folds_is_the_other_frame
+PASSED tests/test_holdouts.py::test_others_many_folds_excludes_own_month
+PASSED tests/test_holdouts.py::test_validate_saves_each_fold_and_resumes
+PASSED tests/test_leakage.py::test_slice_not_empty
+PASSED tests/test_leakage.py::test_features_identical_without_dep_labels
+PASSED tests/test_leakage.py::test_model_config_has_no_label_columns
+PASSED tests/test_leakage.py::test_blanking_took_effect
+PASSED tests/test_leakage.py::test_adsb_sql_reads_no_departure_labels
+PASSED tests/test_level_calib.py::test_fit_gap_recovers_snow_slope_and_intercept_only
+PASSED tests/test_level_calib.py::test_deltas_shift_to_level_and_skip_long_rows
+PASSED tests/test_lobt_window.py::test_clip_floor_and_missing_lobt
+PASSED tests/test_lobt_window.py::test_projection_never_increases_error_for_feasible_targets
+PASSED tests/test_offset.py::test_offset_extrapolates_and_is_added_back
+PASSED tests/test_offset.py::test_no_offset_is_zero
+PASSED tests/test_offset.py::test_split_unmatched_groups
+PASSED tests/test_reproduce_smoke.py::test_slice_has_train_and_rank
+PASSED tests/test_reproduce_smoke.py::test_fit_predict_end_to_end
+PASSED tests/test_reproduce_smoke.py::test_nn_fit_predict_end_to_end
+PASSED tests/test_reproduce_smoke.py::test_config_inheritance_no_duplicates
+PASSED tests/test_sql_determinism.py::test_row_number_orders_end_with_a_unique_key
+PASSED tests/test_sql_determinism.py::test_cumulative_event_counts_include_ties
+PASSED tests/test_sql_determinism.py::test_runway_sequence_window_has_tie_breaker
+PASSED tests/test_sql_determinism.py::test_count_window_includes_ties
+PASSED tests/test_submit.py::test_build_and_check
+PASSED tests/test_submit.py::test_check_detects_missing_rows
+PASSED tests/test_submit.py::test_final_name
+PASSED tests/test_submit.py::test_public_template_subset
+PASSED tests/test_target_encode.py::test_leave_one_month_out_and_holdout
+54 passed in 25.75s
