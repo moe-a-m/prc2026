@@ -37,7 +37,6 @@ months, with the parameters fitted on Jan + Jul. Refitting them on all months ch
 - `docs/SUBMISSIONS.md`: every submission and its board score.
 - `docs/DATA_SOURCES.md` and `docs/data_sources/`: data sources, licences and attributions.
 - `docs/DEPENDENCIES.md`: libraries and their licences.
-- `docs/OPEN_QUESTIONS.md`: open questions.
 
 ## Getting the challenge data
 Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them from the
@@ -61,8 +60,7 @@ data/raw/submitting/final_submitting.parquet      (670,790 departures)
 ```
 
 The pipeline predicts the **final-phase** set (`src/prc/paths.py`, `sql/00_ingest/`): one final submission
-`submissions/motivated-engine_final.parquet` (organizer e-mail and forum rulings of 2026-10-08,
-`docs/OPEN_QUESTIONS.md`). The public-phase files stay in the manifest for the record.
+`submissions/motivated-engine_final.parquet` (organizer e-mail and forum rulings of 2026-10-08). The public-phase files stay in the manifest for the record.
 
 Each file is downloaded to a temporary name and checked against the committed `data/raw/MANIFEST.csv` (bytes + SHA256)
 before it is moved into place; files already present and verified are skipped. A changed or stale (pre-reissue) upstream
@@ -221,17 +219,17 @@ Clean-clone checks: a fresh `git clone` of the commit, run with `scripts/modal/r
 
 | date | target | commit | run | time | result |
 |---|---|---|---|---|---|
-| 2026-10-11 | final file | 44193d4 | repro-final-2 | 5.6 h | byte-identical (SHA256 2bb107fc…d7fa); every stage EXP-103–118 identical on all 670,790 rows (`reports/checks/final_reproduction.md`) |
-| 2026-10-09 | final file | 94916b2 | repro-final-1 | | 48,731 EHAM rows differ (RMS 3.5 s); see below |
-| 2026-10-08 | v11 | 733b066 | repro-v11-1 | 5.1 h | byte-identical (SHA256 ccbece7e…5e77) |
-| 2026-10-07 | v10 | 7e6ae79 | repro-v10-1 | 3.6 h | 344,840 of 344,841 identical; one LEMD row differs by 1 s (integer-rounding boundary) |
-| 2026-10-06 | v7 | b71e91f | repro-v7-3 | 3.5 h | byte-identical (SHA256 e40eedd0…b474) |
+| 2026-10-11 | final file | adae091 | repro-final-2 | 5.6 h | byte-identical (SHA256 2bb107fc…d7fa); every stage EXP-103–118 identical on all 670,790 rows (`reports/checks/final_reproduction.md`) |
+| 2026-10-09 | final file | 03fbd52 | repro-final-1 | | 48,731 EHAM rows differ (RMS 3.5 s); see below |
+| 2026-10-08 | v11 | df862d5 | repro-v11-1 | 5.1 h | byte-identical (SHA256 ccbece7e…5e77) |
+| 2026-10-07 | v10 | 5c6d20b | repro-v10-1 | 3.6 h | 344,840 of 344,841 identical; one LEMD row differs by 1 s (integer-rounding boundary) |
+| 2026-10-06 | v7 | 61a7290 | repro-v7-3 | 3.5 h | byte-identical (SHA256 e40eedd0…b474) |
 
 repro-final-1: its input tables (`scripts/checks/db_determinism.py`; output not saved to the repository, summarized in
 `reports/checks/refit_determinism.md`), a refit of every member (`reports/checks/refit_determinism.md`) and the
 post-steps (`reports/checks/postchain_reproduction.md`) all reproduce exactly, so the difference arose in that run's
 own base-model fits. We attribute it to the container's CPU, but that run did not record its CPU flags, so the cause is
-not proven (`docs/OPEN_QUESTIONS.md`).
+not proven.
 
 Documented tolerance: identical, or up to ±1 s on isolated rows; other CPU types or thread counts may change GBM
 results in the last digits.

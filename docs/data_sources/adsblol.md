@@ -94,7 +94,7 @@
 - 4 parallel HTTP range requests of 64 MB; measured 0.07–5.7 MB/s (typically 2–5 MB/s) → 15–40 min per day
 - retrieved 2026-10-02 … 2026-10-05: 384 parts, 388.5 GB, all SHA256 equal to the GitHub digests. Interruptions: a local
   DNS outage (2026-10-04 05:35–11:54, resumed automatically), a reboot (2026-10-04 15:42, relaunched, partial file
-  resumed) and a GitHub API timeout that stopped the process (fixed in 9d9c80c: the API lookup now retries)
+  resumed) and a GitHub API timeout that stopped the process (fixed in 771dfcb: the API lookup now retries)
 - **2026-10-08, 361 added days on Modal** (`modal run --detach scripts/modal/app.py::fetch_adsblol --run-id adsb-more-1`):
   one container per day (1 CPU, 4 GiB, ≤ 20 at a time) runs the same `adsblol.py` functions — download to the
   container disk with 8 range requests, SHA256 vs GitHub digest, extraction, raw parts deleted. ~5 min per day;

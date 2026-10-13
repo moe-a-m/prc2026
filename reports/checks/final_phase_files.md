@@ -52,5 +52,5 @@ Anti-joins with the final ranking DEP IDs: 0 template IDs missing from the ranki
 Reading: the final file carries a fresh draw of the organizers' timestamp perturbation (±12 s) on MVT and ARR block
 times; training and the earlier ranking file show the same kind of perturbation, so it is not a new train/serve
 difference. Predictions for the Jan/Jul rows will differ slightly from v11's public-phase predictions because the
-inputs moved by a few seconds. The scored truth for departures (original or perturbed take-off) is not stated — asked
-in docs/OPEN_QUESTIONS.md.
+inputs moved by a few seconds. The scored truth for departures (original or perturbed take-off) is not stated — logged
+as an open question.

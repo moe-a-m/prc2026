@@ -273,7 +273,7 @@ All of the following were downloaded:
 - Notable exceptions: EDDM Jan 2025 11.76 vs 14.50, and LFPG Jan 2025 15.58 vs 17.89, which are likely label defects or de-icing scope.
 - 2026 levels a 2025-trained model cannot know: **EHAM Jan 2026 is 16.37 min vs 13.39 in Jan 2025 (+3.0 min; additional time 7.03 vs 4.30)**, and LIRF Jul 2026 is 20.23 vs 21.40.
 
-**Fair-play note.** These are ranking-period aggregates of a closely related quantity. The organizer said yes, but log the decision in `docs/OPEN_QUESTIONS.md` and in METHODS.
+**Fair-play note.** These are ranking-period aggregates of a closely related quantity. The organizer said yes, but log the decision as an open question and in METHODS.
 
 **Feasibility.** About 25 MB, minutes to fetch, effort about 0.5 day.
 
