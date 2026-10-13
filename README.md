@@ -4,24 +4,41 @@ Open, reproducible model predicting departure taxi-out time (take-off − off-bl
 EDDF, EDDM, EGLL, EHAM, LEBL, LEMD, LFPG, LIRF, LTFM and LSZH, for the EUROCONTROL PRC Data Challenge 2026.
 Licence: GNU GPLv3 (`LICENSE`).
 
-## Approach in one paragraph
-At ranking time the take-off is known, so the task is to estimate the airport-recorded off-block. Per-airport
-LightGBM and CatBoost models (5 seeds each, cross-fitted blend) use NM time deltas, congestion and runway-sequence
-counts from both arrivals and departures, the recent departures' NM taxi-out proxy, stand occupancy, month-grouped
-target encodings, label-defect indicators and METAR weather; training labels above 3 h are winsorized except at LIRF.
-Three post-processing steps follow: a calibrated three-regime hedge for very late flights whose airport block time may
-echo the schedule; where adsb.lol surface tracks show the aircraft leaving (or near) its own stand, a gated,
-cross-fitted shrinkage toward that observed off-block; and a projection of every prediction onto take-off − LOBT
-± 3,606 s, the bound that holds for every NM-matched 2025 departure. Validation is month hold-out (Jan-2025, Jul-2025),
-mirroring the Jan/Jul-2026 ranking months; submission v11 scores 334.2 / 300.8 locally and 268.25 on the board.
-**Final phase** (Jan, Feb, Jun, Jul 2026; single submission `motivated-engine_final.parquet`): the v11 design is
-unchanged and checked on every month of 2025 held out in turn — 289.8 s on Feb/Jun-2025 and 250.1 s over all twelve
-months with the parameters fitted on Jan + Jul; refitting them on all months changes the 10 unseen months by ≤ 0.3 s
-(`reports/checks/fullyear_v11_recipe.md`).
+## Approach
+At ranking time the take-off is known, so the task is to estimate the off-block time the airport recorded. The final
+model has five stages:
 
-Documentation: methods with provenance and a stage-by-stage overview `docs/METHODS.md`; every experiment, kept and
-rejected, `docs/EXPERIMENTS.md`; submissions `docs/SUBMISSIONS.md`; data sources and licences `docs/DATA_SOURCES.md`;
-dependencies `docs/DEPENDENCIES.md`; open questions `docs/OPEN_QUESTIONS.md`; paper outline `docs/PAPER_OUTLINE.md`.
+1. **Base models:** per-airport LightGBM and per-airport CatBoost, 5 seeds each, averaged per family. Inputs:
+   - NM time deltas (take-off vs schedule, LOBT, NM off-block);
+   - congestion and runway-sequence counts from both arrivals and departures;
+   - the recent departures' NM taxi-out proxy and stand occupancy;
+   - month-grouped target encodings, label-defect indicators and METAR weather.
+
+   Training labels above 3 h are winsorized, except at LIRF.
+2. **Blend:** the two families, with weights fitted on hold-out predictions from other months (cross-fitted).
+3. **Hedge:** a calibrated three-regime correction for very late flights whose airport block time may echo the schedule.
+4. **ADS-B step:** where adsb.lol surface tracks show the aircraft leaving (or near) its own stand, a gated,
+   cross-fitted shrinkage toward that observed off-block.
+5. **LOBT window:** every prediction is projected onto take-off − LOBT ± 3,606 s, a bound that holds for every
+   NM-matched 2025 departure.
+
+**Validation** holds out whole months (Jan-2025, Jul-2025), mirroring the Jan/Jul-2026 ranking months. Submission v11
+scores 334.2 / 300.8 locally and 268.25 on the public board.
+
+**Final phase** (Jan, Feb, Jun, Jul 2026; single submission `motivated-engine_final.parquet`): the v11 design is
+unchanged. We checked it with every 2025 month held out in turn: 289.8 s on Feb/Jun-2025 and 250.1 s over all twelve
+months, with the parameters fitted on Jan + Jul. Refitting them on all months changes the 10 unseen months by
+≤ 0.3 s (`reports/checks/fullyear_v11_recipe.md`).
+
+## Documentation
+- `docs/METHODS.md`: **start here.** Glossary, a stage-by-stage overview of the final model with the code behind each
+  stage, and one entry per method (kept or rejected) with its provenance.
+- `docs/EXPERIMENTS.md`: every experiment, kept and rejected, with hold-out scores.
+- `docs/SUBMISSIONS.md`: every submission and its board score.
+- `docs/DATA_SOURCES.md` and `docs/data_sources/`: data sources, licences and attributions.
+- `docs/DEPENDENCIES.md`: libraries and their licences.
+- `docs/OPEN_QUESTIONS.md`: open questions.
+- `docs/PAPER_OUTLINE.md`: paper outline.
 
 ## Getting the challenge data
 Challenge files are not redistributed (licence not stated by the organizers). Registered teams download them from the
@@ -54,43 +71,93 @@ file, or an object that is not in the manifest, stops the run with a report — 
 `make verify-raw` re-checks every file at any time.
 
 ## External data
-All sources are fetched by scripts that store unmodified raw bytes under `data/external/<source>/raw/` and record
-path, bytes and SHA256 in `data/external/MANIFEST.csv` (committed). No account is needed for any of them.
+Every source is fetched by a script that stores unmodified raw bytes under `data/external/<source>/raw/` and records
+path, bytes and SHA256 in `data/external/MANIFEST.csv` (committed). If an upstream file no longer matches its manifest
+checksum, the script stops and reports it instead of overwriting. No account is needed for any source.
 
-| source | licence | command | size / time |
-|---|---|---|---|
-| METAR (IEM ASOS archive) | public domain | `uv run python scripts/fetch/iem_metar.py` | ~70 MB, ~15 min |
-| OurAirports runways/airports | public domain | `uv run python scripts/fetch/ourairports.py` | 17 MB |
-| OpenStreetMap aeroway (Overpass, date-pinned) | ODbL | `uv run python scripts/fetch/osm_aeroway.py` | ~1 MB |
-| EUROCONTROL AIU airport files | EUROCONTROL terms (organizer-approved; see card) | `uv run python scripts/fetch/eurocontrol_apt.py` | 45 MB |
-| adsb.lol globe_history (all 2025; Jan, Feb, Jun, Jul 2026) | ODbL | Jan+Jul: `uv run python scripts/fetch/adsblol.py download` and, in parallel, `... extract`; other days: `modal run --detach scripts/modal/app.py::fetch_adsblol` then `adsblol.py merge` (or the local loops) | ~1.5 TB streamed in all (388 GB locally over ~3.5 days; 1.1 TB on Modal in ~4 h); ~5.1 GB of airport-surface extracts kept |
+| source | licence | used by the final model | command | size / time |
+|---|---|---|---|---|
+| METAR (IEM ASOS archive) | public domain | yes: weather features | `make fetch` | ~56 MB, ~15 min |
+| OurAirports runways/airports | public domain | yes: airport boxes for the adsb.lol extraction | `make fetch` | ~16 MB |
+| OpenStreetMap aeroway (Overpass, date-pinned) | ODbL | yes: stand positions for the ADS-B step | `make fetch` | ~1 MB |
+| adsb.lol globe_history | ODbL | yes: ADS-B off-block step | `make fetch-adsblol ADSB_DAYS=final` | see below |
+| EUROCONTROL AIU airport files | EUROCONTROL terms (organizer-approved; see card) | no: rejected experiments only | `make fetch-optional` | 45 MB |
 
-Cards with licence text, coverage and lineage: `docs/data_sources/`. The DuckDB `spatial` extension is needed for the
-ADS-B features (`INSTALL spatial` once; downloaded from extensions.duckdb.org).
+**adsb.lol** is the slow part. Each day is a ~3 GB archive on GitHub, streamed at 1–2 MB/s, reduced to the points
+near the ten airports, then deleted (`scripts/fetch/adsblol.py`; download and extraction run in parallel, about
+3 days in the temporary folder at once, ~4 GB each). `ADSB_DAYS` selects the days:
 
-## Running
-Requires `uv` and Python 3.14 (`.python-version`).
+| `ADSB_DAYS` | days | needed for |
+|---|---|---|
+| `final` (default) | Jan, Feb, Jun, Jul 2026 (120) | `make predict` (the final file) |
+| `janjul` | Jan, Jul 2025 and 2026 (124) | `make validate` |
+| `all` | every 2025 day + the four 2026 months (485) | `make validate-fullyear` |
+
+At 1–2 MB/s, 120 days take about 3–4 days; the extracts kept for those days are ~1.5 GB (all 485 days: ~4.9 GB). We
+fetched Jan/Jul locally and the other days on the Modal cloud service for bandwidth
+(`scripts/modal/app.py::fetch_adsblol`, then `adsblol.py merge`); both paths download the same release files and check
+them against the SHA256 digests GitHub publishes. Our verified reproductions (below) used all 485 days; we have not
+checked that a database built from the `final` days only gives byte-identical ADS-B features for the 2026 departures
+(the features are computed per flight from that flight's own surface track, so we expect it, but it is not tested).
+
+Cards with licence text, coverage and lineage: `docs/data_sources/`, index `docs/DATA_SOURCES.md`.
+
+## Running it yourself
+Requirements: Linux or macOS, [`uv`](https://docs.astral.sh/uv/) (it installs Python 3.14 from `.python-version` and
+the exact library versions from `uv.lock`), `make`, ≈ 24 GB RAM, ≈ 60 GB free disk, internet access for the downloads.
+No GPU. Nothing in the pipeline needs an AI assistant or a cloud account; every step is a `make` target.
 
 ```
-make env          # uv sync --frozen from uv.lock, writes reports/env.txt
-make ingest       # verify-raw, then load raw parquet into data/prc.duckdb and stage
-make clean        # flags (never deletes rows)
-make fetch        # all external sources (see table above)
-make features     # feature tables (all SQL, DuckDB); ADS-B stage runs when extracts exist
-make baselines    # P2 reference baselines
-make train        # final fits on all 2025: per-airport LightGBM + per-airport CatBoost, 5 seeds each, ≈ 16 h on 4 threads
-make predict      # blend (weights: EXP-115 report) + hedge + ADS-B step (EXP-117) + LOBT window → submissions/motivated-engine_final.parquet
-make validate     # hold-out validation of the final recipe (Jan-2025, Jul-2025), ≈ 20 h
-make validate-fullyear  # the same with every 2025 month held out (EXP-135..150), ≈ 6× longer
-make test         # pytest: data contracts, leakage, parity
-make reproduce    # end-to-end
+cp .env.example .env              # team keys for the challenge bucket (see "Getting the challenge data")
+make reproduce                    # everything below, in order
 ```
+
+or step by step:
+
+```
+make env              # uv sync --frozen from uv.lock; writes reports/env.txt
+make download         # challenge files → data/raw/, checked against data/raw/MANIFEST.csv
+make fetch            # METAR, OurAirports, OSM (minutes)
+make fetch-adsblol    # adsb.lol days for the final file (ADSB_DAYS=final; days, see above)
+make ingest           # verify-raw, then load raw files into data/prc.duckdb and stage them
+make clean            # flags suspicious rows (never deletes)
+make features         # feature tables, all in SQL (DuckDB); installs DuckDB's spatial extension for the ADS-B stage
+make train            # final fits on all 2025: per-airport LightGBM + CatBoost, 5 seeds each → models/EXP-103..112
+make predict          # seed averages, blend, hedge, ADS-B step, LOBT window → submissions/motivated-engine_final.parquet
+make submit-check     # checks the file against the official template (IDs, dtypes, no nulls/negatives)
+make test             # pytest: data contracts, leakage, train/serve parity, smoke test on a small slice
+```
+
+Optional:
+
+```
+make validate             # Jan-2025 and Jul-2025 hold-out check of the same recipe (needs ADSB_DAYS=janjul)
+make validate-fullyear    # every 2025 month held out in turn (needs ADSB_DAYS=all)
+make baselines            # simple reference baselines (medians)
+make fetch-optional       # EUROCONTROL files, only for re-running the rejected experiments that used them
+```
+
+`make predict` reads the blend weights and ADS-B parameters from the committed reports
+`reports/experiments/EXP-115.md` and `EXP-117.md`, so the final file does not need `make validate` first.
+Running `make validate` rewrites those reports from your own hold-out run.
+
+**Where things are:** SQL in `sql/` (numbered stages, run by `python -m prc.pipeline`), models and post-steps in
+`src/prc/models/`, configs in `configs/` (the final configs are `configs/ablations/EXP-103_recent_lgb.yaml` and
+`EXP-104_recent_cat.yaml`; each inherits from the file named in its `base:` line), checks in `sql/90_checks/` and
+`tests/`, saved outputs in `reports/`.
+
+**About `CLAUDE.md`:** the project was developed with an AI coding assistant. `CLAUDE.md` holds the working rules it
+followed (verify every claim with a saved query, cite a source for every method, log every experiment including
+failures, keep `make reproduce` working). Code comments that cite "CLAUDE.md §N" refer to those rules. Running the
+pipeline does not involve it.
 
 ## Optional: cloud runs on Modal
-`scripts/modal/` runs the same pipeline commands in a container built from `uv.lock` (needs a Modal account and the
-`modal` client; challenge data go to a private Modal volume — never public). Every launch passes a budget guard
-(`scripts/modal/budget.py`: billed usage + worst-case cost of recent jobs must stay under a fixed cap) and has a hard
-timeout. `scripts/modal/sync.py <run_id>` copies a run's reports/logs back into the repo. Not needed to reproduce.
+We ran our experiments on Modal (`scripts/modal/`), using the same `make` targets in a container built from `uv.lock`.
+You don't need it to reproduce. It needs a Modal account and the `modal` client (we ran the client under Python 3.13;
+the container itself uses `uv.lock`). Challenge data go to a private Modal volume and are never made public. Every
+launch passes a budget guard (`scripts/modal/budget.py`) and has a hard timeout. `scripts/modal/sync.py <run_id>`
+copies a run's reports back. Names such as `repro-final-2` in the docs are labels of these runs; their logs are not in
+the repository, and the results they produced are in `reports/`.
 
 ```
 PYENV_VERSION=3.13.15 MODAL_IMAGE_BUILDER_VERSION=2025.06 modal run scripts/modal/app.py \
@@ -98,11 +165,22 @@ PYENV_VERSION=3.13.15 MODAL_IMAGE_BUILDER_VERSION=2025.06 modal run scripts/moda
 ```
 
 ## Hardware and runtime
-All models were trained on Modal containers (2 physical cores = 4 threads, 16 GiB, no GPU; `scripts/modal/`).
-The thread count (4) is fixed in the configs. Measured times (`logs/EXP-*.log`):
-- database rebuild from raw ≈ 15 min; feature build ≈ 8 min;
-- per seed, per-airport LightGBM ≈ 38 min validation (both folds) + 22 min final fit;
-- per seed, per-airport CatBoost ≈ 75–90 min validation + 43 min final fit.
+All runs used Modal containers: 2 physical cores (4 threads), no GPU. The thread count (4) is fixed in the configs.
+Times measured on the verified clean-clone run of the final file (repro-final-2, 24 GiB RAM, 5.6 h in all):
+
+| step | time |
+|---|---|
+| `make ingest clean` | ≈ 1 min |
+| `make features` without ADS-B / ADS-B stage over 485 days | ≈ 2 min / ≈ 26 min |
+| `make train`: LightGBM, per seed | 17–22 min (5 seeds ≈ 1.6 h) |
+| `make train`: CatBoost, per seed | 39–42 min (5 seeds ≈ 3.4 h) |
+| `make predict submit-check` | a few minutes |
+| `make validate` (earlier runs: LightGBM ≈ 38 min, CatBoost ≈ 75–90 min per seed) | ≈ 10 h (estimated from the per-seed times) |
+| `make validate-fullyear` | ≈ 6× `make validate` |
+
+Memory: the ADS-B stage over all 485 days ran out of memory with 15 GB and completed with 24 GiB; the final
+reproduction used 24 GiB. Disk: `data/prc.duckdb` grows to ≈ 23 GB; add the extracts and ~12 GB of temporary space
+while adsb.lol downloads.
 
 ## Expected validation scores
 Final recipe (submission v11 = EXP-118): Jan-2025 hold-out RMSE 334.2 s, Jul-2025 300.8 s; public board 268.25.
@@ -131,24 +209,38 @@ The final file uses the v11 parameters (blend weights EXP-115, ADS-B step EXP-11
 they were not fitted on. Per month: Jan 334.4, Feb 279.5, Mar 183.9, Apr 193.1, May 284.4, Jun 297.6, Jul 292.5,
 Aug 249.1, Sep 236.5, Oct 207.7, Nov 190.8, Dec 194.9.
 
-Determinism: feature SQL is order-independent (tie-inclusive counts, unique tie-breaks; `tests/test_sql_determinism.py`),
-LightGBM runs with `deterministic=true, force_row_wise=true` and 4 threads, CatBoost with a fixed `random_seed` and 4
-threads. **Verified 2026-10-06:** a clean `git clone` of commit e925575 on a fresh Modal container ran
-`make verify-raw ingest clean features train predict submit-check` from the raw files (3.5 h) and produced a submission
-byte-identical to the uploaded v7 (SHA256 e40eedd0…b474; `scripts/modal/reproduce.sh`, run repro-v7-3, log in
-`logs/modal/runs/repro-v7-3/`). **Verified 2026-10-08 for the final v11:** clean clone of commit b9a9d8b (run
-repro-v11-1, 5.1 h on one 2-core non-preemptible container) produced a submission byte-identical to the uploaded v11
-(SHA256 ccbece7e…5e77; log in `logs/modal/runs/repro-v11-1/`). **Verified 2026-10-11 for the final file:** clean clone
-of commit 2d93222 (run repro-final-2, 5.6 h on one 2-core container, AVX-512) produced
-`motivated-engine_final.parquet` byte-identical to the built final file (SHA256 2bb107fc…d7fa), and every stage
-EXP-103–118 is identical on all 670,790 rows (`reports/checks/final_reproduction.md`). An earlier clean-clone run of
-the same pipeline code (repro-final-1, commit 9fa2ca8, 2026-10-09) differed on 48,731 EHAM rows (RMS 3.5 s); its
-inputs, a refit of every member and the post-chain all reproduce exactly (`reports/checks/db_determinism.md`,
-`refit_determinism.md`, `postchain_reproduction.md`), so the difference arose in that run's own base-model fits and is
-attributed to the container; that run did not record its CPU flags, so the cause is not proven. **Earlier, 2026-10-07 for v10:** clean clone of commit 7369983 (run repro-v10-1,
-3.6 h): 344,840 of 344,841 predictions identical to the uploaded v10, one LEMD prediction differs by 1 s (a value at
-the integer-rounding boundary; RMS difference 0.0017 s). This is the documented tolerance: identical up to ±1 s on
-isolated rows. Other CPU types or thread counts may change GBM results in the last digits.
+## Reproducibility
+How results are kept deterministic:
+- Feature SQL does not depend on row order (counts include ties, ties are broken on unique keys;
+  `tests/test_sql_determinism.py`).
+- LightGBM runs with `deterministic=true, force_row_wise=true` and 4 threads; CatBoost with a fixed `random_seed` and
+  4 threads.
+- `make predict` reads its fitted parameters from committed reports, so it does not depend on a validation run.
+
+Clean-clone checks: a fresh `git clone` of the commit, run with `scripts/modal/reproduce.sh` on a new container
+(`make verify-raw ingest clean features train predict submit-check` from the raw files):
+
+| date | target | commit | run | time | result |
+|---|---|---|---|---|---|
+| 2026-10-11 | final file | 2d93222 | repro-final-2 | 5.6 h | byte-identical (SHA256 2bb107fc…d7fa); every stage EXP-103–118 identical on all 670,790 rows (`reports/checks/final_reproduction.md`) |
+| 2026-10-09 | final file | 9fa2ca8 | repro-final-1 | | 48,731 EHAM rows differ (RMS 3.5 s); see below |
+| 2026-10-08 | v11 | b9a9d8b | repro-v11-1 | 5.1 h | byte-identical (SHA256 ccbece7e…5e77) |
+| 2026-10-07 | v10 | 7369983 | repro-v10-1 | 3.6 h | 344,840 of 344,841 identical; one LEMD row differs by 1 s (integer-rounding boundary) |
+| 2026-10-06 | v7 | e925575 | repro-v7-3 | 3.5 h | byte-identical (SHA256 e40eedd0…b474) |
+
+repro-final-1: its input tables (`scripts/checks/db_determinism.py`; output not saved to the repository, summarized in
+`reports/checks/refit_determinism.md`), a refit of every member (`reports/checks/refit_determinism.md`) and the
+post-steps (`reports/checks/postchain_reproduction.md`) all reproduce exactly, so the difference arose in that run's
+own base-model fits. We attribute it to the container's CPU, but that run did not record its CPU flags, so the cause is
+not proven (`docs/OPEN_QUESTIONS.md`).
+
+Documented tolerance: identical, or up to ±1 s on isolated rows; other CPU types or thread counts may change GBM
+results in the last digits.
+
+What the checks did **not** cover: they used our archived external files, not a fresh download. A fresh
+`make fetch fetch-adsblol` gets the same bytes only while upstream files are unchanged; the checksum check stops the
+run if one changed (the METAR periods are in the past but IEM may still add late reports; OSM is pinned to a date; adsb.lol release files are fixed and checked
+against GitHub's SHA256 digests).
 
 ## Attributions
 Challenge data: EUROCONTROL PRC / OpenSky Network (movements from APDF, `_flt` columns from EUROCONTROL NM).

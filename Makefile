@@ -52,7 +52,7 @@ baselines:
 # NM taxi-out proxy (M-033, feat_dep_recent), 5 seeds each (42, 7, 99,
 # 11, 23), cross-fitted NNLS blend EXP-115, three-regime hedge EXP-116 (M-026), ADS-B stand shrinkage with three
 # sources EXP-117 (M-028; needs the adsb.lol extracts and sql/40_adsb), LOBT feasible-interval projection EXP-118 (M-031). Blend weights and ADS-B parameters are read from the committed experiment reports, so
-# `make train predict` does not need the hold-out files. ≈ 16 h CPU on 4 threads for train (≈ 2.5 h per seed on Modal).
+# `make train predict` does not need the hold-out files. train ≈ 5 h on 2 cores / 4 threads (README, Hardware and runtime).
 LGB := configs/ablations/EXP-103_recent_lgb.yaml
 CAT := configs/ablations/EXP-104_recent_cat.yaml
 
@@ -78,7 +78,7 @@ predict:        ## seed averages, blend (weights: EXP-115 report), hedge, ADS-B 
 	$(PY) -m prc.models.lobt_window final --pred models/EXP-117/pred_rank.parquet --out models/EXP-118/pred_rank.parquet
 	$(PY) -m prc.submit final models/EXP-118/pred_rank.parquet  # final phase: one file, motivated-engine_final.parquet
 
-validate:       ## hold-out validation of the final recipe (Jan/Jul 2025) ≈ 30 h CPU on 4 threads
+validate:       ## hold-out validation of the final recipe (Jan/Jul 2025), ≈ 10 h on 4 threads; needs ADSB_DAYS=janjul
 	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 42 --exp-id EXP-103
 	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 7 --exp-id EXP-105
 	$(PY) -m prc.models.gbm validate --config $(LGB) --seeds 99 --exp-id EXP-106
@@ -98,7 +98,7 @@ validate:       ## hold-out validation of the final recipe (Jan/Jul 2025) ≈ 30
 
 # Full-year check (final phase, organizer e-mail 2026-10-08): the same recipe with every 2025 month held out in turn;
 # own experiment IDs so the Jan/Jul reports that `predict` reads (EXP-115, EXP-117) are never overwritten.
-validate-fullyear:  ## 12-month hold-out check of the final recipe -> reports/checks/fullyear_v11_recipe.md, ≈ 6× validate
+validate-fullyear:  ## 12-month hold-out check of the final recipe -> reports/checks/fullyear_v11_recipe.md, ≈ 6× validate; ADSB_DAYS=all
 	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 42 --exp-id EXP-135
 	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 7 --exp-id EXP-136
 	PRC_HOLDOUTS=all PRC_RESUME=1 $(PY) -m prc.models.gbm validate --config $(LGB) --seeds 99 --exp-id EXP-137
@@ -123,7 +123,7 @@ fullyear-chain:     ## post-steps of the full-year check on the EXP-135..144 hol
 submit-check:
 	$(PY) -m prc.submit check
 
-test:           ## run tests and save the summary (CLAUDE.md §1.5)
+test:           ## run tests and save the summary under reports/tests/
 	@mkdir -p reports/tests
 	uv run --frozen pytest -q -rA --color=no 2>&1 | tee reports/tests/$$(date -u +%F)_$$(git rev-parse --short HEAD).txt
 
