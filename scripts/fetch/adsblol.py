@@ -102,7 +102,9 @@ def preferred(year: int) -> dict:
                          headers=F.UA, timeout=60)
         r.raise_for_status()
         p.write_bytes(r.content)
-        F.record(p, "adsblol")
+        # upstream appends new days every day, so a fresh snapshot differs from ours; the day -> release choice is
+        # still checked downstream (release parts by GitHub SHA256, extracts against the manifest)
+        F.record(p, "adsblol", allow_change=True)
     out = {}
     for line in p.read_text().split():
         urls = line.split(",")

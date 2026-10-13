@@ -18,6 +18,8 @@ from pathlib import Path
 
 import requests
 
+from prc import fetchutil as F
+
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "data" / "external" / "iem_metar" / "raw"
 MANIFEST = ROOT / "data" / "external" / "MANIFEST.csv"
@@ -73,6 +75,9 @@ def main() -> int:
                 time.sleep(30 * (attempt + 1))
             else:
                 logging.error("giving up on %s %s", st, sts)
+                return 1
+            if msg := F.changed_upstream(rel, hashlib.sha256(r.content).hexdigest()):  # fresh clone, upstream changed
+                logging.error(msg)
                 return 1
             path.write_bytes(r.content)
             rec = {"path": rel, "bytes": len(r.content), "sha256": hashlib.sha256(r.content).hexdigest(),

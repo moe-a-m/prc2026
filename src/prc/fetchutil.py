@@ -1,7 +1,8 @@
 """Shared helpers for scripts/fetch/*: external manifest, hashing, resumable parallel range downloads.
 
 Raw bytes are written unmodified; every file gets a row (path, bytes, sha256, retrieved_at, source_id) in
-data/external/MANIFEST.csv (CLAUDE.md §5). A listed file whose bytes no longer match stops the caller.
+data/external/MANIFEST.csv. A listed file whose bytes no longer match stops the caller, also when it is
+re-downloaded in a fresh clone (override: PRC_ACCEPT_UPSTREAM_CHANGES=1).
 """
 import csv
 import hashlib
@@ -35,12 +36,32 @@ def manifest_rows() -> list[dict]:
         return list(csv.DictReader(f))
 
 
-def record(path: Path, source_id: str, sha: str | None = None, size: int | None = None) -> dict:
-    """Add/replace the manifest row for `path` (relative to repo root)."""
+ACCEPT_ENV = "PRC_ACCEPT_UPSTREAM_CHANGES"  # =1: record a re-downloaded file whose bytes differ from the manifest
+
+
+def changed_upstream(rel: str, sha: str) -> str | None:
+    """Error message when `rel` is in the committed manifest with another SHA256 and changes are not accepted."""
+    import os
+    old = next((r for r in manifest_rows() if r["path"] == rel), None)
+    if old is None or old["sha256"] == sha or os.environ.get(ACCEPT_ENV) == "1":
+        return None
+    return (f"{rel}: SHA256 {sha[:12]}… differs from the manifest ({old['sha256'][:12]}…, retrieved "
+            f"{old['retrieved_at']}): the upstream file changed. Stopped without recording it. Set {ACCEPT_ENV}=1 to "
+            f"accept the new file (results may then differ from the published ones).")
+
+
+def record(path: Path, source_id: str, sha: str | None = None, size: int | None = None,
+           allow_change: bool = False) -> dict:
+    """Add/replace the manifest row for `path` (relative to repo root). A file already listed with another SHA256
+    (e.g. re-downloaded in a fresh clone after upstream changed) is deleted and stops the run, unless `allow_change`
+    or PRC_ACCEPT_UPSTREAM_CHANGES=1."""
     rel = str(Path(path).resolve().relative_to(ROOT))
     rec = {"path": rel, "bytes": size if size is not None else Path(path).stat().st_size,
            "sha256": sha or sha256_file(path), "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "source_id": source_id}
+    if not allow_change and (msg := changed_upstream(rel, rec["sha256"])):
+        Path(path).unlink()
+        raise SystemExit(msg)
     with _lock:
         rows = [r for r in manifest_rows() if r["path"] != rel] + [rec]
         with open(MANIFEST, "w", newline="") as f:

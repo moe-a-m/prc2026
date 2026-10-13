@@ -1,7 +1,9 @@
 """Fetch OurAirports airports.csv and runways.csv (public domain) — runway thresholds for airport geometry.
 
-Files are updated nightly upstream, so each retrieval is pinned by SHA256 in data/external/MANIFEST.csv;
-an existing listed file is never overwritten (delete it deliberately to refresh, CLAUDE.md §5).
+Files are updated nightly upstream. We retrieved them on 2026-10-02 from the project's site; the same bytes are in
+the upstream git repository at commit ac08c30 (2026-10-02 01:53 UTC; SHA256 of both files checked equal to the
+manifest on 2026-10-13), so the download is pinned to that commit and a fresh clone gets the identical files.
+Each file's SHA256 is in data/external/MANIFEST.csv; a listed file is never overwritten.
   uv run python scripts/fetch/ourairports.py
 """
 import sys
@@ -14,7 +16,8 @@ from prc.paths import ROOT
 
 OUT = ROOT / "data" / "external" / "ourairports" / "raw"
 FILES = ["airports.csv", "runways.csv"]
-BASE = "https://davidmegginson.github.io/ourairports-data/"
+COMMIT = "ac08c301fd36bc1b9ea2bf4acfd4fef691360b5c"  # github.com/davidmegginson/ourairports-data
+BASE = f"https://raw.githubusercontent.com/davidmegginson/ourairports-data/{COMMIT}/"
 
 
 def main() -> int:
