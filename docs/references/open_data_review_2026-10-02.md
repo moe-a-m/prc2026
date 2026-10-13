@@ -244,7 +244,7 @@ For the taxi network, use `out geom;` instead of `out tags center;`, which retur
 
 This is **not** an OSI/OKF open licence (non-commercial, no modification).
 
-**Organizer rulings** (`docs/references/forum_discussion.md`):
+**Organizer rulings** (challenge forum):
 - 2026-09-17, organizer, replying to the question about the EUROCONTROL AIU daily airport files and their non-commercial clause: *"can be considered open data for the challenge"*.
 - 2026-09-27: asked whether the published **Jan/Jul 2026 monthly taxi-out** figures may be used as model input, organizer replied *"I already answered above: yes"*.
 - 2026-10-01, a general statement: *"If no open license is present it is not open"*. This sits in tension with the disclaimer above. **Recommend getting one explicit written re-confirmation for these files**, as CLAUDE.md §4 already says.

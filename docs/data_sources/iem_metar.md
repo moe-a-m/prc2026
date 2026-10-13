@@ -16,7 +16,7 @@
   ASOS/METAR archive, https://mesonet.agron.iastate.edu/"
 
 ## Challenge eligibility
-- organizer, 17/09/2026 and 26/09/2026 (forum export items 3, 43): open-licensed data may be used if declared.
+- organizer, 17/09/2026 and 26/09/2026 (forum, items 3, 43): open-licensed data may be used if declared.
   Public domain satisfies the prize rule "openly accessible, open-licensed and documented".
 
 ## Coverage

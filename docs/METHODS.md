@@ -2,8 +2,7 @@
 
 Every modelling or cleaning method used in the pipeline, with its provenance (CLAUDE.md §1.3):
 (a) official documentation, (b) peer-reviewed paper, (c) past PRC repo, (d) dated forum statement
-(local, uncommitted export `docs/references/forum_discussion.md` of `#prc-data-competition`; cited by
-author and date, item numbers refer to that export), (e) experiment in this repo.
+(challenge forum `#prc-data-competition`, cited by role and date), (e) experiment in this repo.
 Literature citations marked *(verify)* were written from memory and must be checked against the paper before
 the JOAS write-up. Verified bibliography with URLs: `docs/references/literature_review_2026-10-02.md`.
 
@@ -354,7 +353,7 @@ hold-out predictions of the other 2025 month (cross-fit); final values on both m
 Per airport, the 2025 gap between our target mean (y ≤ 2 h) and the EC monthly mean is modelled as c + s·snow share;
 a target airport-month's level = EC + gap; normal predictions are shifted toward it with a cross-fitted shrink.
 - (a) EUROCONTROL Additional taxi-out time indicator (2023), as M-016/M-017; EC monthly figures in `feat_dep_ec`.
-- (d) a participant, 27/09/2026 15:49 (forum export item 58): may the published Jan/Jul-2026 monthly taxi-out figures be
+- (d) a participant, 27/09/2026 15:49 (forum, item 58): may the published Jan/Jul-2026 monthly taxi-out figures be
   used as a model input? organizer, 27/09/2026 18:14 (item 60): "I already answered above: yes".
 - (e) 2025 gap analysis (this session, query in the EXP-052 code): gap grows with snow at EDDF, EDDM, LFPG, LSZH, LTFM
   (corr 0.88–0.98: EC excludes de-icing there), flat at EGLL, EHAM, LEBL, LEMD, LIRF. EXP-052: no gain on the

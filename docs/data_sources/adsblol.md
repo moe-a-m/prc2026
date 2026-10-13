@@ -17,7 +17,7 @@
   published under ODbL (not GPL). The GPL code that builds them satisfies 4.6(b). Internal use is not public use.
 
 ## Challenge eligibility
-- organizer, 17/09/2026 (forum export item 3): "if their license applies as open data, ok"; 19/09/2026 (item 18):
+- organizer, 17/09/2026 (forum, item 3): "if their license applies as open data, ok"; 19/09/2026 (item 18):
   "if you can find open trajectory data with good ground coverage and extract off-block times, we are ok".
 
 ## Coverage

@@ -17,7 +17,7 @@
 - attribution: "Source: EUROCONTROL Aviation Intelligence Portal, https://ansperformance.eu/"
 
 ## Challenge eligibility (organizer = EUROCONTROL PRU)
-- organizer, 17/09/2026 (forum export item 3), on these daily airport files and their non-commercial clause:
+- organizer, 17/09/2026 (forum, item 3), on these daily airport files and their non-commercial clause:
   "can be considered open data for the challenge".
 - organizer, 27/09/2026 (item 60), on using the published Jan/Jul 2026 monthly taxi-out figures as model input:
   "I already answered above: yes".
