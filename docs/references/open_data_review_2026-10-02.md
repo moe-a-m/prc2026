@@ -2,7 +2,7 @@
 
 Prepared 2026-10-02. Everything below was measured or read today; the URLs listed are the ones actually fetched.
 Working files (raw responses, counts) are in this scratchpad directory: `gw/`, `osm/`, `ec/`, `rel_2025.tsv`, `rel_2026.tsv`, `pref_size.tsv`, `oa_runways.csv`.
-Nothing under `/home/m/opensky/2026` was modified. `data/prc.duckdb` was opened **read-only** to compare against challenge stand and runway codes.
+Nothing in the repository was modified. `data/prc.duckdb` was opened **read-only** to compare against challenge stand and runway codes.
 Total downloaded: about 170 MB.
 
 ---

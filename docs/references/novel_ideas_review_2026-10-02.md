@@ -1,7 +1,7 @@
 # Novel angles for PRC Data Challenge 2026 (taxi-out): research report
 
 Date: 2026-10-02. Scope: web research only. Nothing was installed and no file under
-/home/m/opensky/2026 was changed. Raw downloads are in `scratchpad/repos/` and `scratchpad/src/`.
+the repository was changed. Raw downloads are in `scratchpad/repos/` and `scratchpad/src/`.
 
 **Citation marks.** "VERIFIED" means I downloaded the page or PDF and read the passage quoted.
 "UNVERIFIED" means I only saw a search snippet, or the page would not load.
