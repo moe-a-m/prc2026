@@ -2,10 +2,17 @@
 
 Two loops, run as separate processes (download is network-bound, extract is CPU-bound):
 
-  uv run python scripts/fetch/adsblol.py download   # parts -> data/external/adsblol/raw_tmp/<tag>/ (≤ BUFFER days)
-  uv run python scripts/fetch/adsblol.py extract    # -> data/external/adsblol/extract/<YYYY-MM-DD>.parquet
+  uv run python scripts/fetch/adsblol.py download [SET]  # parts -> data/external/adsblol/raw_tmp/<tag>/ (≤ BUFFER days)
+  uv run python scripts/fetch/adsblol.py extract         # -> data/external/adsblol/extract/<YYYY-MM-DD>.parquet
+  (`make fetch-adsblol ADSB_DAYS=<SET>` runs both)
   GITHUB_TOKEN=$(gh auth token) uv run python scripts/fetch/adsblol.py assets   # asset lists for days_more()
-  (days_more() — Feb/Jun 2026 + the rest of 2025 — are fetched on Modal: scripts/modal/app.py::fetch_adsblol)
+
+SET (which days to download; days already extracted are skipped):
+  janjul  Jan + Jul of 2025 and 2026 (default; the public phase and the Jan/Jul 2025 hold-outs, `make validate`)
+  final   Jan, Feb, Jun, Jul 2026: the scored days of the final phase (`make predict` needs these)
+  all     every 2025 day + Jan, Feb, Jun, Jul 2026 (also `make validate-fullyear`)
+We fetched the days_more() set on Modal (scripts/modal/app.py::fetch_adsblol) for bandwidth; the local loops fetch the
+same release assets, checked against the same GitHub SHA256 digests.
 
 Which release per day: the upstream PREFERRED_RELEASES.txt (largest release per day), snapshotted and checksummed.
 Every raw part is verified against the SHA256 digest GitHub publishes for the release asset, recorded in
@@ -72,6 +79,13 @@ def days_more():
     return out + [d for m in (2, 3, 4, 5, 6, 8, 9, 10, 11, 12) for d in month(2025, m)]
 
 
+DAY_SETS = {
+    "janjul": lambda: days(),
+    "final": lambda: [d for d in days() + days_more() if d.year == 2026],
+    "all": lambda: days() + days_more(),
+}
+
+
 def log_setup(name):
     LOGDIR.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s",
@@ -124,8 +138,13 @@ def assets(year: int, tag: str) -> dict:
 
 def cmd_download():
     log = log_setup("download")
+    sel = sys.argv[2] if len(sys.argv) > 2 else "janjul"
+    if sel not in DAY_SETS:
+        raise SystemExit(f"unknown day set {sel!r}; choose one of {sorted(DAY_SETS)}")
+    RAW.mkdir(parents=True, exist_ok=True)
+    (RAW / "DOWNLOAD_DONE").unlink(missing_ok=True)  # a marker left by an earlier run would stop `extract` early
     prefs = {y: preferred(y) for y in (2025, 2026)}
-    for day in days():
+    for day in DAY_SETS[sel]():
         tag_dir = None
         urls = prefs[day.year].get(day)
         if not urls:
@@ -162,7 +181,6 @@ def cmd_download():
                      size / 1e6 / (time.time() - t0))
         (tag_dir / "READY").write_text(str(day))
     log.info("download loop finished")
-    (RAW / "DOWNLOAD_DONE").write_text("done")
     return 0
 
 
@@ -347,5 +365,18 @@ def cmd_merge():
     return 0
 
 
+def download_then_mark():
+    """`download`, then the DOWNLOAD_DONE marker even on failure, so a parallel `extract` finishes the ready days and
+    exits instead of waiting forever (`make fetch-adsblol` runs both and returns the download's status)."""
+    try:
+        return cmd_download()
+    finally:
+        RAW.mkdir(parents=True, exist_ok=True)
+        (RAW / "DOWNLOAD_DONE").write_text("done")
+
+
 if __name__ == "__main__":
-    sys.exit({"download": cmd_download, "extract": cmd_extract, "assets": cmd_assets, "merge": cmd_merge}[sys.argv[1]]())
+    cmds = {"download": download_then_mark, "extract": cmd_extract, "assets": cmd_assets, "merge": cmd_merge}
+    if len(sys.argv) < 2 or sys.argv[1] not in cmds:
+        raise SystemExit(__doc__)
+    sys.exit(cmds[sys.argv[1]]())
