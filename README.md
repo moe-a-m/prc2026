@@ -133,19 +133,19 @@ Aug 249.1, Sep 236.5, Oct 207.7, Nov 190.8, Dec 194.9.
 
 Determinism: feature SQL is order-independent (tie-inclusive counts, unique tie-breaks; `tests/test_sql_determinism.py`),
 LightGBM runs with `deterministic=true, force_row_wise=true` and 4 threads, CatBoost with a fixed `random_seed` and 4
-threads. **Verified 2026-10-06:** a clean `git clone` of commit 96108a9 on a fresh Modal container ran
+threads. **Verified 2026-10-06:** a clean `git clone` of commit e925575 on a fresh Modal container ran
 `make verify-raw ingest clean features train predict submit-check` from the raw files (3.5 h) and produced a submission
 byte-identical to the uploaded v7 (SHA256 e40eedd0…b474; `scripts/modal/reproduce.sh`, run repro-v7-3, log in
-`logs/modal/runs/repro-v7-3/`). **Verified 2026-10-08 for the final v11:** clean clone of commit 913f635 (run
+`logs/modal/runs/repro-v7-3/`). **Verified 2026-10-08 for the final v11:** clean clone of commit b9a9d8b (run
 repro-v11-1, 5.1 h on one 2-core non-preemptible container) produced a submission byte-identical to the uploaded v11
 (SHA256 ccbece7e…5e77; log in `logs/modal/runs/repro-v11-1/`). **Verified 2026-10-11 for the final file:** clean clone
-of commit 56c5e76 (run repro-final-2, 5.6 h on one 2-core container, AVX-512) produced
+of commit 2d93222 (run repro-final-2, 5.6 h on one 2-core container, AVX-512) produced
 `motivated-engine_final.parquet` byte-identical to the built final file (SHA256 2bb107fc…d7fa), and every stage
 EXP-103–118 is identical on all 670,790 rows (`reports/checks/final_reproduction.md`). An earlier clean-clone run of
-the same pipeline code (repro-final-1, commit e8a3773, 2026-10-09) differed on 48,731 EHAM rows (RMS 3.5 s); its
+the same pipeline code (repro-final-1, commit 9fa2ca8, 2026-10-09) differed on 48,731 EHAM rows (RMS 3.5 s); its
 inputs, a refit of every member and the post-chain all reproduce exactly (`reports/checks/db_determinism.md`,
 `refit_determinism.md`, `postchain_reproduction.md`), so the difference arose in that run's own base-model fits and is
-attributed to the container; that run did not record its CPU flags, so the cause is not proven. **Earlier, 2026-10-07 for v10:** clean clone of commit 059447b (run repro-v10-1,
+attributed to the container; that run did not record its CPU flags, so the cause is not proven. **Earlier, 2026-10-07 for v10:** clean clone of commit 7369983 (run repro-v10-1,
 3.6 h): 344,840 of 344,841 predictions identical to the uploaded v10, one LEMD prediction differs by 1 s (a value at
 the integer-rounding boundary; RMS difference 0.0017 s). This is the documented tolerance: identical up to ±1 s on
 isolated rows. Other CPU types or thread counts may change GBM results in the last digits.
