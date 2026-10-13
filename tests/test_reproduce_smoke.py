@@ -20,8 +20,10 @@ def frame(con):
     c.execute(f"ATTACH '{paths.DB}' AS src (READ_ONLY)")
     c.execute(f"CREATE TABLE stg_mvt AS SELECT * FROM src.stg_mvt WHERE {SLICE}")
     c.execute("CREATE TABLE stg_metar AS SELECT * FROM src.stg_metar WHERE station IN ('EDDM', 'LIRF')")
-    for t in ['raw_ec_taxi', 'raw_ec_predep', 'raw_ec_slot']:  # small external tables, copied whole
-        c.execute(f"CREATE TABLE {t} AS SELECT * FROM src.{t}")
+    have = {t for (t,) in c.sql("SELECT table_name FROM duckdb_tables() WHERE database_name = 'src'").fetchall()}
+    for t in ['raw_ec_taxi', 'raw_ec_predep', 'raw_ec_slot']:  # small external tables, copied whole; optional source
+        if t in have:                                          # (`make fetch-optional`), absent in a fresh build
+            c.execute(f"CREATE TABLE {t} AS SELECT * FROM src.{t}")
     c.execute("DETACH src")
     for stage, prefix in [("10_stage", "02"), ("20_clean", ""), ("30_features", "")]:
         db.run_stage(c, stage, verbose=False, prefix=prefix)

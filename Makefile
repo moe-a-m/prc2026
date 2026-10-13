@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -c
 PY := uv run --frozen python
-.PHONY: env download verify-raw fetch ingest clean features train predict validate validate-fullyear fullyear-chain submit-check reproduce test baselines
+.PHONY: env download verify-raw fetch fetch-adsblol fetch-optional duckdb-ext ingest clean features train predict validate validate-fullyear fullyear-chain submit-check reproduce test baselines
 
 env:            ## rebuild the pinned environment from uv.lock
 	uv sync --frozen
@@ -14,11 +14,26 @@ download:       ## download the challenge files from the organizers' S3 bucket i
 verify-raw:     ## recompute SHA256 of challenge files against data/raw/MANIFEST.csv
 	$(PY) -m prc.manifest verify
 
-fetch:          ## external data, archived raw + checksummed (docs/DATA_SOURCES.md); adsb.lol is separate (days, optional)
+fetch:          ## external data used by the final model, archived raw + checksummed (docs/DATA_SOURCES.md); adsb.lol: fetch-adsblol
 	$(PY) scripts/fetch/iem_metar.py
 	$(PY) scripts/fetch/ourairports.py
-	$(PY) scripts/fetch/eurocontrol_apt.py
 	$(PY) scripts/fetch/osm_aeroway.py
+
+# adsb.lol surface tracks (docs/data_sources/adsblol.md): download and extract run in parallel (network vs CPU).
+# ADSB_DAYS: final = Jan, Feb, Jun, Jul 2026, needed by `make predict` (120 days, ~0.4 TB streamed, ~1-2 MB/s per day
+# from GitHub); janjul = Jan + Jul 2025 and 2026, for `make validate`; all = every 2025 day too, for validate-fullyear.
+ADSB_DAYS ?= final
+fetch-adsblol:  ## adsb.lol days (ADSB_DAYS=final|janjul|all) -> data/external/adsblol/extract/
+	rm -f data/external/adsblol/raw_tmp/DOWNLOAD_DONE
+	$(PY) scripts/fetch/adsblol.py download $(ADSB_DAYS) & dl=$$!; \
+	$(PY) scripts/fetch/adsblol.py extract; ex=$$?; wait $$dl; dl_rc=$$?; \
+	test $$ex -eq 0 -a $$dl_rc -eq 0
+
+fetch-optional: ## sources used only by rejected experiments (M-017, EXP-024, EXP-052); upstream updates them monthly
+	$(PY) scripts/fetch/eurocontrol_apt.py
+
+duckdb-ext:     ## DuckDB spatial extension for sql/40_adsb (downloaded once from extensions.duckdb.org)
+	$(PY) -c "import duckdb; duckdb.sql('INSTALL spatial')"
 
 ingest: verify-raw
 	$(PY) -m prc.pipeline 00_ingest 10_stage
@@ -26,7 +41,7 @@ ingest: verify-raw
 clean:
 	$(PY) -m prc.pipeline 20_clean
 
-features:       ## all feature SQL; sql/40_adsb runs only when adsb.lol extracts exist
+features: duckdb-ext  ## all feature SQL; sql/40_adsb runs only when adsb.lol extracts exist
 	$(PY) -m prc.pipeline 30_features 40_adsb
 
 baselines:
@@ -112,4 +127,4 @@ test:           ## run tests and save the summary (CLAUDE.md §1.5)
 	@mkdir -p reports/tests
 	uv run --frozen pytest -q -rA --color=no 2>&1 | tee reports/tests/$$(date -u +%F)_$$(git rev-parse --short HEAD).txt
 
-reproduce: env download fetch ingest clean features train predict submit-check
+reproduce: env download fetch fetch-adsblol ingest clean features train predict submit-check
