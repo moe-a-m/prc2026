@@ -61,6 +61,8 @@ def test_fit_predict_end_to_end(frame):
 
 
 def test_nn_fit_predict_end_to_end(frame):
+    # The NN (M-013) was rejected and torch is no longer a project dependency; run with `uv pip install torch`.
+    pytest.importorskip("torch")
     from prc.models import nn as tabnn
     cfg = gbm.load_config("configs/nn.yaml")
     cfg["nn"] = dict(cfg["nn"], epochs=1, hidden=[16], batch_size=256, min_count=1, threads=1)
