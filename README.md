@@ -143,11 +143,6 @@ Running `make validate` rewrites those reports from your own hold-out run.
 `EXP-104_recent_cat.yaml`; each inherits from the file named in its `base:` line), checks in `sql/90_checks/` and
 `tests/`, saved outputs in `reports/`.
 
-**About `CLAUDE.md`:** the project was developed with an AI coding assistant. `CLAUDE.md` holds the working rules it
-followed (verify every claim with a saved query, cite a source for every method, log every experiment including
-failures, keep `make reproduce` working). Code comments that cite "CLAUDE.md §N" refer to those rules. Running the
-pipeline does not involve it.
-
 ## Optional: cloud runs on Modal
 We ran our experiments on Modal (`scripts/modal/`), using the same `make` targets in a container built from `uv.lock`.
 You don't need it to reproduce. It needs a Modal account and the `modal` client (we ran the client under Python 3.13;
